@@ -4,16 +4,43 @@
 
 #[macro_use]
 extern crate nom;
+extern crate regex;
 
-use terminals::{CloseBracket, CloseParen, Comma, OpenBracket, OpenParen, OpenBrace, CloseBrace};
+use nom::IResult;
+use terminals::{
+    CloseBrace,
+    CloseBracket,
+    CloseParen,
+    Comma,
+    GreaterThan,
+    LessThan,
+    OpenBrace,
+    OpenBracket,
+    OpenParen,
+};
 
 #[macro_use]
+mod macros;
+#[macro_use]
 mod terminals;
+
+trait Parse: Sized {
+    fn parse(input: &str) -> IResult<&str, Self>;
+}
 
 pub struct Parenthesized<T> {
     pub open_paren: OpenParen,
     pub body: T,
     pub close_paren: CloseParen,
+}
+
+impl<T: Parse> Parse for Parenthesized<T> {
+    named!(parse -> Self, do_parse!(
+        weedle!(OpenParen) >>
+        body: weedle!(T) >>
+        weedle!(CloseParen) >>
+        (Parenthesized {  open_paren: OpenParen, body, close_paren: CloseParen })
+    ));
 }
 
 pub struct Bracketed<T> {
@@ -22,16 +49,43 @@ pub struct Bracketed<T> {
     pub close_bracket: CloseBracket,
 }
 
+impl<T: Parse> Parse for Bracketed<T> {
+    named!(parse -> Self, do_parse!(
+        weedle!(OpenBracket) >>
+        body: weedle!(T) >>
+        weedle!(CloseParen) >>
+        (Bracketed { open_bracket: OpenBracket, body, close_bracket: CloseBracket })
+    ));
+}
+
 pub struct Braced<T> {
     pub open_brace: OpenBrace,
     pub body: T,
     pub close_brace: CloseBrace,
 }
 
+impl<T: Parse> Parse for Braced<T> {
+    named!(parse -> Self, do_parse!(
+        weedle!(OpenBrace) >>
+        body: weedle!(T) >>
+        weedle!(CloseBrace) >>
+        (Braced { open_brace: OpenBrace, body, close_brace: CloseBrace })
+    ));
+}
+
 pub struct Generics<T> {
-    pub open_angle: terminals::LessThan,
+    pub open_angle: LessThan,
     pub body: T,
-    pub close_angle: terminals::GreaterThan
+    pub close_angle: GreaterThan,
+}
+
+impl<T: Parse> Parse for Generics<T> {
+    named!(parse -> Self, do_parse!(
+        weedle!(LessThan) >>
+        body: weedle!(T) >>
+        weedle!(GreaterThan) >>
+        (Generics { open_angle: LessThan, body, close_angle: GreaterThan })
+    ));
 }
 
 pub struct Punctuated<T, S> {
@@ -39,8 +93,23 @@ pub struct Punctuated<T, S> {
     pub separator: S,
 }
 
+impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
+    named!(parse -> Self, do_parse!(
+        list: separated_list!(weedle!(S), weedle!(T)) >>
+        ( Punctuated { list, separator: S::default() } )
+    ));
+}
+
+/// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
 pub struct Identifier {
     pub name: String
+}
+
+impl Parse for Identifier {
+    named!(parse -> Self, do_parse!(
+        name: re_match!(r"/_?[A-Za-z][0-9A-Z_a-z-]*/") >>
+        (Identifier { name: name.to_owned() })
+    ));
 }
 
 /// ExtendedAttributeNamedArgList ::
@@ -51,6 +120,14 @@ pub struct ExtendedAttributeNamedArgList {
     pub rhs_identifier: Identifier,
     pub args_signature: Parenthesized<ArgumentList>,
 }
+
+//impl Parse for ExtendedAttributeList {
+//    named!(parse -> Self, do_parse!(
+//        lhs_identifier: weedle!(Identifier) >>
+//        assign: weedle!(terminals::Assign) >>
+//        rhs_identifier
+//    ));
+//}
 
 /// ArgumentList ::
 ///     Argument Arguments
@@ -400,7 +477,7 @@ pub enum BufferRelatedType {
 ///     ,
 pub enum OtherOrComma {
     Other(Other),
-    Comma(Comma)
+    Comma(Comma),
 }
 
 /// Type ::
@@ -408,7 +485,7 @@ pub enum OtherOrComma {
 ///     UnionType Null
 pub enum Type {
     Single(Box<SingleType>),
-    UnionNull(Box<UnionNullType>)
+    UnionNull(Box<UnionNullType>),
 }
 
 pub struct UnionNullType {
@@ -420,7 +497,7 @@ pub struct UnionNullType {
 ///     any
 pub enum SingleType {
     NonAny(NonAnyType),
-    Any(terminals::Any)
+    Any(terminals::Any),
 }
 
 /// NonAnyType ::
@@ -446,17 +523,17 @@ pub enum NonAnyType {
     MayBeError(MayBeNull<terminals::Error>),
     MayBeBufferedRelated(MayBeNull<BufferRelatedType>),
     MayBeFrozenArray(MayBeNull<FrozenArrayType>),
-    MayBeRecord(MayBeNull<RecordType>)
+    MayBeRecord(MayBeNull<RecordType>),
 }
 
 pub struct SequenceType {
     sequence: terminals::Sequence,
-    generics: Generics<TypeWithExtendedAttributes>
+    generics: Generics<TypeWithExtendedAttributes>,
 }
 
 pub struct FrozenArrayType {
     frozen_array: terminals::FrozenArray,
-    generics: Generics<TypeWithExtendedAttributes>
+    generics: Generics<TypeWithExtendedAttributes>,
 }
 
 /// Null ::
@@ -464,14 +541,14 @@ pub struct FrozenArrayType {
 ///     ε
 pub struct MayBeNull<T> {
     type_: T,
-    q_mark: Option<terminals::QMark>
+    q_mark: Option<terminals::QMark>,
 }
 
 /// PromiseType ::
 ///    Promise < ReturnType >
 pub struct PromiseType {
     promise: terminals::Promise,
-    generics: Generics<ReturnType>
+    generics: Generics<ReturnType>,
 }
 
 /// ReturnType ::
@@ -479,7 +556,7 @@ pub struct PromiseType {
 ///     void
 pub enum ReturnType {
     Type(Type),
-    Void(terminals::Void)
+    Void(terminals::Void),
 }
 
 
@@ -494,7 +571,7 @@ pub enum PrimitiveType {
     UnrestrictedFloat(UnrestrictedFloatType),
     Boolean(terminals::Boolean),
     Byte(terminals::Byte),
-    Octet(terminals::Octet)
+    Octet(terminals::Octet),
 }
 
 /// UnsignedIntegerType ::
@@ -502,7 +579,7 @@ pub enum PrimitiveType {
 ///     IntegerType
 pub struct UnsignedIntegerType {
     unsigned: Option<terminals::Unsigned>,
-    type_: IntegerType
+    type_: IntegerType,
 }
 
 /// IntegerType ::
@@ -510,7 +587,7 @@ pub struct UnsignedIntegerType {
 ///     long OptionalLong
 pub enum IntegerType {
     Short(terminals::Short),
-    Long(LongType)
+    Long(LongType),
 }
 
 /// OptionalLong ::
@@ -518,7 +595,7 @@ pub enum IntegerType {
 ///     ε
 pub struct LongType {
     long: terminals::Long,
-    optional: Option<terminals::Long>
+    optional: Option<terminals::Long>,
 }
 
 /// UnrestrictedFloatType ::
@@ -526,7 +603,7 @@ pub struct LongType {
 ///     FloatType
 pub struct UnrestrictedFloatType {
     unrestricted: Option<terminals::Unrestricted>,
-    type_: FloatType
+    type_: FloatType,
 }
 
 /// FloatType ::
@@ -534,7 +611,7 @@ pub struct UnrestrictedFloatType {
 ///     double
 pub enum FloatType {
     Float(terminals::Float),
-    Double(terminals::Double)
+    Double(terminals::Double),
 }
 
 /// StringType ::
@@ -544,20 +621,20 @@ pub enum FloatType {
 pub enum StringType {
     Byte(terminals::ByteString),
     DOM(terminals::DOMString),
-    USV(terminals::USVString)
+    USV(terminals::USVString),
 }
 
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
 pub struct RecordType {
     record: terminals::Record,
-    generics: Generics<RecordTypeGenerics>
+    generics: Generics<RecordTypeGenerics>,
 }
 
 pub struct RecordTypeGenerics {
     string_type: StringType,
     comma: terminals::Comma,
-    type_: TypeWithExtendedAttributes
+    type_: TypeWithExtendedAttributes,
 }
 
 /// UnionType ::
@@ -574,12 +651,12 @@ pub struct UnionType {
 ///     UnionType Null
 pub enum UnionMemberType {
     Attributed(AttributedUnionMemberType),
-    Simple(SimpleUnionMemberType)
+    Simple(SimpleUnionMemberType),
 }
 
 pub struct AttributedUnionMemberType {
     attributes: ExtendedAttributeList,
-    type_: NonAnyType
+    type_: NonAnyType,
 }
 
 pub struct SimpleUnionMemberType {
