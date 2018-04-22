@@ -1,0 +1,6 @@
+[package]
+name = "weedle"
+version = "0.1.0"
+authors = ["Sharad Chand <sharad.d.chand@gmail.com>"]
+
+[dependencies]
