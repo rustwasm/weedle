@@ -1,0 +1,92 @@
+macro_rules! generate_tokens {
+    ($( $tok:ident ),*) => {
+        $(
+            pub struct $tok;
+        )*
+    };
+}
+
+generate_tokens![
+    OpenParen,
+    CloseParen,
+    OpenBracket,
+    CloseBracket,
+    OpenBrace,
+    CloseBrace,
+
+    Comma,
+    Minus,
+    Dot,
+    Ellipsis,
+    Colon,
+    SemiColon,
+    LessThan,
+    Assign,
+    GreaterThan,
+    QMark,
+
+    Or,
+    Optional,
+    Attribute,
+    Callback,
+    Const,
+    Deleter,
+    Dictionary,
+    Enum,
+    Getter,
+    Includes,
+    Inherit,
+    Interface,
+    Iterable,
+    Maplike,
+    Namespace,
+    Partial,
+    Required,
+    Setlike,
+    Setter,
+    Static,
+    Stringifier,
+    Typedef,
+    Unrestricted,
+
+    Symbol,
+
+    NegInfinity,
+    ByteString,
+    DOMString,
+    FrozenArray,
+    Infinity,
+    NaN,
+    USVString,
+    Any,
+    Boolean,
+    Byte,
+    Double,
+    False,
+    Float,
+    Long,
+    Null,
+    Object,
+    Octet,
+    Sequence,
+    Short,
+    True,
+    Unsigned,
+    Void,
+
+    ArrayBuffer,
+    DataView,
+    Int8Array,
+    Int16Array,
+    Int32Array,
+    Uint8Array,
+    Uint16Array,
+    Uint32Array,
+    Uint8ClampedArray,
+    Float32Array,
+    Float64Array,
+
+    Promise,
+    Error,
+    Record
+];
