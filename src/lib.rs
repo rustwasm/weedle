@@ -8,15 +8,82 @@ extern crate regex;
 
 use nom::IResult;
 use terminals::{
-    CloseBrace,
-    CloseBracket,
-    CloseParen,
-    Comma,
-    GreaterThan,
-    LessThan,
-    OpenBrace,
-    OpenBracket,
     OpenParen,
+    CloseParen,
+    OpenBracket,
+    CloseBracket,
+    OpenBrace,
+    CloseBrace,
+    Comma,
+    Minus,
+    Dot,
+    Ellipsis,
+    Colon,
+    SemiColon,
+    LessThan,
+    Assign,
+    GreaterThan,
+    QMark,
+    Or,
+    Optional,
+    Attribute,
+    Callback,
+    Const,
+    Deleter,
+    Dictionary,
+    Enum,
+    Getter,
+    Includes,
+    Inherit,
+    Interface,
+    Iterable,
+    Maplike,
+    Namespace,
+    Partial,
+    Required,
+    Setlike,
+    Setter,
+    Static,
+    Stringifier,
+    Typedef,
+    Unrestricted,
+    Symbol,
+    NegInfinity,
+    ByteString,
+    DOMString,
+    FrozenArray,
+    Infinity,
+    NaN,
+    USVString,
+    Any,
+    Boolean,
+    Byte,
+    Double,
+    False,
+    Float,
+    Long,
+    Null,
+    Object,
+    Octet,
+    Sequence,
+    Short,
+    True,
+    Unsigned,
+    Void,
+    Record,
+    ArrayBuffer,
+    DataView,
+    Int8Array,
+    Int16Array,
+    Int32Array,
+    Uint8Array,
+    Uint16Array,
+    Uint32Array,
+    Uint8ClampedArray,
+    Float32Array,
+    Float64Array,
+    Promise,
+    Error,
 };
 
 #[macro_use]
@@ -28,6 +95,20 @@ trait Parse: Sized {
     fn parse(input: &str) -> IResult<&str, Self>;
 }
 
+impl<T: Parse> Parse for Option<T> {
+    named!(parse -> Self, do_parse!(
+        parsed: opt!(weedle!(T)) >>
+        (parsed)
+    ));
+}
+
+impl<T: Parse> Parse for Box<T> {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(T) >>
+        (Box::new(inner))
+    ));
+}
+
 pub struct Parenthesized<T> {
     pub open_paren: OpenParen,
     pub body: T,
@@ -36,10 +117,10 @@ pub struct Parenthesized<T> {
 
 impl<T: Parse> Parse for Parenthesized<T> {
     named!(parse -> Self, do_parse!(
-        weedle!(OpenParen) >>
+        open_paren: weedle!(OpenParen) >>
         body: weedle!(T) >>
-        weedle!(CloseParen) >>
-        (Parenthesized {  open_paren: OpenParen, body, close_paren: CloseParen })
+        close_paren: weedle!(CloseParen) >>
+        (Parenthesized {  open_paren, body, close_paren })
     ));
 }
 
@@ -51,10 +132,10 @@ pub struct Bracketed<T> {
 
 impl<T: Parse> Parse for Bracketed<T> {
     named!(parse -> Self, do_parse!(
-        weedle!(OpenBracket) >>
+        open_bracket: weedle!(OpenBracket) >>
         body: weedle!(T) >>
-        weedle!(CloseParen) >>
-        (Bracketed { open_bracket: OpenBracket, body, close_bracket: CloseBracket })
+        close_bracket: weedle!(CloseBracket) >>
+        (Bracketed { open_bracket, body, close_bracket })
     ));
 }
 
@@ -66,10 +147,10 @@ pub struct Braced<T> {
 
 impl<T: Parse> Parse for Braced<T> {
     named!(parse -> Self, do_parse!(
-        weedle!(OpenBrace) >>
+        open_brace: weedle!(OpenBrace) >>
         body: weedle!(T) >>
-        weedle!(CloseBrace) >>
-        (Braced { open_brace: OpenBrace, body, close_brace: CloseBrace })
+        close_brace: weedle!(CloseBrace) >>
+        (Braced { open_brace, body, close_brace })
     ));
 }
 
@@ -81,10 +162,10 @@ pub struct Generics<T> {
 
 impl<T: Parse> Parse for Generics<T> {
     named!(parse -> Self, do_parse!(
-        weedle!(LessThan) >>
+        open_angle: weedle!(LessThan) >>
         body: weedle!(T) >>
-        weedle!(GreaterThan) >>
-        (Generics { open_angle: LessThan, body, close_angle: GreaterThan })
+        close_angle: weedle!(GreaterThan) >>
+        (Generics { open_angle, body, close_angle })
     ));
 }
 
@@ -96,7 +177,7 @@ pub struct Punctuated<T, S> {
 impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
     named!(parse -> Self, do_parse!(
         list: separated_list!(weedle!(S), weedle!(T)) >>
-        ( Punctuated { list, separator: S::default() } )
+        (Punctuated { list, separator: S::default() })
     ));
 }
 
@@ -107,8 +188,44 @@ pub struct Identifier {
 
 impl Parse for Identifier {
     named!(parse -> Self, do_parse!(
-        name: re_match!(r"/_?[A-Za-z][0-9A-Z_a-z-]*/") >>
+        name: re_match!(r"_?[A-Za-z][0-9A-Z_a-z-]*") >>
         (Identifier { name: name.to_owned() })
+    ));
+}
+
+/// **other** = /[^\t\n\r 0-9A-Za-z]/
+pub struct OtherLit {
+    pub value: String
+}
+
+impl Parse for OtherLit {
+    named!(parse -> Self, do_parse!(
+        value: re_match!(r"[^\t\n\r 0-9A-Za-z]") >>
+        (OtherLit { value: value.to_owned() })
+    ));
+}
+
+/// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
+impl Parse for i64 {
+    named!(parse -> Self, do_parse!(
+        value: parse_to!(re_match!(r"-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)")) >>
+        (value)
+    ));
+}
+
+/// **float** = /-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/
+impl Parse for f64 {
+    named!(parse -> Self, do_parse!(
+        value: parse_to!(re_match!(r"-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)")) >>
+        (value)
+    ));
+}
+
+/// **string** = /"[^"]*"/
+impl Parse for String {
+    named!(parse -> Self, do_parse!(
+        value: re_match!(r#""[^"]*""#) >>
+        (value.to_owned())
     ));
 }
 
@@ -116,18 +233,20 @@ impl Parse for Identifier {
 ///     **identifier** = **identifier** ( ArgumentList )
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
-    pub assign: terminals::Assign,
+    pub assign: Assign,
     pub rhs_identifier: Identifier,
     pub args_signature: Parenthesized<ArgumentList>,
 }
 
-//impl Parse for ExtendedAttributeList {
-//    named!(parse -> Self, do_parse!(
-//        lhs_identifier: weedle!(Identifier) >>
-//        assign: weedle!(terminals::Assign) >>
-//        rhs_identifier
-//    ));
-//}
+impl Parse for ExtendedAttributeNamedArgList {
+    named!(parse -> Self, do_parse!(
+        lhs_identifier: weedle!(Identifier) >>
+        assign: weedle!(Assign) >>
+        rhs_identifier: weedle!(Identifier) >>
+        args_signature: weedle!(Parenthesized<ArgumentList>) >>
+        (ExtendedAttributeNamedArgList { lhs_identifier, assign, rhs_identifier, args_signature })
+    ));
+}
 
 /// ArgumentList ::
 ///     Argument Arguments
@@ -140,11 +259,26 @@ pub struct ArgumentList {
     pub args: Punctuated<Argument, Comma>
 }
 
+impl Parse for ArgumentList {
+    named!(parse -> Self, do_parse!(
+        args: weedle!(Punctuated<Argument, Comma>) >>
+        (ArgumentList { args })
+    ));
+}
+
 /// Argument ::
 ///     ExtendedAttributeList ArgumentRest
 pub struct Argument {
     pub attributes: ExtendedAttributeList,
     pub rest: ArgumentRest,
+}
+
+impl Parse for Argument {
+    named!(parse -> Self, do_parse!(
+        attributes: weedle!(ExtendedAttributeList) >>
+        rest: weedle!(ArgumentRest) >>
+        (Argument { attributes, rest })
+    ));
 }
 
 /// ExtendedAttributeList ::
@@ -155,7 +289,14 @@ pub struct Argument {
 ///     , ExtendedAttribute ExtendedAttributes
 ///     ε
 pub struct ExtendedAttributeList {
-    pub list: Bracketed<Punctuated<ExtendedAttribute, Comma>>
+    pub list: Option<Bracketed<Punctuated<ExtendedAttribute, Comma>>>
+}
+
+impl Parse for ExtendedAttributeList {
+    named!(parse -> Self, do_parse!(
+        list: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, Comma>>>) >>
+        (ExtendedAttributeList { list })
+    ));
 }
 
 /// ExtendedAttribute ::
@@ -174,9 +315,26 @@ pub enum ExtendedAttribute {
     Other(OtherExtendedAttribute),
 }
 
+impl Parse for ExtendedAttribute {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ParenthesizedExtendedAttribute) => {|inner| ExtendedAttribute::Parenthesized(inner) } |
+        weedle!(BracketedExtendedAttribute) => {|inner| ExtendedAttribute::Bracketed(inner)} |
+        weedle!(BracedExtendedAttribute) => {|inner| ExtendedAttribute::Braced(inner)} |
+        weedle!(OtherExtendedAttribute) => {|inner| ExtendedAttribute::Other(inner)}
+    ));
+}
+
 pub struct ParenthesizedExtendedAttribute {
     pub inner: Parenthesized<ExtendedAttributeInner>,
     pub rest: Option<Box<ExtendedAttribute>>,
+}
+
+impl Parse for ParenthesizedExtendedAttribute {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Parenthesized<ExtendedAttributeInner>) >>
+        rest: weedle!(Option<ExtendedAttribute>) >>
+        (ParenthesizedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+    ));
 }
 
 pub struct BracketedExtendedAttribute {
@@ -184,14 +342,38 @@ pub struct BracketedExtendedAttribute {
     pub rest: Option<Box<ExtendedAttribute>>,
 }
 
+impl Parse for BracketedExtendedAttribute {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Bracketed<ExtendedAttributeInner>) >>
+        rest: weedle!(Option<ExtendedAttribute>) >>
+        (BracketedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+    ));
+}
+
 pub struct BracedExtendedAttribute {
     pub inner: Braced<ExtendedAttributeInner>,
     pub rest: Option<Box<ExtendedAttribute>>,
 }
 
+impl Parse for BracedExtendedAttribute {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Braced<ExtendedAttributeInner>) >>
+        rest: weedle!(Option<ExtendedAttribute>) >>
+        (BracedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+    ));
+}
+
 pub struct OtherExtendedAttribute {
     pub other: Other,
     pub rest: Option<Box<ExtendedAttribute>>,
+}
+
+impl Parse for OtherExtendedAttribute {
+    named!(parse -> Self, do_parse!(
+        other: weedle!(Other) >>
+        rest: weedle!(Option<ExtendedAttribute>) >>
+        (OtherExtendedAttribute { other, rest: rest.map(|inner| Box::new(inner)) })
+    ));
 }
 
 /// ExtendedAttributeInner ::
@@ -208,9 +390,27 @@ pub enum ExtendedAttributeInner {
     None,
 }
 
+impl Parse for ExtendedAttributeInner {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ParenthesizedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Parenthesized(inner)} |
+        weedle!(BracketedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Bracketed(inner)} |
+        weedle!(BracedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Braced(inner) }|
+        weedle!(OtherExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Other(inner)} |
+        tag!("") => {|_| ExtendedAttributeInner::None}
+    ));
+}
+
 pub struct ParenthesizedExtendedAttributeInner {
     inner: Parenthesized<Box<ExtendedAttributeInner>>,
     rest: Box<ExtendedAttributeInner>,
+}
+
+impl Parse for ParenthesizedExtendedAttributeInner {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Parenthesized<Box<ExtendedAttributeInner>>) >>
+        rest: weedle!(Box<ExtendedAttributeInner>) >>
+        (ParenthesizedExtendedAttributeInner { inner, rest })
+    ));
 }
 
 pub struct BracketedExtendedAttributeInner {
@@ -218,14 +418,38 @@ pub struct BracketedExtendedAttributeInner {
     rest: Box<ExtendedAttributeInner>,
 }
 
+impl Parse for BracketedExtendedAttributeInner {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Bracketed<Box<ExtendedAttributeInner>>) >>
+        rest: weedle!(Box<ExtendedAttributeInner>) >>
+        (BracketedExtendedAttributeInner { inner, rest })
+    ));
+}
+
 pub struct BracedExtendedAttributeInner {
     inner: Braced<Box<ExtendedAttributeInner>>,
     rest: Box<ExtendedAttributeInner>,
 }
 
+impl Parse for BracedExtendedAttributeInner {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(Braced<Box<ExtendedAttributeInner>>) >>
+        rest: weedle!(Box<ExtendedAttributeInner>) >>
+        (BracedExtendedAttributeInner { inner, rest })
+    ));
+}
+
 pub struct OtherExtendedAttributeInner {
     inner: OtherOrComma,
     rest: Box<ExtendedAttributeInner>,
+}
+
+impl Parse for OtherExtendedAttributeInner {
+    named!(parse -> Self, do_parse!(
+        inner: weedle!(OtherOrComma) >>
+        rest: weedle!(Box<ExtendedAttributeInner>) >>
+        (OtherExtendedAttributeInner { inner, rest })
+    ));
 }
 
 /// Other ::
@@ -274,42 +498,87 @@ pub enum Other {
     FloatLit(f64),
     Identifier(Identifier),
     StringLit(String),
-    Other(String),
-    Minus(terminals::Minus),
-    NegInfinity(terminals::NegInfinity),
-    Dot(terminals::Dot),
-    Ellipsis(terminals::Ellipsis),
-    Colon(terminals::Colon),
-    SemiColon(terminals::SemiColon),
-    LessThan(terminals::LessThan),
-    Assign(terminals::Assign),
-    GreaterThan(terminals::GreaterThan),
-    QMark(terminals::QMark),
-    ByteString(terminals::ByteString),
-    DOMString(terminals::DOMString),
-    FrozenString(terminals::FrozenArray),
-    Infinity(terminals::Infinity),
-    NaN(terminals::NaN),
-    USVString(terminals::USVString),
-    Any(terminals::Any),
-    Boolean(terminals::Boolean),
-    Byte(terminals::Byte),
-    Double(terminals::Double),
-    False(terminals::False),
-    Float(terminals::Float),
-    Long(terminals::Long),
-    Null(terminals::Null),
-    Object(terminals::Object),
-    Octect(terminals::Octet),
-    Or(terminals::Or),
-    Optional(terminals::Optional),
-    Sequence(terminals::Sequence),
-    Short(terminals::Short),
-    True(terminals::True),
-    Unsigned(terminals::Unsigned),
-    Void(terminals::Void),
+    OtherLit(OtherLit),
+    Minus(Minus),
+    NegInfinity(NegInfinity),
+    Dot(Dot),
+    Ellipsis(Ellipsis),
+    Colon(Colon),
+    SemiColon(SemiColon),
+    LessThan(LessThan),
+    Assign(Assign),
+    GreaterThan(GreaterThan),
+    QMark(QMark),
+    ByteString(ByteString),
+    DOMString(DOMString),
+    FrozenArray(FrozenArray),
+    Infinity(Infinity),
+    NaN(NaN),
+    USVString(USVString),
+    Any(Any),
+    Boolean(Boolean),
+    Byte(Byte),
+    Double(Double),
+    False(False),
+    Float(Float),
+    Long(Long),
+    Null(Null),
+    Object(Object),
+    Octet(Octet),
+    Or(Or),
+    Optional(Optional),
+    Sequence(Sequence),
+    Short(Short),
+    True(True),
+    Unsigned(Unsigned),
+    Void(Void),
     ArgumentNameKeyword(ArgumentNameKeyword),
     BufferRelatedType(BufferRelatedType),
+}
+
+impl Parse for Other {
+    named!(parse -> Self, alt_complete!(
+        weedle!(i64) => {|inner| Other::IntegerLit(inner)} |
+        weedle!(f64) => {|inner| Other::FloatLit(inner)} |
+        weedle!(Identifier) => {|inner| Other::Identifier(inner)} |
+        weedle!(String) => {|inner| Other::StringLit(inner)} |
+        weedle!(OtherLit) => {|inner| Other::OtherLit(inner)} |
+        weedle!(Minus) => {|inner| Other::Minus(inner)} |
+        weedle!(NegInfinity) => {|inner| Other::NegInfinity(inner)} |
+        weedle!(Dot) => {|inner| Other::Dot(inner)} |
+        weedle!(Ellipsis) => {|inner| Other::Ellipsis(inner)} |
+        weedle!(Colon) => {|inner| Other::Colon(inner)} |
+        weedle!(SemiColon) => {|inner| Other::SemiColon(inner)} |
+        weedle!(LessThan) => {|inner| Other::LessThan(inner)} |
+        weedle!(Assign) => {|inner| Other::Assign(inner)} |
+        weedle!(GreaterThan) => {|inner| Other::GreaterThan(inner)} |
+        weedle!(QMark) => {|inner| Other::QMark(inner)} |
+        weedle!(ByteString) => {|inner| Other::ByteString(inner)} |
+        weedle!(DOMString) => {|inner| Other::DOMString(inner)} |
+        weedle!(FrozenArray) => {|inner| Other::FrozenArray(inner)} |
+        weedle!(Infinity) => {|inner| Other::Infinity(inner)} |
+        weedle!(NaN) => {|inner| Other::NaN(inner)} |
+        weedle!(USVString) => {|inner| Other::USVString(inner)} |
+        weedle!(Any) => {|inner| Other::Any(inner)} |
+        weedle!(Boolean) => {|inner| Other::Boolean(inner)} |
+        weedle!(Byte) => {|inner| Other::Byte(inner)} |
+        weedle!(Double) => {|inner| Other::Double(inner)} |
+        weedle!(False) => {|inner| Other::False(inner)} |
+        weedle!(Float) => {|inner| Other::Float(inner)} |
+        weedle!(Long) => {|inner| Other::Long(inner)} |
+        weedle!(Null) => {|inner| Other::Null(inner)} |
+        weedle!(Object) => {|inner| Other::Object(inner)} |
+        weedle!(Octet) => {|inner| Other::Octet(inner)} |
+        weedle!(Or) => {|inner| Other::Or(inner)} |
+        weedle!(Optional) => {|inner| Other::Optional(inner)} |
+        weedle!(Sequence) => {|inner| Other::Sequence(inner)} |
+        weedle!(Short) => {|inner| Other::Short(inner)} |
+        weedle!(True) => {|inner| Other::True(inner)} |
+        weedle!(Unsigned) => {|inner| Other::Unsigned(inner)} |
+        weedle!(Void) => {|inner| Other::Void(inner)} |
+        weedle!(ArgumentNameKeyword) => {|inner| Other::ArgumentNameKeyword(inner)} |
+        weedle!(BufferRelatedType) => {|inner| Other::BufferRelatedType(inner)}
+    ));
 }
 
 /// ArgumentRest ::
@@ -320,17 +589,43 @@ pub enum ArgumentRest {
     Normal(NormalArgumentRest),
 }
 
+impl Parse for ArgumentRest {
+    named!(parse -> Self, alt_complete!(
+        weedle!(OptionalArgumentRest) => {|inner| ArgumentRest::Optional(inner)} |
+        weedle!(NormalArgumentRest) => {|inner| ArgumentRest::Normal(inner)}
+    ));
+}
+
 pub struct OptionalArgumentRest {
-    pub optional: terminals::Optional,
+    pub optional: Optional,
     pub type_: TypeWithExtendedAttributes,
     pub name: ArgumentName,
     pub default: Option<Default>,
 }
 
+impl Parse for OptionalArgumentRest {
+    named!(parse -> Self, do_parse!(
+        optional: weedle!(Optional) >>
+        type_: weedle!(TypeWithExtendedAttributes) >>
+        name: weedle!(ArgumentName) >>
+        default: weedle!(Option<Default>) >>
+        (OptionalArgumentRest { optional, type_, name, default })
+    ));
+}
+
 pub struct NormalArgumentRest {
     pub type_: Type,
-    pub ellipsis: Option<terminals::Ellipsis>,
+    pub ellipsis: Option<Ellipsis>,
     pub name: ArgumentName,
+}
+
+impl Parse for NormalArgumentRest {
+    named!(parse -> Self, do_parse!(
+        type_: weedle!(Type) >>
+        ellipsis: weedle!(Option<Ellipsis>) >>
+        name: weedle!(ArgumentName) >>
+        (NormalArgumentRest { type_, ellipsis, name })
+    ));
 }
 
 /// TypeWithExtendedAttributes ::
@@ -340,12 +635,27 @@ pub struct TypeWithExtendedAttributes {
     pub type_: Type,
 }
 
+impl Parse for TypeWithExtendedAttributes {
+    named!(parse -> Self, do_parse!(
+        attributes: weedle!(ExtendedAttributeList) >>
+        type_: weedle!(Type) >>
+        (TypeWithExtendedAttributes { attributes, type_ })
+    ));
+}
+
 /// ArgumentName ::
 ///     ArgumentNameKeyword
 ///     identifier
 pub enum ArgumentName {
     Keyword(ArgumentNameKeyword),
     Identifier(Identifier),
+}
+
+impl Parse for ArgumentName {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ArgumentNameKeyword) => {|inner| ArgumentName::Keyword(inner)} |
+        weedle!(Identifier) => {|inner| ArgumentName::Identifier(inner)}
+    ));
 }
 
 /// ArgumentNameKeyword ::
@@ -371,27 +681,53 @@ pub enum ArgumentName {
 ///     typedef
 ///     unrestricted
 pub enum ArgumentNameKeyword {
-    Attribute(terminals::Attribute),
-    Callback(terminals::Callback),
-    Const(terminals::Const),
-    Deleter(terminals::Deleter),
-    Dictionary(terminals::Dictionary),
-    Enum(terminals::Enum),
-    Getter(terminals::Getter),
-    Includes(terminals::Includes),
-    Inherit(terminals::Inherit),
-    Interface(terminals::Interface),
-    Iterable(terminals::Iterable),
-    Maplike(terminals::Maplike),
-    Namespace(terminals::Namespace),
-    Partial(terminals::Partial),
-    Required(terminals::Required),
-    Setlike(terminals::Setlike),
-    Setter(terminals::Setter),
-    Static(terminals::Static),
-    Stringifier(terminals::Stringifier),
-    Typedef(terminals::Typedef),
-    Unrestricted(terminals::Unrestricted),
+    Attribute(Attribute),
+    Callback(Callback),
+    Const(Const),
+    Deleter(Deleter),
+    Dictionary(Dictionary),
+    Enum(Enum),
+    Getter(Getter),
+    Includes(Includes),
+    Inherit(Inherit),
+    Interface(Interface),
+    Iterable(Iterable),
+    Maplike(Maplike),
+    Namespace(Namespace),
+    Partial(Partial),
+    Required(Required),
+    Setlike(Setlike),
+    Setter(Setter),
+    Static(Static),
+    Stringifier(Stringifier),
+    Typedef(Typedef),
+    Unrestricted(Unrestricted),
+}
+
+impl Parse for ArgumentNameKeyword {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Attribute) => {|inner| ArgumentNameKeyword::Attribute(inner)} |
+        weedle!(Callback) => {|inner| ArgumentNameKeyword::Callback(inner)} |
+        weedle!(Const) => {|inner| ArgumentNameKeyword::Const(inner)} |
+        weedle!(Deleter) => {|inner| ArgumentNameKeyword::Deleter(inner)} |
+        weedle!(Dictionary) => {|inner| ArgumentNameKeyword::Dictionary(inner)} |
+        weedle!(Enum) => {|inner| ArgumentNameKeyword::Enum(inner)} |
+        weedle!(Getter) => {|inner| ArgumentNameKeyword::Getter(inner)} |
+        weedle!(Includes) => {|inner| ArgumentNameKeyword::Includes(inner)} |
+        weedle!(Inherit) => {|inner| ArgumentNameKeyword::Inherit(inner)} |
+        weedle!(Interface) => {|inner| ArgumentNameKeyword::Interface(inner)} |
+        weedle!(Iterable) => {|inner| ArgumentNameKeyword::Iterable(inner)} |
+        weedle!(Maplike) => {|inner| ArgumentNameKeyword::Maplike(inner)} |
+        weedle!(Namespace) => {|inner| ArgumentNameKeyword::Namespace(inner)} |
+        weedle!(Partial) => {|inner| ArgumentNameKeyword::Partial(inner)} |
+        weedle!(Required) => {|inner| ArgumentNameKeyword::Required(inner)} |
+        weedle!(Setlike) => {|inner| ArgumentNameKeyword::Setlike(inner)} |
+        weedle!(Setter) => {|inner| ArgumentNameKeyword::Setter(inner)} |
+        weedle!(Static) => {|inner| ArgumentNameKeyword::Static(inner)} |
+        weedle!(Stringifier) => {|inner| ArgumentNameKeyword::Stringifier(inner)} |
+        weedle!(Typedef) => {|inner| ArgumentNameKeyword::Typedef(inner)} |
+        weedle!(Unrestricted) => {|inner| ArgumentNameKeyword::Unrestricted(inner)}
+    ));
 }
 
 /// Default ::
@@ -400,8 +736,16 @@ pub enum ArgumentNameKeyword {
 ///
 /// Default dictates an optional value. Uses Option<Default> instead.
 pub struct Default {
-    pub assign: terminals::Assign,
+    pub assign: Assign,
     pub value: DefaultValue,
+}
+
+impl Parse for Default {
+    named!(parse -> Self, do_parse!(
+        assign: weedle!(Assign) >>
+        value: weedle!(DefaultValue) >>
+        (Default { assign, value })
+    ));
 }
 
 /// DefaultValue ::
@@ -411,7 +755,28 @@ pub struct Default {
 pub enum DefaultValue {
     Const(ConstValue),
     String(String),
-    EmptyArray,
+    EmptyArray(EmptyArrayLit),
+}
+
+impl Parse for DefaultValue {
+    named!(parse -> Self, alt!(
+        weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
+        weedle!(String) => {|inner| DefaultValue::String(inner)} |
+        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
+    ));
+}
+
+pub struct EmptyArrayLit {
+    open_bracket: OpenBracket,
+    close_bracket: CloseBracket,
+}
+
+impl Parse for EmptyArrayLit {
+    named!(parse -> Self, do_parse!(
+        open_bracket: weedle!(OpenBracket) >>
+        close_bracket: weedle!(CloseBracket) >>
+        (EmptyArrayLit { open_bracket, close_bracket })
+    ));
 }
 
 /// ConstValue ::
@@ -423,15 +788,31 @@ pub enum ConstValue {
     BooleanLiteral(BooleanLiteral),
     FloatLiteral(FloatLiteral),
     Integer(i64),
-    Null,
+    Null(Null),
+}
+
+impl Parse for ConstValue {
+    named!(parse -> Self, alt_complete!(
+        weedle!(BooleanLiteral) => {|inner| ConstValue::BooleanLiteral(inner)} |
+        weedle!(FloatLiteral) => {|inner| ConstValue::FloatLiteral(inner)} |
+        weedle!(i64) => {|inner| ConstValue::Integer(inner)} |
+        weedle!(Null) => {|inner| ConstValue::Null(inner)}
+    ));
 }
 
 /// BooleanLiteral ::
 ///     true
 ///     false
 pub enum BooleanLiteral {
-    True(terminals::True),
-    False(terminals::False),
+    True(True),
+    False(False),
+}
+
+impl Parse for BooleanLiteral {
+    named!(parse -> Self, alt_complete!(
+        weedle!(True) => {|inner| BooleanLiteral::True(inner)} |
+        weedle!(False) => {|inner| BooleanLiteral::False(inner)}
+    ));
 }
 
 /// FloatLiteral ::
@@ -441,9 +822,18 @@ pub enum BooleanLiteral {
 ///     NaN
 pub enum FloatLiteral {
     Float(f64),
-    NegInfinity,
-    Infinity,
-    NaN,
+    NegInfinity(NegInfinity),
+    Infinity(Infinity),
+    NaN(NaN),
+}
+
+impl Parse for FloatLiteral {
+    named!(parse -> Self, alt_complete!(
+        weedle!(f64) => {|inner| FloatLiteral::Float(inner)} |
+        weedle!(NegInfinity) => {|inner| FloatLiteral::NegInfinity(inner)} |
+        weedle!(Infinity) => {|inner| FloatLiteral::Infinity(inner)} |
+        weedle!(NaN) => {|inner| FloatLiteral::NaN(inner)}
+    ));
 }
 
 /// BufferRelatedType ::
@@ -459,17 +849,33 @@ pub enum FloatLiteral {
 ///     Float32Array
 ///     Float64Array
 pub enum BufferRelatedType {
-    ArrayBuffer(terminals::ArrayBuffer),
-    DataView(terminals::DataView),
-    Int8Array(terminals::Int8Array),
-    Int16Array(terminals::Int16Array),
-    Int32Array(terminals::Int32Array),
-    Uint8Array(terminals::Uint8Array),
-    Uint16Array(terminals::Uint16Array),
-    Uint32Array(terminals::Uint32Array),
-    Uint8ClampedArray(terminals::Uint8ClampedArray),
-    Float32Array(terminals::Float32Array),
-    Float64Array(terminals::Float64Array),
+    ArrayBuffer(ArrayBuffer),
+    DataView(DataView),
+    Int8Array(Int8Array),
+    Int16Array(Int16Array),
+    Int32Array(Int32Array),
+    Uint8Array(Uint8Array),
+    Uint16Array(Uint16Array),
+    Uint32Array(Uint32Array),
+    Uint8ClampedArray(Uint8ClampedArray),
+    Float32Array(Float32Array),
+    Float64Array(Float64Array),
+}
+
+impl Parse for BufferRelatedType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ArrayBuffer) => {|inner| BufferRelatedType::ArrayBuffer(inner)} |
+        weedle!(DataView) => {|inner| BufferRelatedType::DataView(inner)} |
+        weedle!(Int8Array) => {|inner| BufferRelatedType::Int8Array(inner)} |
+        weedle!(Int16Array) => {|inner| BufferRelatedType::Int16Array(inner)} |
+        weedle!(Int32Array) => {|inner| BufferRelatedType::Int32Array(inner)} |
+        weedle!(Uint8Array) => {|inner| BufferRelatedType::Uint8Array(inner)} |
+        weedle!(Uint16Array) => {|inner| BufferRelatedType::Uint16Array(inner)} |
+        weedle!(Uint32Array) => {|inner| BufferRelatedType::Uint32Array(inner)} |
+        weedle!(Uint8ClampedArray) => {|inner| BufferRelatedType::Uint8ClampedArray(inner)} |
+        weedle!(Float32Array) => {|inner| BufferRelatedType::Float32Array(inner)} |
+        weedle!(Float64Array) => {|inner| BufferRelatedType::Float64Array(inner)}
+    ));
 }
 
 /// OtherOrComma ::
@@ -480,6 +886,13 @@ pub enum OtherOrComma {
     Comma(Comma),
 }
 
+impl Parse for OtherOrComma {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Other) => {|inner| OtherOrComma::Other(inner)} |
+        weedle!(Comma) => {|inner| OtherOrComma::Comma(inner)}
+    ));
+}
+
 /// Type ::
 ///     SingleType
 ///     UnionType Null
@@ -488,8 +901,22 @@ pub enum Type {
     UnionNull(Box<UnionNullType>),
 }
 
+impl Parse for Type {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Box<SingleType>) => {|inner| Type::Single(inner)} |
+        weedle!(Box<UnionNullType>) => {|inner| Type::UnionNull(inner)}
+    ));
+}
+
 pub struct UnionNullType {
     pub type_: MayBeNull<UnionType>
+}
+
+impl Parse for UnionNullType {
+    named!(parse -> Self, do_parse!(
+        type_: weedle!(MayBeNull<UnionType>) >>
+        (UnionNullType { type_ })
+    ));
 }
 
 /// SingleType ::
@@ -497,7 +924,14 @@ pub struct UnionNullType {
 ///     any
 pub enum SingleType {
     NonAny(NonAnyType),
-    Any(terminals::Any),
+    Any(Any),
+}
+
+impl Parse for SingleType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(NonAnyType) => {|inner| SingleType::NonAny(inner)} |
+        weedle!(Any) => {|inner| SingleType::Any(inner)}
+    ));
 }
 
 /// NonAnyType ::
@@ -518,22 +952,54 @@ pub enum NonAnyType {
     MayBeString(MayBeNull<StringType>),
     MayBeIdentifier(MayBeNull<Identifier>),
     MayBeSequence(MayBeNull<SequenceType>),
-    MayBeObject(MayBeNull<terminals::Object>),
-    MayBeSymbol(MayBeNull<terminals::Symbol>),
-    MayBeError(MayBeNull<terminals::Error>),
+    MayBeObject(MayBeNull<Object>),
+    MayBeSymbol(MayBeNull<Symbol>),
+    MayBeError(MayBeNull<Error>),
     MayBeBufferedRelated(MayBeNull<BufferRelatedType>),
     MayBeFrozenArray(MayBeNull<FrozenArrayType>),
     MayBeRecord(MayBeNull<RecordType>),
 }
 
+impl Parse for NonAnyType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(PromiseType) => {|inner| NonAnyType::Promise(inner)} |
+        weedle!(MayBeNull<PrimitiveType>) => {|inner| NonAnyType::MayBePrimitive(inner)} |
+        weedle!(MayBeNull<StringType>) => {|inner| NonAnyType::MayBeString(inner)} |
+        weedle!(MayBeNull<Identifier>) => {|inner| NonAnyType::MayBeIdentifier(inner)} |
+        weedle!(MayBeNull<SequenceType>) => {|inner| NonAnyType::MayBeSequence(inner)} |
+        weedle!(MayBeNull<Object>) => {|inner| NonAnyType::MayBeObject(inner)} |
+        weedle!(MayBeNull<Symbol>) => {|inner| NonAnyType::MayBeSymbol(inner)} |
+        weedle!(MayBeNull<Error>) => {|inner| NonAnyType::MayBeError(inner)} |
+        weedle!(MayBeNull<BufferRelatedType>) => {|inner| NonAnyType::MayBeBufferedRelated(inner)} |
+        weedle!(MayBeNull<FrozenArrayType>) => {|inner| NonAnyType::MayBeFrozenArray(inner)} |
+        weedle!(MayBeNull<RecordType>) => {|inner| NonAnyType::MayBeRecord(inner)}
+    ));
+}
+
 pub struct SequenceType {
-    sequence: terminals::Sequence,
+    sequence: Sequence,
     generics: Generics<TypeWithExtendedAttributes>,
 }
 
+impl Parse for SequenceType {
+    named!(parse -> Self, do_parse!(
+        sequence: weedle!(Sequence) >>
+        generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
+        (SequenceType { sequence, generics })
+    ));
+}
+
 pub struct FrozenArrayType {
-    frozen_array: terminals::FrozenArray,
+    frozen_array: FrozenArray,
     generics: Generics<TypeWithExtendedAttributes>,
+}
+
+impl Parse for FrozenArrayType {
+    named!(parse -> Self, do_parse!(
+        frozen_array: weedle!(FrozenArray) >>
+        generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
+        (FrozenArrayType { frozen_array, generics })
+    ));
 }
 
 /// Null ::
@@ -541,14 +1007,30 @@ pub struct FrozenArrayType {
 ///     ε
 pub struct MayBeNull<T> {
     type_: T,
-    q_mark: Option<terminals::QMark>,
+    q_mark: Option<QMark>,
+}
+
+impl<T: Parse> Parse for MayBeNull<T> {
+    named!(parse -> Self, do_parse!(
+        type_: weedle!(T) >>
+        q_mark: weedle!(Option<QMark>) >>
+        (MayBeNull { type_, q_mark })
+    ));
 }
 
 /// PromiseType ::
 ///    Promise < ReturnType >
 pub struct PromiseType {
-    promise: terminals::Promise,
+    promise: Promise,
     generics: Generics<ReturnType>,
+}
+
+impl Parse for PromiseType {
+    named!(parse -> Self, do_parse!(
+        promise: weedle!(Promise) >>
+        generics: weedle!(Generics<ReturnType>) >>
+        (PromiseType { promise, generics })
+    ));
 }
 
 /// ReturnType ::
@@ -556,9 +1038,15 @@ pub struct PromiseType {
 ///     void
 pub enum ReturnType {
     Type(Type),
-    Void(terminals::Void),
+    Void(Void),
 }
 
+impl Parse for ReturnType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Type) => {|inner| ReturnType::Type(inner)} |
+        weedle!(Void) => {|inner| ReturnType::Void(inner)}
+    ));
+}
 
 /// PrimitiveType ::
 ///     UnsignedIntegerType
@@ -567,51 +1055,99 @@ pub enum ReturnType {
 ///     byte
 ///     octet
 pub enum PrimitiveType {
-    UnsignedInteger(UnsignedIntegerType),
-    UnrestrictedFloat(UnrestrictedFloatType),
-    Boolean(terminals::Boolean),
-    Byte(terminals::Byte),
-    Octet(terminals::Octet),
+    UnsignedIntegerType(UnsignedIntegerType),
+    UnrestrictedFloatType(UnrestrictedFloatType),
+    Boolean(Boolean),
+    Byte(Byte),
+    Octet(Octet),
+}
+
+impl Parse for PrimitiveType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(UnsignedIntegerType) => {|inner| PrimitiveType::UnsignedIntegerType(inner)} |
+        weedle!(UnrestrictedFloatType) => {|inner| PrimitiveType::UnrestrictedFloatType(inner)} |
+        weedle!(Boolean) => {|inner| PrimitiveType::Boolean(inner)} |
+        weedle!(Byte) => {|inner| PrimitiveType::Byte(inner)} |
+        weedle!(Octet) => {|inner| PrimitiveType::Octet(inner)}
+    ));
 }
 
 /// UnsignedIntegerType ::
 ///     unsigned IntegerType
 ///     IntegerType
 pub struct UnsignedIntegerType {
-    unsigned: Option<terminals::Unsigned>,
+    unsigned: Option<Unsigned>,
     type_: IntegerType,
+}
+
+impl Parse for UnsignedIntegerType {
+    named!(parse -> Self, do_parse!(
+        unsigned: weedle!(Option<Unsigned>) >>
+        type_: weedle!(IntegerType) >>
+        (UnsignedIntegerType { unsigned, type_ })
+    ));
 }
 
 /// IntegerType ::
 ///     short
 ///     long OptionalLong
 pub enum IntegerType {
-    Short(terminals::Short),
+    Short(Short),
     Long(LongType),
+}
+
+impl Parse for IntegerType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Short) => {|inner| IntegerType::Short(inner)} |
+        weedle!(LongType) => {|inner| IntegerType::Long(inner)}
+    ));
 }
 
 /// OptionalLong ::
 ///     long
 ///     ε
 pub struct LongType {
-    long: terminals::Long,
-    optional: Option<terminals::Long>,
+    long: Long,
+    optional: Option<Long>,
+}
+
+impl Parse for LongType {
+    named!(parse -> Self, do_parse!(
+        long: weedle!(Long) >>
+        optional: weedle!(Option<Long>) >>
+        (LongType { long, optional })
+    ));
 }
 
 /// UnrestrictedFloatType ::
 ///     unrestricted FloatType
 ///     FloatType
 pub struct UnrestrictedFloatType {
-    unrestricted: Option<terminals::Unrestricted>,
+    unrestricted: Option<Unrestricted>,
     type_: FloatType,
+}
+
+impl Parse for UnrestrictedFloatType {
+    named!(parse -> Self, do_parse!(
+        unrestricted: weedle!(Option<Unrestricted>) >>
+        type_: weedle!(FloatType) >>
+        (UnrestrictedFloatType { unrestricted, type_ })
+    ));
 }
 
 /// FloatType ::
 ///     float
 ///     double
 pub enum FloatType {
-    Float(terminals::Float),
-    Double(terminals::Double),
+    Float(Float),
+    Double(Double),
+}
+
+impl Parse for FloatType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(Float) => {|inner| FloatType::Float(inner)} |
+        weedle!(Double) => {|inner| FloatType::Double(inner)}
+    ));
 }
 
 /// StringType ::
@@ -619,22 +1155,47 @@ pub enum FloatType {
 ///     DOMString
 ///     USVString
 pub enum StringType {
-    Byte(terminals::ByteString),
-    DOM(terminals::DOMString),
-    USV(terminals::USVString),
+    Byte(ByteString),
+    DOM(DOMString),
+    USV(USVString),
+}
+
+impl Parse for StringType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ByteString) => {|inner| StringType::Byte(inner)} |
+        weedle!(DOMString) => {|inner| StringType::DOM(inner)} |
+        weedle!(USVString) => {|inner| StringType::USV(inner)}
+    ));
 }
 
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
 pub struct RecordType {
-    record: terminals::Record,
+    record: Record,
     generics: Generics<RecordTypeGenerics>,
+}
+
+impl Parse for RecordType {
+    named!(parse -> Self, do_parse!(
+        record: weedle!(Record) >>
+        generics: weedle!(Generics<RecordTypeGenerics>) >>
+        (RecordType { record, generics })
+    ));
 }
 
 pub struct RecordTypeGenerics {
     string_type: StringType,
-    comma: terminals::Comma,
+    comma: Comma,
     type_: TypeWithExtendedAttributes,
+}
+
+impl Parse for RecordTypeGenerics {
+    named!(parse -> Self, do_parse!(
+        string_type: weedle!(StringType) >>
+        comma: weedle!(Comma) >>
+        type_: weedle!(TypeWithExtendedAttributes) >>
+        (RecordTypeGenerics { string_type, comma, type_ })
+    ));
 }
 
 /// UnionType ::
@@ -643,7 +1204,14 @@ pub struct RecordTypeGenerics {
 ///     or UnionMemberType UnionMemberTypes
 ///     ε
 pub struct UnionType {
-    punctuated: Punctuated<UnionMemberType, terminals::Or>
+    punctuated: Punctuated<UnionMemberType, Or>
+}
+
+impl Parse for UnionType {
+    named!(parse -> Self, do_parse!(
+        punctuated: weedle!(Punctuated<UnionMemberType, Or>) >>
+        (UnionType { punctuated })
+    ));
 }
 
 /// UnionMemberType ::
@@ -654,11 +1222,33 @@ pub enum UnionMemberType {
     Simple(SimpleUnionMemberType),
 }
 
+impl Parse for UnionMemberType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(AttributedUnionMemberType) => {|inner| UnionMemberType::Attributed(inner)} |
+        weedle!(SimpleUnionMemberType) => {|inner| UnionMemberType::Simple(inner)}
+    ));
+}
+
 pub struct AttributedUnionMemberType {
     attributes: ExtendedAttributeList,
     type_: NonAnyType,
 }
 
+impl Parse for AttributedUnionMemberType {
+    named!(parse -> Self, do_parse!(
+        attributes: weedle!(ExtendedAttributeList) >>
+        type_: weedle!(NonAnyType) >>
+        (AttributedUnionMemberType { attributes, type_ })
+    ));
+}
+
 pub struct SimpleUnionMemberType {
     type_: MayBeNull<UnionType>
+}
+
+impl Parse for SimpleUnionMemberType {
+    named!(parse -> Self, do_parse!(
+        type_: weedle!(MayBeNull<UnionType>) >>
+        (SimpleUnionMemberType { type_ })
+    ));
 }
