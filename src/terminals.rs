@@ -106,39 +106,40 @@ mod test {
                 mod $m {
                     use super::super::$typ;
                     use Parse;
+                    use nom::types::CompleteStr;
 
                     #[test]
                     fn should_parse() {
-                        let (rem, parsed) = $typ::parse($string).unwrap();
-                        assert_eq!(rem, "");
+                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string))).unwrap();
+                        assert_eq!(rem, CompleteStr(""));
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_preceding_spaces() {
-                        let (rem, parsed) = $typ::parse(concat!("  ", $string)).unwrap();
-                        assert_eq!(rem, "");
+                        let (rem, parsed) = $typ::parse(CompleteStr(concat!("  ", $string))).unwrap();
+                        assert_eq!(rem, CompleteStr(""));
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_succeeding_spaces() {
-                        let (rem, parsed) = $typ::parse(concat!($string, "  ")).unwrap();
-                        assert_eq!(rem, "");
+                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string, "  "))).unwrap();
+                        assert_eq!(rem, CompleteStr(""));
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_surrounding_spaces() {
-                        let (rem, parsed) = $typ::parse(concat!("  ", $string, "  ")).unwrap();
-                        assert_eq!(rem, "");
+                        let (rem, parsed) = $typ::parse(CompleteStr(concat!("  ", $string, "  "))).unwrap();
+                        assert_eq!(rem, CompleteStr(""));
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_if_anything_next() {
-                        let (rem, parsed) = $typ::parse(concat!($string, "  anything")).unwrap();
-                        assert_eq!(rem, "anything");
+                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string, "  anything"))).unwrap();
+                        assert_eq!(rem, CompleteStr("anything"));
                         assert_eq!(parsed, $typ);
                     }
                 }
