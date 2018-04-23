@@ -446,3 +446,23 @@ impl Parse for SimpleUnionMemberType {
         (SimpleUnionMemberType { type_ })
     ));
 }
+
+/// Typedef ::
+///     typedef TypeWithExtendedAttributes identifier ;
+#[derive(Debug, PartialEq)]
+pub struct TypeDefinition {
+    typedef: Typedef,
+    type_: TypeWithExtendedAttributes,
+    identifier: Identifier,
+    semi_colon: SemiColon
+}
+
+impl Parse for TypeDefinition {
+    named!(parse -> Self, do_parse!(
+        typedef: weedle!(Typedef) >>
+        type_: weedle!(TypeWithExtendedAttributes) >>
+        identifier: weedle!(Identifier) >>
+        semi_colon: weedle!(SemiColon) >>
+        (TypeDefinition { typedef, type_, identifier, semi_colon })
+    ));
+}
