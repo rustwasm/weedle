@@ -1,6 +1,6 @@
 macro_rules! named {
     ($name:ident -> $o:ty, $submac:ident!( $($args:tt)* )) => {
-        fn $name(input: &str) -> $crate::nom::IResult<&str, Self> {
+        fn $name(input: $crate::nom::types::CompleteStr) -> $crate::nom::IResult<$crate::nom::types::CompleteStr, $o> {
             $submac!(input, $($args)*)
         }
     };

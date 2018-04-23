@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Sharad Chand <sharad.d.chand@gmail.com>"]
 
 [dependencies]
-nom = { version = "3.2.1", features = ["regexp"] }
+nom = { version = "4.0.0-beta3", features = ["regexp_macros"] }
 regex = "0.2.10"
+lazy_static = "1.0.0"

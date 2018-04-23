@@ -5,8 +5,10 @@
 #[macro_use]
 extern crate nom;
 extern crate regex;
+#[macro_use]
+extern crate lazy_static;
 
-use nom::IResult;
+use nom::{IResult, types::CompleteStr};
 use terminals::*;
 use literals::*;
 
@@ -16,7 +18,7 @@ mod terminals;
 mod literals;
 
 trait Parse: Sized {
-    fn parse(input: &str) -> IResult<&str, Self>;
+    fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
 }
 
 impl<T: Parse> Parse for Option<T> {
@@ -663,7 +665,7 @@ pub enum DefaultValue {
 }
 
 impl Parse for DefaultValue {
-    named!(parse -> Self, alt!(
+    named!(parse -> Self, alt_complete!(
         weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
         weedle!(String) => {|inner| DefaultValue::String(inner)} |
         weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
@@ -1183,4 +1185,15 @@ impl Parse for SimpleUnionMemberType {
         type_: weedle!(MayBeNull<UnionType>) >>
         (SimpleUnionMemberType { type_ })
     ));
+}
+
+#[cfg(test)]
+mod test {
+    use super::{ExtendedAttributeNamedArgList, Parse};
+
+    #[test]
+    fn should_take_named_argument_list() {
+        let parsed = ExtendedAttributeNamedArgList::parse("[NamedConstructor=Image(DOMString src)]".into());
+        println!("{:?}", parsed);
+    }
 }
