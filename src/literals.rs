@@ -1,3 +1,4 @@
+use terminals::*;
 use Parse;
 use nom::types::CompleteStr;
 
@@ -91,6 +92,99 @@ impl Parse for String {
             let unquoted = &quoted[1..quoted.len() - 1];
             unquoted.to_string()
         })
+    ));
+}
+
+/// DefaultValue ::
+///     ConstValue
+///     **string**
+///     **[ ]**
+#[derive(Debug, PartialEq)]
+pub enum DefaultValue {
+    Const(ConstValue),
+    String(String),
+    EmptyArray(EmptyArrayLit),
+}
+
+impl Parse for DefaultValue {
+    named!(parse -> Self, alt_complete!(
+        weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
+        weedle!(String) => {|inner| DefaultValue::String(inner)} |
+        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
+    ));
+}
+
+#[derive(Debug, PartialEq)]
+pub struct EmptyArrayLit {
+    pub open_bracket: OpenBracket,
+    pub close_bracket: CloseBracket,
+}
+
+impl Parse for EmptyArrayLit {
+    named!(parse -> Self, do_parse!(
+        open_bracket: weedle!(OpenBracket) >>
+        close_bracket: weedle!(CloseBracket) >>
+        (EmptyArrayLit { open_bracket, close_bracket })
+    ));
+}
+
+/// ConstValue ::
+///     BooleanLiteral
+///     FloatLiteral
+///     **integer**
+///     null
+#[derive(Debug, PartialEq)]
+pub enum ConstValue {
+    BooleanLiteral(BooleanLiteral),
+    FloatLiteral(FloatLiteral),
+    Integer(i64),
+    Null(Null),
+}
+
+impl Parse for ConstValue {
+    named!(parse -> Self, alt_complete!(
+        weedle!(BooleanLiteral) => {|inner| ConstValue::BooleanLiteral(inner)} |
+        weedle!(FloatLiteral) => {|inner| ConstValue::FloatLiteral(inner)} |
+        weedle!(i64) => {|inner| ConstValue::Integer(inner)} |
+        weedle!(Null) => {|inner| ConstValue::Null(inner)}
+    ));
+}
+
+/// BooleanLiteral ::
+///     true
+///     false
+#[derive(Debug, PartialEq)]
+pub enum BooleanLiteral {
+    True(True),
+    False(False),
+}
+
+impl Parse for BooleanLiteral {
+    named!(parse -> Self, alt_complete!(
+        weedle!(True) => {|inner| BooleanLiteral::True(inner)} |
+        weedle!(False) => {|inner| BooleanLiteral::False(inner)}
+    ));
+}
+
+/// FloatLiteral ::
+///     **float**
+///     -Infinity
+///     Infinity
+///     NaN
+#[derive(Debug, PartialEq)]
+pub enum FloatLiteral {
+    Float(f64),
+    NegInfinity(NegInfinity),
+    Infinity(Infinity),
+    NaN(NaN),
+}
+
+impl Parse for FloatLiteral {
+    named!(parse -> Self, alt_complete!(
+        weedle!(f64) => {|inner| FloatLiteral::Float(inner)} |
+        weedle!(NegInfinity) => {|inner| FloatLiteral::NegInfinity(inner)} |
+        weedle!(Infinity) => {|inner| FloatLiteral::Infinity(inner)} |
+        weedle!(NaN) => {|inner| FloatLiteral::NaN(inner)}
     ));
 }
 
