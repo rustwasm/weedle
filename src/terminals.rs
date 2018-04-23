@@ -1,7 +1,7 @@
 macro_rules! generate_tokens {
     ($( $typ:ident => $tok:expr ),*) => {
         $(
-            #[derive(Default)]
+            #[derive(Debug, Default)]
             pub struct $typ;
 
             impl $crate::Parse for $typ {
