@@ -154,6 +154,13 @@ mod test {
         }
     });
 
+    test_literal!(should_parse_identifier_attached_to_symbol { "hello=" =>
+        "=";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
     test_literal!(should_parse_other_lit { "&" =>
         "";
         OtherLit {
