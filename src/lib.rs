@@ -401,8 +401,8 @@ impl Parse for ExtendedAttributeInner {
 }
 
 pub struct ParenthesizedExtendedAttributeInner {
-    inner: Parenthesized<Box<ExtendedAttributeInner>>,
-    rest: Box<ExtendedAttributeInner>,
+    pub inner: Parenthesized<Box<ExtendedAttributeInner>>,
+    pub rest: Box<ExtendedAttributeInner>,
 }
 
 impl Parse for ParenthesizedExtendedAttributeInner {
@@ -414,8 +414,8 @@ impl Parse for ParenthesizedExtendedAttributeInner {
 }
 
 pub struct BracketedExtendedAttributeInner {
-    inner: Bracketed<Box<ExtendedAttributeInner>>,
-    rest: Box<ExtendedAttributeInner>,
+    pub inner: Bracketed<Box<ExtendedAttributeInner>>,
+    pub rest: Box<ExtendedAttributeInner>,
 }
 
 impl Parse for BracketedExtendedAttributeInner {
@@ -427,8 +427,8 @@ impl Parse for BracketedExtendedAttributeInner {
 }
 
 pub struct BracedExtendedAttributeInner {
-    inner: Braced<Box<ExtendedAttributeInner>>,
-    rest: Box<ExtendedAttributeInner>,
+    pub inner: Braced<Box<ExtendedAttributeInner>>,
+    pub rest: Box<ExtendedAttributeInner>,
 }
 
 impl Parse for BracedExtendedAttributeInner {
@@ -440,8 +440,8 @@ impl Parse for BracedExtendedAttributeInner {
 }
 
 pub struct OtherExtendedAttributeInner {
-    inner: OtherOrComma,
-    rest: Box<ExtendedAttributeInner>,
+    pub inner: OtherOrComma,
+    pub rest: Box<ExtendedAttributeInner>,
 }
 
 impl Parse for OtherExtendedAttributeInner {
@@ -767,8 +767,8 @@ impl Parse for DefaultValue {
 }
 
 pub struct EmptyArrayLit {
-    open_bracket: OpenBracket,
-    close_bracket: CloseBracket,
+    pub open_bracket: OpenBracket,
+    pub close_bracket: CloseBracket,
 }
 
 impl Parse for EmptyArrayLit {
@@ -977,8 +977,8 @@ impl Parse for NonAnyType {
 }
 
 pub struct SequenceType {
-    sequence: Sequence,
-    generics: Generics<TypeWithExtendedAttributes>,
+    pub sequence: Sequence,
+    pub generics: Generics<TypeWithExtendedAttributes>,
 }
 
 impl Parse for SequenceType {
@@ -990,8 +990,8 @@ impl Parse for SequenceType {
 }
 
 pub struct FrozenArrayType {
-    frozen_array: FrozenArray,
-    generics: Generics<TypeWithExtendedAttributes>,
+    pub frozen_array: FrozenArray,
+    pub generics: Generics<TypeWithExtendedAttributes>,
 }
 
 impl Parse for FrozenArrayType {
@@ -1006,8 +1006,8 @@ impl Parse for FrozenArrayType {
 ///     ?
 ///     ε
 pub struct MayBeNull<T> {
-    type_: T,
-    q_mark: Option<QMark>,
+    pub type_: T,
+    pub q_mark: Option<QMark>,
 }
 
 impl<T: Parse> Parse for MayBeNull<T> {
@@ -1021,8 +1021,8 @@ impl<T: Parse> Parse for MayBeNull<T> {
 /// PromiseType ::
 ///    Promise < ReturnType >
 pub struct PromiseType {
-    promise: Promise,
-    generics: Generics<ReturnType>,
+    pub promise: Promise,
+    pub generics: Generics<ReturnType>,
 }
 
 impl Parse for PromiseType {
@@ -1076,8 +1076,8 @@ impl Parse for PrimitiveType {
 ///     unsigned IntegerType
 ///     IntegerType
 pub struct UnsignedIntegerType {
-    unsigned: Option<Unsigned>,
-    type_: IntegerType,
+    pub unsigned: Option<Unsigned>,
+    pub type_: IntegerType,
 }
 
 impl Parse for UnsignedIntegerType {
@@ -1107,8 +1107,8 @@ impl Parse for IntegerType {
 ///     long
 ///     ε
 pub struct LongType {
-    long: Long,
-    optional: Option<Long>,
+    pub long: Long,
+    pub optional: Option<Long>,
 }
 
 impl Parse for LongType {
@@ -1123,8 +1123,8 @@ impl Parse for LongType {
 ///     unrestricted FloatType
 ///     FloatType
 pub struct UnrestrictedFloatType {
-    unrestricted: Option<Unrestricted>,
-    type_: FloatType,
+    pub unrestricted: Option<Unrestricted>,
+    pub type_: FloatType,
 }
 
 impl Parse for UnrestrictedFloatType {
@@ -1171,8 +1171,8 @@ impl Parse for StringType {
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
 pub struct RecordType {
-    record: Record,
-    generics: Generics<RecordTypeGenerics>,
+    pub record: Record,
+    pub generics: Generics<RecordTypeGenerics>,
 }
 
 impl Parse for RecordType {
@@ -1184,9 +1184,9 @@ impl Parse for RecordType {
 }
 
 pub struct RecordTypeGenerics {
-    string_type: StringType,
-    comma: Comma,
-    type_: TypeWithExtendedAttributes,
+    pub string_type: StringType,
+    pub comma: Comma,
+    pub type_: TypeWithExtendedAttributes,
 }
 
 impl Parse for RecordTypeGenerics {
@@ -1204,7 +1204,7 @@ impl Parse for RecordTypeGenerics {
 ///     or UnionMemberType UnionMemberTypes
 ///     ε
 pub struct UnionType {
-    punctuated: Punctuated<UnionMemberType, Or>
+    pub punctuated: Punctuated<UnionMemberType, Or>
 }
 
 impl Parse for UnionType {
@@ -1230,8 +1230,8 @@ impl Parse for UnionMemberType {
 }
 
 pub struct AttributedUnionMemberType {
-    attributes: ExtendedAttributeList,
-    type_: NonAnyType,
+    pub attributes: ExtendedAttributeList,
+    pub type_: NonAnyType,
 }
 
 impl Parse for AttributedUnionMemberType {
@@ -1243,7 +1243,7 @@ impl Parse for AttributedUnionMemberType {
 }
 
 pub struct SimpleUnionMemberType {
-    type_: MayBeNull<UnionType>
+    pub type_: MayBeNull<UnionType>
 }
 
 impl Parse for SimpleUnionMemberType {
