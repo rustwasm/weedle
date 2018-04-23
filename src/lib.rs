@@ -8,10 +8,12 @@ extern crate regex;
 
 use nom::IResult;
 use terminals::*;
+use literals::*;
 
 #[macro_use]
 mod macros;
 mod terminals;
+mod literals;
 
 trait Parse: Sized {
     fn parse(input: &str) -> IResult<&str, Self>;
@@ -105,56 +107,6 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
     named!(parse -> Self, do_parse!(
         list: separated_list!(weedle!(S), weedle!(T)) >>
         (Punctuated { list, separator: S::default() })
-    ));
-}
-
-/// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
-#[derive(Debug)]
-pub struct Identifier {
-    pub name: String
-}
-
-impl Parse for Identifier {
-    named!(parse -> Self, do_parse!(
-        name: re_match!(r"_?[A-Za-z][0-9A-Z_a-z-]*") >>
-        (Identifier { name: name.to_owned() })
-    ));
-}
-
-/// **other** = /[^\t\n\r 0-9A-Za-z]/
-#[derive(Debug)]
-pub struct OtherLit {
-    pub value: String
-}
-
-impl Parse for OtherLit {
-    named!(parse -> Self, do_parse!(
-        value: re_match!(r"[^\t\n\r 0-9A-Za-z]") >>
-        (OtherLit { value: value.to_owned() })
-    ));
-}
-
-/// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
-impl Parse for i64 {
-    named!(parse -> Self, do_parse!(
-        value: parse_to!(re_match!(r"-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)")) >>
-        (value)
-    ));
-}
-
-/// **float** = /-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/
-impl Parse for f64 {
-    named!(parse -> Self, do_parse!(
-        value: parse_to!(re_match!(r"-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)")) >>
-        (value)
-    ));
-}
-
-/// **string** = /"[^"]*"/
-impl Parse for String {
-    named!(parse -> Self, do_parse!(
-        value: re_match!(r#""[^"]*""#) >>
-        (value.to_owned())
     ));
 }
 

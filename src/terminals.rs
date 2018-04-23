@@ -6,7 +6,7 @@ macro_rules! generate_tokens {
 
             impl $crate::Parse for $typ {
                 named!(parse -> Self, do_parse!(
-                    tag!($tok) >>
+                    ws!(tag!($tok)) >>
                     ($typ)
                 ));
             }
