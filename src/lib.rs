@@ -254,8 +254,8 @@ pub struct ParenthesizedExtendedAttribute {
 impl Parse for ParenthesizedExtendedAttribute {
     named!(parse -> Self, do_parse!(
         inner: weedle!(Parenthesized<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<ExtendedAttribute>) >>
-        (ParenthesizedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
+        (ParenthesizedExtendedAttribute { inner, rest })
     ));
 }
 
@@ -267,8 +267,8 @@ pub struct BracketedExtendedAttribute {
 impl Parse for BracketedExtendedAttribute {
     named!(parse -> Self, do_parse!(
         inner: weedle!(Bracketed<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<ExtendedAttribute>) >>
-        (BracketedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
+        (BracketedExtendedAttribute { inner, rest })
     ));
 }
 
@@ -280,8 +280,8 @@ pub struct BracedExtendedAttribute {
 impl Parse for BracedExtendedAttribute {
     named!(parse -> Self, do_parse!(
         inner: weedle!(Braced<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<ExtendedAttribute>) >>
-        (BracedExtendedAttribute { inner, rest: rest.map(|inner| Box::new(inner)) })
+        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
+        (BracedExtendedAttribute { inner, rest })
     ));
 }
 
@@ -293,8 +293,8 @@ pub struct OtherExtendedAttribute {
 impl Parse for OtherExtendedAttribute {
     named!(parse -> Self, do_parse!(
         other: weedle!(Other) >>
-        rest: weedle!(Option<ExtendedAttribute>) >>
-        (OtherExtendedAttribute { other, rest: rest.map(|inner| Box::new(inner)) })
+        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
+        (OtherExtendedAttribute { other, rest })
     ));
 }
 
