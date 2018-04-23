@@ -180,3 +180,66 @@ impl Parse for ArgumentNameKeyword {
         weedle!(Unrestricted) => {|inner| ArgumentNameKeyword::Unrestricted(inner)}
     ));
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use Parse;
+    use nom::types::CompleteStr;
+
+    macro_rules! test_argument_name_keyword {
+        ($(fn $name:ident { $var:ident => $val:expr }),*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let (rem, parsed) = ArgumentNameKeyword::parse(CompleteStr($val)).unwrap();
+                    assert_eq!(rem, CompleteStr(""));
+                    assert_eq!(parsed, ArgumentNameKeyword::$var($var));
+                }
+            )*
+        };
+    }
+
+    test_argument_name_keyword! {
+        fn should_parse_argument_name_keyword_variant_attribute { Attribute => "attribute" },
+        fn should_parse_argument_name_keyword_variant_callback { Callback => "callback" },
+        fn should_parse_argument_name_keyword_variant_const { Const => "const" },
+        fn should_parse_argument_name_keyword_variant_deleter { Deleter => "deleter" },
+        fn should_parse_argument_name_keyword_variant_dictionary { Dictionary => "dictionary" },
+        fn should_parse_argument_name_keyword_variant_enum { Enum => "enum" },
+        fn should_parse_argument_name_keyword_variant_getter { Getter => "getter" },
+        fn should_parse_argument_name_keyword_variant_includes { Includes => "includes" },
+        fn should_parse_argument_name_keyword_variant_inherit { Inherit => "inherit" },
+        fn should_parse_argument_name_keyword_variant_interface { Interface => "interface" },
+        fn should_parse_argument_name_keyword_variant_iterable { Iterable => "iterable" },
+        fn should_parse_argument_name_keyword_variant_maplike { Maplike => "maplike" },
+        fn should_parse_argument_name_keyword_variant_namespace { Namespace => "namespace" },
+        fn should_parse_argument_name_keyword_variant_partial { Partial => "partial" },
+        fn should_parse_argument_name_keyword_variant_required { Required => "required" },
+        fn should_parse_argument_name_keyword_variant_setlike { Setlike => "setlike" },
+        fn should_parse_argument_name_keyword_variant_setter { Setter => "setter" },
+        fn should_parse_argument_name_keyword_variant_static { Static => "static" },
+        fn should_parse_argument_name_keyword_variant_stringifier { Stringifier => "stringifier" },
+        fn should_parse_argument_name_keyword_variant_typedef { Typedef => "typedef" },
+        fn should_parse_argument_name_keyword_variant_unrestricted { Unrestricted => "unrestricted" }
+    }
+
+    #[test]
+    fn should_parse_argument_name_variant_keyword() {
+        let (rem, parsed) = ArgumentName::parse(CompleteStr("getter")).unwrap();
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, ArgumentName::Keyword(ArgumentNameKeyword::Getter(Getter)));
+    }
+
+    #[test]
+    fn should_parse_argument_name_variant_identifier() {
+        let (rem, parsed) = ArgumentName::parse(CompleteStr("document")).unwrap();
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, ArgumentName::Identifier(Identifier { name: "document".to_string() }));
+    }
+
+    #[test]
+    fn should_parse_argument_rest() {
+
+    }
+}
