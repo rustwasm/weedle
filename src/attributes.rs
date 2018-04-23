@@ -207,6 +207,86 @@ impl Parse for OtherExtendedAttributeInner {
     ));
 }
 
+/// ExtendedAttributeIdentList ::
+///     identifier = ( IdentifierList )
+#[derive(Debug, PartialEq)]
+pub struct ExtendedAttributeIdentList {
+    pub identifier: Identifier,
+    pub assign: Assign,
+    pub braced: Braced<IdentifierList>
+}
+
+impl Parse for ExtendedAttributeIdentList {
+    named!(parse -> Self, do_parse!(
+        identifier: weedle!(Identifier) >>
+        assign: weedle!(Assign) >>
+        braced: weedle!(Braced<IdentifierList>) >>
+        (ExtendedAttributeIdentList { identifier, assign, braced })
+    ));
+}
+
+/// IdentifierList ::
+///     identifier Identifiers
+#[derive(Debug, PartialEq)]
+pub struct IdentifierList {
+    pub punctuated: Punctuated<Identifier, Comma>
+}
+
+impl Parse for IdentifierList {
+    named!(parse -> Self, do_parse!(
+        punctuated: weedle!(Punctuated<Identifier, Comma>) >>
+        (IdentifierList { punctuated })
+    ));
+}
+
+/// ExtendedAttributeIdent ::
+///     identifier = identifier
+#[derive(Debug, PartialEq)]
+pub struct ExtendedAttributeIdent {
+    pub lhs_identifier: Identifier,
+    pub assign: Assign,
+    pub rhs_identifier: Identifier
+}
+
+impl Parse for ExtendedAttributeIdent {
+    named!(parse -> Self, do_parse!(
+        lhs_identifier: weedle!(Identifier) >>
+        assign: weedle!(Assign) >>
+        rhs_identifier: weedle!(Identifier) >>
+        (ExtendedAttributeIdent { lhs_identifier, assign, rhs_identifier })
+    ));
+}
+
+/// ExtendedAttributeArgList ::
+///     identifier ( ArgumentList )
+#[derive(Debug, PartialEq)]
+pub struct ExtendedAttributeArgList {
+    pub identifier: Identifier,
+    pub braced: Braced<ArgumentList>
+}
+
+impl Parse for ExtendedAttributeArgList {
+    named!(parse -> Self, do_parse!(
+        identifier: weedle!(Identifier) >>
+        braced: weedle!(Braced<ArgumentList>) >>
+        (ExtendedAttributeArgList { identifier, braced })
+    ));
+}
+
+/// ExtendedAttributeNoArgs ::
+///     identifier
+#[derive(Debug, PartialEq)]
+pub struct ExtendedAttributeNoArgs {
+    identifier: Identifier
+}
+
+impl Parse for ExtendedAttributeNoArgs {
+    named!(parse -> Self, do_parse!(
+        identifier: weedle!(Identifier) >>
+        (ExtendedAttributeNoArgs { identifier })
+    ));
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
