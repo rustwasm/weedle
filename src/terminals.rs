@@ -134,6 +134,13 @@ mod test {
                         assert_eq!(rem, "");
                         assert_eq!(parsed, $typ);
                     }
+
+                    #[test]
+                    fn should_parse_if_anything_next() {
+                        let (rem, parsed) = $typ::parse(concat!($string, "  anything")).unwrap();
+                        assert_eq!(rem, "anything");
+                        assert_eq!(parsed, $typ);
+                    }
                 }
             )*
         };
