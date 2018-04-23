@@ -35,7 +35,7 @@ impl<T: Parse> Parse for Box<T> {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Parenthesized<T> {
     pub open_paren: OpenParen,
     pub body: T,
@@ -51,7 +51,7 @@ impl<T: Parse> Parse for Parenthesized<T> {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Bracketed<T> {
     pub open_bracket: OpenBracket,
     pub body: T,
@@ -67,7 +67,7 @@ impl<T: Parse> Parse for Bracketed<T> {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Braced<T> {
     pub open_brace: OpenBrace,
     pub body: T,
@@ -83,7 +83,7 @@ impl<T: Parse> Parse for Braced<T> {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Generics<T> {
     pub open_angle: LessThan,
     pub body: T,
@@ -99,7 +99,7 @@ impl<T: Parse> Parse for Generics<T> {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Punctuated<T, S> {
     pub list: Vec<T>,
     pub separator: S,
@@ -114,12 +114,12 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
 
 /// ExtendedAttributeNamedArgList ::
 ///     **identifier** = **identifier** ( ArgumentList )
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
     pub assign: Assign,
     pub rhs_identifier: Identifier,
-    pub args_signature: Parenthesized<ArgumentList>,
+    pub args_signature: Braced<ArgumentList>,
 }
 
 impl Parse for ExtendedAttributeNamedArgList {
@@ -127,7 +127,7 @@ impl Parse for ExtendedAttributeNamedArgList {
         lhs_identifier: weedle!(Identifier) >>
         assign: weedle!(Assign) >>
         rhs_identifier: weedle!(Identifier) >>
-        args_signature: weedle!(Parenthesized<ArgumentList>) >>
+        args_signature: weedle!(Braced<ArgumentList>) >>
         (ExtendedAttributeNamedArgList { lhs_identifier, assign, rhs_identifier, args_signature })
     ));
 }
@@ -139,7 +139,7 @@ impl Parse for ExtendedAttributeNamedArgList {
 /// Arguments ::
 ///     , Argument Arguments
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ArgumentList {
     pub args: Punctuated<Argument, Comma>
 }
@@ -153,7 +153,7 @@ impl Parse for ArgumentList {
 
 /// Argument ::
 ///     ExtendedAttributeList ArgumentRest
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Argument {
     pub attributes: ExtendedAttributeList,
     pub rest: ArgumentRest,
@@ -174,7 +174,7 @@ impl Parse for Argument {
 /// ExtendedAttributes ::
 ///     , ExtendedAttribute ExtendedAttributes
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeList {
     pub list: Option<Bracketed<Punctuated<ExtendedAttribute, Comma>>>
 }
@@ -195,7 +195,7 @@ impl Parse for ExtendedAttributeList {
 /// ExtendedAttributeRest ::
 ///     ExtendedAttribute
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ExtendedAttribute {
     Parenthesized(ParenthesizedExtendedAttribute),
     Bracketed(BracketedExtendedAttribute),
@@ -212,7 +212,7 @@ impl Parse for ExtendedAttribute {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ParenthesizedExtendedAttribute {
     pub inner: Parenthesized<ExtendedAttributeInner>,
     pub rest: Option<Box<ExtendedAttribute>>,
@@ -226,7 +226,7 @@ impl Parse for ParenthesizedExtendedAttribute {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BracketedExtendedAttribute {
     pub inner: Bracketed<ExtendedAttributeInner>,
     pub rest: Option<Box<ExtendedAttribute>>,
@@ -240,7 +240,7 @@ impl Parse for BracketedExtendedAttribute {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BracedExtendedAttribute {
     pub inner: Braced<ExtendedAttributeInner>,
     pub rest: Option<Box<ExtendedAttribute>>,
@@ -254,7 +254,7 @@ impl Parse for BracedExtendedAttribute {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct OtherExtendedAttribute {
     pub other: Other,
     pub rest: Option<Box<ExtendedAttribute>>,
@@ -274,7 +274,7 @@ impl Parse for OtherExtendedAttribute {
 ///     { ExtendedAttributeInner } ExtendedAttributeInner
 ///     OtherOrComma ExtendedAttributeInner
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ExtendedAttributeInner {
     Parenthesized(ParenthesizedExtendedAttributeInner),
     Bracketed(BracketedExtendedAttributeInner),
@@ -293,7 +293,7 @@ impl Parse for ExtendedAttributeInner {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ParenthesizedExtendedAttributeInner {
     pub inner: Parenthesized<Box<ExtendedAttributeInner>>,
     pub rest: Box<ExtendedAttributeInner>,
@@ -307,7 +307,7 @@ impl Parse for ParenthesizedExtendedAttributeInner {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BracketedExtendedAttributeInner {
     pub inner: Bracketed<Box<ExtendedAttributeInner>>,
     pub rest: Box<ExtendedAttributeInner>,
@@ -321,7 +321,7 @@ impl Parse for BracketedExtendedAttributeInner {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BracedExtendedAttributeInner {
     pub inner: Braced<Box<ExtendedAttributeInner>>,
     pub rest: Box<ExtendedAttributeInner>,
@@ -335,7 +335,7 @@ impl Parse for BracedExtendedAttributeInner {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct OtherExtendedAttributeInner {
     pub inner: OtherOrComma,
     pub rest: Box<ExtendedAttributeInner>,
@@ -390,7 +390,7 @@ impl Parse for OtherExtendedAttributeInner {
 ///     void
 ///     ArgumentNameKeyword
 ///     BufferRelatedType
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Other {
     IntegerLit(i64),
     FloatLit(f64),
@@ -482,7 +482,7 @@ impl Parse for Other {
 /// ArgumentRest ::
 ///     optional TypeWithExtendedAttributes ArgumentName Default
 ///     Type Ellipsis ArgumentName
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ArgumentRest {
     Optional(OptionalArgumentRest),
     Normal(NormalArgumentRest),
@@ -495,7 +495,7 @@ impl Parse for ArgumentRest {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct OptionalArgumentRest {
     pub optional: Optional,
     pub type_: TypeWithExtendedAttributes,
@@ -513,7 +513,7 @@ impl Parse for OptionalArgumentRest {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct NormalArgumentRest {
     pub type_: Type,
     pub ellipsis: Option<Ellipsis>,
@@ -531,7 +531,7 @@ impl Parse for NormalArgumentRest {
 
 /// TypeWithExtendedAttributes ::
 ///     ExtendedAttributeList Type
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TypeWithExtendedAttributes {
     pub attributes: ExtendedAttributeList,
     pub type_: Type,
@@ -548,7 +548,7 @@ impl Parse for TypeWithExtendedAttributes {
 /// ArgumentName ::
 ///     ArgumentNameKeyword
 ///     identifier
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ArgumentName {
     Keyword(ArgumentNameKeyword),
     Identifier(Identifier),
@@ -583,7 +583,7 @@ impl Parse for ArgumentName {
 ///     stringifier
 ///     typedef
 ///     unrestricted
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ArgumentNameKeyword {
     Attribute(Attribute),
     Callback(Callback),
@@ -639,7 +639,7 @@ impl Parse for ArgumentNameKeyword {
 ///     ε
 ///
 /// Default dictates an optional value. Uses Option<Default> instead.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Default {
     pub assign: Assign,
     pub value: DefaultValue,
@@ -657,7 +657,7 @@ impl Parse for Default {
 ///     ConstValue
 ///     **string**
 ///     **[ ]**
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DefaultValue {
     Const(ConstValue),
     String(String),
@@ -672,7 +672,7 @@ impl Parse for DefaultValue {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct EmptyArrayLit {
     pub open_bracket: OpenBracket,
     pub close_bracket: CloseBracket,
@@ -691,7 +691,7 @@ impl Parse for EmptyArrayLit {
 ///     FloatLiteral
 ///     **integer**
 ///     null
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ConstValue {
     BooleanLiteral(BooleanLiteral),
     FloatLiteral(FloatLiteral),
@@ -711,7 +711,7 @@ impl Parse for ConstValue {
 /// BooleanLiteral ::
 ///     true
 ///     false
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BooleanLiteral {
     True(True),
     False(False),
@@ -729,7 +729,7 @@ impl Parse for BooleanLiteral {
 ///     -Infinity
 ///     Infinity
 ///     NaN
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum FloatLiteral {
     Float(f64),
     NegInfinity(NegInfinity),
@@ -758,7 +758,7 @@ impl Parse for FloatLiteral {
 ///     Uint8ClampedArray
 ///     Float32Array
 ///     Float64Array
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BufferRelatedType {
     ArrayBuffer(ArrayBuffer),
     DataView(DataView),
@@ -792,7 +792,7 @@ impl Parse for BufferRelatedType {
 /// OtherOrComma ::
 ///     Other
 ///     ,
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum OtherOrComma {
     Other(Other),
     Comma(Comma),
@@ -808,7 +808,7 @@ impl Parse for OtherOrComma {
 /// Type ::
 ///     SingleType
 ///     UnionType Null
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Type {
     Single(Box<SingleType>),
     UnionNull(Box<UnionNullType>),
@@ -821,7 +821,7 @@ impl Parse for Type {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct UnionNullType {
     pub type_: MayBeNull<UnionType>
 }
@@ -836,7 +836,7 @@ impl Parse for UnionNullType {
 /// SingleType ::
 ///     NonAnyType
 ///     any
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum SingleType {
     NonAny(NonAnyType),
     Any(Any),
@@ -861,7 +861,7 @@ impl Parse for SingleType {
 ///     BufferRelatedType Null
 ///     FrozenArray < TypeWithExtendedAttributes > Null
 ///     RecordType Null
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum NonAnyType {
     Promise(PromiseType),
     MayBePrimitive(MayBeNull<PrimitiveType>),
@@ -892,7 +892,7 @@ impl Parse for NonAnyType {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SequenceType {
     pub sequence: Sequence,
     pub generics: Generics<TypeWithExtendedAttributes>,
@@ -906,7 +906,7 @@ impl Parse for SequenceType {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct FrozenArrayType {
     pub frozen_array: FrozenArray,
     pub generics: Generics<TypeWithExtendedAttributes>,
@@ -923,7 +923,7 @@ impl Parse for FrozenArrayType {
 /// Null ::
 ///     ?
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MayBeNull<T> {
     pub type_: T,
     pub q_mark: Option<QMark>,
@@ -939,7 +939,7 @@ impl<T: Parse> Parse for MayBeNull<T> {
 
 /// PromiseType ::
 ///    Promise < ReturnType >
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PromiseType {
     pub promise: Promise,
     pub generics: Generics<ReturnType>,
@@ -956,7 +956,7 @@ impl Parse for PromiseType {
 /// ReturnType ::
 ///     Type
 ///     void
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ReturnType {
     Type(Type),
     Void(Void),
@@ -975,7 +975,7 @@ impl Parse for ReturnType {
 ///     boolean
 ///     byte
 ///     octet
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PrimitiveType {
     UnsignedIntegerType(UnsignedIntegerType),
     UnrestrictedFloatType(UnrestrictedFloatType),
@@ -997,7 +997,7 @@ impl Parse for PrimitiveType {
 /// UnsignedIntegerType ::
 ///     unsigned IntegerType
 ///     IntegerType
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct UnsignedIntegerType {
     pub unsigned: Option<Unsigned>,
     pub type_: IntegerType,
@@ -1014,7 +1014,7 @@ impl Parse for UnsignedIntegerType {
 /// IntegerType ::
 ///     short
 ///     long OptionalLong
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum IntegerType {
     Short(Short),
     Long(LongType),
@@ -1030,7 +1030,7 @@ impl Parse for IntegerType {
 /// OptionalLong ::
 ///     long
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LongType {
     pub long: Long,
     pub optional: Option<Long>,
@@ -1047,7 +1047,7 @@ impl Parse for LongType {
 /// UnrestrictedFloatType ::
 ///     unrestricted FloatType
 ///     FloatType
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct UnrestrictedFloatType {
     pub unrestricted: Option<Unrestricted>,
     pub type_: FloatType,
@@ -1064,7 +1064,7 @@ impl Parse for UnrestrictedFloatType {
 /// FloatType ::
 ///     float
 ///     double
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum FloatType {
     Float(Float),
     Double(Double),
@@ -1081,7 +1081,7 @@ impl Parse for FloatType {
 ///     ByteString
 ///     DOMString
 ///     USVString
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum StringType {
     Byte(ByteString),
     DOM(DOMString),
@@ -1098,7 +1098,7 @@ impl Parse for StringType {
 
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct RecordType {
     pub record: Record,
     pub generics: Generics<RecordTypeGenerics>,
@@ -1112,7 +1112,7 @@ impl Parse for RecordType {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct RecordTypeGenerics {
     pub string_type: StringType,
     pub comma: Comma,
@@ -1133,7 +1133,7 @@ impl Parse for RecordTypeGenerics {
 /// UnionMemberTypes ::
 ///     or UnionMemberType UnionMemberTypes
 ///     ε
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct UnionType {
     pub punctuated: Punctuated<UnionMemberType, Or>
 }
@@ -1148,7 +1148,7 @@ impl Parse for UnionType {
 /// UnionMemberType ::
 ///     ExtendedAttributeList NonAnyType
 ///     UnionType Null
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum UnionMemberType {
     Attributed(AttributedUnionMemberType),
     Simple(SimpleUnionMemberType),
@@ -1161,7 +1161,7 @@ impl Parse for UnionMemberType {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct AttributedUnionMemberType {
     pub attributes: ExtendedAttributeList,
     pub type_: NonAnyType,
@@ -1175,7 +1175,7 @@ impl Parse for AttributedUnionMemberType {
     ));
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SimpleUnionMemberType {
     pub type_: MayBeNull<UnionType>
 }
@@ -1189,11 +1189,53 @@ impl Parse for SimpleUnionMemberType {
 
 #[cfg(test)]
 mod test {
-    use super::{ExtendedAttributeNamedArgList, Parse};
+    use super::*;
 
     #[test]
     fn should_take_named_argument_list() {
-        let parsed = ExtendedAttributeNamedArgList::parse("[NamedConstructor=Image(DOMString src)]".into());
-        println!("{:?}", parsed);
+        let (rem, parsed) = ExtendedAttributeNamedArgList::parse("NamedConstructor=Image(DOMString src)".into())
+            .unwrap();
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, ExtendedAttributeNamedArgList {
+            lhs_identifier: Identifier {
+                name: "NamedConstructor".to_string()
+            },
+            assign: Assign,
+            rhs_identifier: Identifier {
+                name: "Image".to_string()
+            },
+            args_signature: Braced {
+                open_brace: OpenBrace,
+                body: ArgumentList {
+                    args: Punctuated {
+                        list: vec![
+                            Argument {
+                                attributes: ExtendedAttributeList {
+                                    list: None
+                                },
+                                rest: ArgumentRest::Normal(NormalArgumentRest {
+                                    name: ArgumentName::Identifier(Identifier {
+                                        name: "src".to_string()
+                                    }),
+                                    type_: Type::Single(
+                                        Box::new(SingleType::NonAny(
+                                            NonAnyType::MayBeString(
+                                                MayBeNull {
+                                                    type_: StringType::DOM(DOMString),
+                                                    q_mark: None
+                                                }
+                                            )
+                                        ))
+                                    ),
+                                    ellipsis: None
+                                }),
+                            },
+                        ],
+                        separator: Comma,
+                    }
+                },
+                close_brace: CloseBrace,
+            },
+        })
     }
 }
