@@ -160,11 +160,11 @@ pub struct InterfaceMembersItem {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-InterfaceMember)
 #[derive(Debug, PartialEq)]
 pub enum InterfaceMember {
-    Const(ConstItem),
+    Const(Const),
     Operation(Operation),
-    Stringifier(StringifierItem),
+    Stringifier(Stringifier),
     StaticMember(StaticMember),
-    Iterable(IterableItem),
+    Iterable(Iterable),
     ReadOnlyMember(ReadOnlyMember),
     ReadWriteAttribute(ReadWriteAttribute),
     ReadWriteMaplike(ReadWriteMaplike),
@@ -181,7 +181,7 @@ pub enum InterfaceMember {
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Const)
 #[derive(Debug, PartialEq)]
-pub struct ConstItem {
+pub struct Const {
     pub const_: term!(const),
     pub const_type: ConstType,
     pub identifier: Identifier,
@@ -283,7 +283,7 @@ pub enum Special {
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Stringifier)
 #[derive(Debug, PartialEq)]
-pub struct StringifierItem {
+pub struct Stringifier {
     pub stringifier: term!(stringifier),
     pub rest: StringifierRest
 }
@@ -357,7 +357,7 @@ pub enum StaticMemberRest {
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Iterable)
 #[derive(Debug, PartialEq)]
-pub struct IterableItem {
+pub struct Iterable {
     pub iterable: term!(iterable),
     pub generics: Generics<IterableGenericsType>
 }
@@ -555,8 +555,8 @@ pub struct MixinMembersItem {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinMember)
 #[derive(Debug, PartialEq)]
 pub enum MixinMember {
-    Const(ConstItem),
+    Const(Const),
     RegularOperation(RegularOperation),
-    Stringifier(StringifierItem),
+    Stringifier(Stringifier),
     ReadOnly(ReadOnlyAttributeRest)
 }
