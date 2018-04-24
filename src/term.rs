@@ -1,6 +1,7 @@
 macro_rules! generate_tokens {
-    ($( $typ:ident => $tok:expr ),*) => {
+    ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
         $(
+            $(#[$attr])*
             #[derive(Debug, Default, PartialEq, Eq)]
             pub struct $typ;
 
@@ -15,89 +16,239 @@ macro_rules! generate_tokens {
 }
 
 generate_tokens! {
+    #[doc="Represents the terminal symbol `{`"]
     OpenParen => "{",
+
+    #[doc="Represents the terminal symbol `}`"]
     CloseParen => "}",
+
+    #[doc="Represents the terminal symbol `[`"]
     OpenBracket => "[",
+
+    #[doc="Represents the terminal symbol `]`"]
     CloseBracket => "]",
+
+    #[doc="Represents the terminal symbol `(`"]
     OpenBrace => "(",
+
+    #[doc="Represents the terminal symbol `)`"]
     CloseBrace => ")",
 
+    #[doc="Represents the terminal symbol `,`"]
     Comma => ",",
+
+    #[doc="Represents the terminal symbol `-`"]
     Minus => "-",
+
+    #[doc="Represents the terminal symbol `.`"]
     Dot => ".",
+
+    #[doc="Represents the terminal symbol `...`"]
     Ellipsis => "...",
+
+    #[doc="Represents the terminal symbol `:`"]
     Colon => ":",
+
+    #[doc="Represents the terminal symbol `;`"]
     SemiColon => ";",
+
+    #[doc="Represents the terminal symbol `<`"]
     LessThan => "<",
+
+    #[doc="Represents the terminal symbol `=`"]
     Assign => "=",
+
+    #[doc="Represents the terminal symbol `>`"]
     GreaterThan => ">",
+
+    #[doc="Represents the terminal symbol `?`"]
     QMark => "?",
 
+    #[doc="Represents the terminal symbol `or`"]
     Or => "or",
+
+    #[doc="Represents the terminal symbol `optional`"]
     Optional => "optional",
+
+    #[doc="Represents the terminal symbol `attribute`"]
     Attribute => "attribute",
+
+    #[doc="Represents the terminal symbol `callback`"]
     Callback => "callback",
+
+    #[doc="Represents the terminal symbol `const`"]
     Const => "const",
+
+    #[doc="Represents the terminal symbol `deleter`"]
     Deleter => "deleter",
+
+    #[doc="Represents the terminal symbol `dictionary`"]
     Dictionary => "dictionary",
+
+    #[doc="Represents the terminal symbol `enum`"]
     Enum => "enum",
+
+    #[doc="Represents the terminal symbol `getter`"]
     Getter => "getter",
+
+    #[doc="Represents the terminal symbol `includes`"]
     Includes => "includes",
+
+    #[doc="Represents the terminal symbol `inherit`"]
     Inherit => "inherit",
+
+    #[doc="Represents the terminal symbol `interface`"]
     Interface => "interface",
+
+    #[doc="Represents the terminal symbol `iterable`"]
     Iterable => "iterable",
+
+    #[doc="Represents the terminal symbol `maplike`"]
     Maplike => "maplike",
+
+    #[doc="Represents the terminal symbol `namespace`"]
     Namespace => "namespace",
+
+    #[doc="Represents the terminal symbol `partial`"]
     Partial => "partial",
+
+    #[doc="Represents the terminal symbol `required`"]
     Required => "required",
+
+    #[doc="Represents the terminal symbol `setlike`"]
     Setlike => "setlike",
+
+    #[doc="Represents the terminal symbol `setter`"]
     Setter => "setter",
+
+    #[doc="Represents the terminal symbol `static`"]
     Static => "static",
+
+    #[doc="Represents the terminal symbol `stringifier`"]
     Stringifier => "stringifier",
+
+    #[doc="Represents the terminal symbol `typedef`"]
     Typedef => "typedef",
+
+    #[doc="Represents the terminal symbol `unrestricted`"]
     Unrestricted => "unrestricted",
+
+    #[doc="Represents the terminal symbol `symbol`"]
     Symbol => "symbol",
 
+    #[doc="Represents the terminal symbol `Infinity`"]
     NegInfinity => "-Infinity",
+
+    #[doc="Represents the terminal symbol `ByteString`"]
     ByteString => "ByteString",
+
+    #[doc="Represents the terminal symbol `DOMString`"]
     DOMString => "DOMString",
+
+    #[doc="Represents the terminal symbol `FrozenArray`"]
     FrozenArray => "FrozenArray",
+
+    #[doc="Represents the terminal symbol `Infinity`"]
     Infinity => "Infinity",
+
+    #[doc="Represents the terminal symbol `NaN`"]
     NaN => "NaN",
+
+    #[doc="Represents the terminal symbol `USVString`"]
     USVString => "USVString",
+
+    #[doc="Represents the terminal symbol `any`"]
     Any => "any",
+
+    #[doc="Represents the terminal symbol `boolean`"]
     Boolean => "boolean",
+
+    #[doc="Represents the terminal symbol `byte`"]
     Byte => "byte",
+
+    #[doc="Represents the terminal symbol `double`"]
     Double => "double",
+
+    #[doc="Represents the terminal symbol `false`"]
     False => "false",
+
+    #[doc="Represents the terminal symbol `float`"]
     Float => "float",
+
+    #[doc="Represents the terminal symbol `long`"]
     Long => "long",
+
+    #[doc="Represents the terminal symbol `null`"]
     Null => "null",
+
+    #[doc="Represents the terminal symbol `object`"]
     Object => "object",
+
+    #[doc="Represents the terminal symbol `octet`"]
     Octet => "octet",
+
+    #[doc="Represents the terminal symbol `sequence`"]
     Sequence => "sequence",
+
+    #[doc="Represents the terminal symbol `short`"]
     Short => "short",
+
+    #[doc="Represents the terminal symbol `true`"]
     True => "true",
+
+    #[doc="Represents the terminal symbol `unsigned`"]
     Unsigned => "unsigned",
+
+    #[doc="Represents the terminal symbol `void`"]
     Void => "void",
+
+    #[doc="Represents the terminal symbol `record`"]
     Record => "record",
 
+    #[doc="Represents the terminal symbol `ArrayBuffer`"]
     ArrayBuffer => "ArrayBuffer",
+
+    #[doc="Represents the terminal symbol `DataView`"]
     DataView => "DataView",
+
+    #[doc="Represents the terminal symbol `Int8Array`"]
     Int8Array => "Int8Array",
+
+    #[doc="Represents the terminal symbol `Int16Array`"]
     Int16Array => "Int16Array",
+
+    #[doc="Represents the terminal symbol `Int32Array`"]
     Int32Array => "Int32Array",
+
+    #[doc="Represents the terminal symbol `Uint8Array`"]
     Uint8Array => "Uint8Array",
+
+    #[doc="Represents the terminal symbol `Uint16Array`"]
     Uint16Array => "Uint16Array",
+
+    #[doc="Represents the terminal symbol `Uint32Array`"]
     Uint32Array => "Uint32Array",
+
+    #[doc="Represents the terminal symbol `Uint8ClampedArray`"]
     Uint8ClampedArray => "Uint8ClampedArray",
+
+    #[doc="Represents the terminal symbol `Float32Array`"]
     Float32Array => "Float32Array",
+
+    #[doc="Represents the terminal symbol `Float64Array`"]
     Float64Array => "Float64Array",
 
+    #[doc="Represents the terminal symbol `Promise`"]
+
     Promise => "Promise",
+
+    #[doc="Represents the terminal symbol `Error`"]
     Error => "Error",
 
+    #[doc="Represents the terminal symbol `readonly`"]
     ReadOnly => "readonly",
+
+    #[doc="Represents the terminal symbol `mixin`"]
     Mixin => "mixin"
 }
 

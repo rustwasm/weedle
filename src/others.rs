@@ -3,6 +3,8 @@ use types::*;
 use Parse;
 use arguments::*;
 
+/// Parses any one of the `Other` variants
+///
 /// ### Grammar
 /// ```
 /// Other ::
@@ -138,6 +140,8 @@ impl Parse for Other {
     ));
 }
 
+/// Parses either `Other` or `,`
+///
 /// ### Grammar
 /// ```
 /// OtherOrComma ::
@@ -159,6 +163,7 @@ impl Parse for OtherOrComma {
     ));
 }
 
+/// Parses rhs of an assignment expression. Ex: `= 45`
 /// ### Grammar
 /// ```
 /// Default ::

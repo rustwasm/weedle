@@ -5,6 +5,11 @@ use Parse;
 use types::*;
 use attributes::*;
 
+/// Parses a `callback` or `interface` definition. Ex:
+/// `callback interface identifier {
+///   /* interface_members */
+/// };`
+///
 /// ### Grammar
 /// ```
 /// CallbackOrInterfaceOrMixin ::
@@ -31,6 +36,8 @@ pub struct InterfaceOrMixinPart {
     pub rest: InterfaceOrMixin,
 }
 
+/// Parses a `callback` definition
+///
 /// ### Grammar
 /// ```
 /// CallbackRestOrInterface ::
@@ -51,6 +58,8 @@ pub struct InterfaceRestPart {
     pub rest: InterfaceRest,
 }
 
+/// Parses the remaining parts of a `callback` definition
+///
 /// ### Grammar
 /// ```
 /// CallbackRest ::
@@ -76,6 +85,8 @@ impl Parse for CallbackRest {
     ));
 }
 
+/// Parses the remaining parts of a interface definition
+///
 /// ### Grammar
 /// ```
 /// InterfaceRest ::
@@ -91,6 +102,8 @@ pub struct InterfaceRest {
     pub semi_colon: term!(;),
 }
 
+/// Parses inheritance definition
+///
 /// ### Grammar
 /// ```
 /// Inheritance ::
@@ -107,6 +120,8 @@ pub struct Inheritance {
     pub identifier: Identifier,
 }
 
+/// Parses interface members
+///
 /// ### Grammar
 /// ```
 /// InterfaceMembers ::
@@ -126,6 +141,8 @@ pub struct InterfaceMembersItem {
     pub member: InterfaceMember,
 }
 
+/// Parses one of the interface member variants
+///
 /// ### Grammar
 /// ```
 /// InterfaceMember ::
@@ -154,6 +171,8 @@ pub enum InterfaceMember {
     ReadWriteSetlike(ReadWriteSetlike),
 }
 
+/// Parses a `const` statement
+///
 /// ### Grammar
 /// ```
 /// Const ::
@@ -171,6 +190,8 @@ pub struct ConstItem {
     pub semi_colon: term!(;)
 }
 
+/// Parses either Regular or Special operation
+///
 /// ### Grammar
 /// ```
 /// Operation ::
@@ -185,6 +206,8 @@ pub enum Operation {
     Special(SpecialOperation)
 }
 
+/// Parses a regular operation with a return type
+///
 /// ### Grammar
 /// ```
 /// RegularOperation ::
@@ -198,6 +221,8 @@ pub struct RegularOperation {
     pub rest: OperationRest
 }
 
+/// Parses rest of the operation definition
+///
 /// ### Grammar
 /// ```
 /// OperationRest ::
@@ -211,6 +236,8 @@ pub struct OperationRest {
     pub braced: Braced<ArgumentList>
 }
 
+/// Parses special operation
+///
 /// ### Grammar
 /// ```
 /// SpecialOperation ::
@@ -228,6 +255,8 @@ pub struct SpecialOperation {
     pub regular_operation: RegularOperation
 }
 
+/// Parses one of the special keyword
+///
 /// ### Grammar
 /// ```
 /// Special ::
@@ -244,6 +273,8 @@ pub enum Special {
     Deleter(term!(deleter))
 }
 
+/// Parses the stringifier statement
+///
 /// ### Grammar
 /// ```
 /// Stringifier ::
@@ -257,6 +288,8 @@ pub struct StringifierItem {
     pub rest: StringifierRest
 }
 
+/// Parses the remaining part of the stringifier statement
+///
 /// ### Grammar
 /// ```
 /// StringifierRest ::
@@ -283,6 +316,8 @@ pub struct ReadOnlyAttributeRest {
     pub rest: AttributeRest
 }
 
+/// Parses a `static` member definition
+///
 /// ### Grammar
 /// ```
 /// StaticMember ::
@@ -296,6 +331,8 @@ pub struct StaticMember {
     pub rest: StaticMemberRest
 }
 
+/// Parses the remaining part of the static member definition
+///
 /// ### Grammar
 /// ```
 /// StaticMemberRest ::
@@ -310,6 +347,8 @@ pub enum StaticMemberRest {
     RegularOperation(RegularOperation)
 }
 
+/// Parses an `iterable` declarations
+///
 /// ### Grammar
 /// ```
 /// Iterable ::
@@ -329,6 +368,8 @@ pub struct IterableGenericsType {
     pub rest: Option<IterableGenericsTypeRest>
 }
 
+/// Parses the optional half of the generics type
+///
 /// ### Grammar
 /// ```
 /// OptionalType ::
@@ -343,6 +384,8 @@ pub struct IterableGenericsTypeRest {
     pub type_: TypeWithExtendedAttributes
 }
 
+/// Parses a `readonly` declaration
+///
 /// ### Grammar
 /// ```
 /// ReadOnlyMember ::
@@ -356,6 +399,8 @@ pub struct ReadOnlyMember {
     pub rest: ReadOnlyMemberRest
 }
 
+/// Parses the remaining part of the `readonly` declaration
+///
 /// ### Grammar
 /// ```
 /// ReadOnlyMemberRest ::
@@ -372,6 +417,8 @@ pub enum ReadOnlyMemberRest {
     ReadWriteSetlike(ReadWriteSetlike)
 }
 
+/// Parses `maplike` declaration
+///
 /// ### Grammar
 /// ```
 /// ReadWriteMaplike ::
@@ -396,6 +443,8 @@ pub struct MaplikeGenericsType {
     pub type_2: TypeWithExtendedAttributes
 }
 
+/// Parses `setlike` declaration
+///
 /// ### Grammar
 /// ```
 /// ReadWriteSetlike ::
@@ -413,6 +462,8 @@ pub struct ReadWriteSetlike {
     pub semi_colon: term!(;)
 }
 
+/// Parses a ReadWrite attribute declaration
+///
 /// ### Grammar
 /// ```
 /// ReadWriteAttribute ::
@@ -438,6 +489,7 @@ pub struct InheritAttribute {
     pub rest: AttributeRest
 }
 
+/// Parses either interface part or a mixin part
 /// ### Grammar
 /// ```
 /// InterfaceOrMixin ::
@@ -452,6 +504,8 @@ pub enum InterfaceOrMixin {
     MixinRest(MixinRest)
 }
 
+/// Parses the half of a mixin
+///
 /// ### Grammar
 /// ```
 /// MixinRest ::
@@ -466,6 +520,8 @@ pub struct MixinRest {
     pub parenthesized: Parenthesized<MixinMembers>
 }
 
+/// Parses the members declarations of a mixin
+///
 /// ### Grammar
 /// ```
 /// MixinMembers ::
@@ -485,6 +541,8 @@ pub struct MixinMembersItem {
     pub member: MixinMember
 }
 
+/// Parses one of the variants of a `mixin` member
+///
 /// ### Grammar
 /// ```
 /// MixinMember ::

@@ -5,6 +5,8 @@ use common::*;
 use attributes::*;
 use others::*;
 
+/// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`
+///
 /// ### Grammar
 /// ```
 /// ArgumentList ::
@@ -29,6 +31,8 @@ impl Parse for ArgumentList {
     ));
 }
 
+/// Parses an argument. Ex: `double v1`
+///
 /// ### Grammar
 /// ```
 /// Argument ::
@@ -50,6 +54,8 @@ impl Parse for Argument {
     ));
 }
 
+/// Parses either optional or non-optional argument. Ex: `optional double alpha` or `double alpha`.
+///
 /// ### Grammar
 /// ```
 /// ArgumentRest ::
@@ -105,6 +111,8 @@ impl Parse for NormalArgumentRest {
     ));
 }
 
+/// Parses the argument name
+///
 /// ### Grammar
 /// ```
 /// ArgumentName ::
@@ -126,6 +134,8 @@ impl Parse for ArgumentName {
     ));
 }
 
+/// Parses any one of the keyword
+///
 /// ### Grammar
 /// ```
 /// ArgumentNameKeyword ::

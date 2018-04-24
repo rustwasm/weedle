@@ -28,6 +28,8 @@ macro_rules! re_capture_static (
   )
 );
 
+/// Represents an **identifier**
+///
 /// ### Grammar
 /// ```
 /// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
@@ -46,8 +48,10 @@ impl Parse for Identifier {
     ));
 }
 
+/// Represents other literal symbols
+///
 /// ### Grammar
-/// ```
+/// ```other
 /// **other** = /[^\t\n\r 0-9A-Za-z]/
 /// ```
 ///
@@ -64,6 +68,8 @@ impl Parse for OtherLit {
     ));
 }
 
+/// Represents an integer value
+///
 /// ### Grammar
 /// ```
 /// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
@@ -83,6 +89,8 @@ impl Parse for i64 {
     ));
 }
 
+/// Represents a floating point value
+///
 /// ### Grammar
 /// ```other
 /// **float** = /-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/
@@ -102,6 +110,8 @@ impl Parse for f64 {
     ));
 }
 
+/// Represents a string value
+///
 /// ### Grammar
 /// ```other
 /// **string** = /"[^"]*"/
@@ -119,12 +129,14 @@ impl Parse for String {
     ));
 }
 
+/// Represents a default literal value
+///
 /// ### Grammar
 /// ```
 /// DefaultValue ::
 ///     ConstValue
 ///     **string**
-///     **[ ]**
+///     [ ]
 /// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-DefaultValue)
@@ -143,6 +155,7 @@ impl Parse for DefaultValue {
     ));
 }
 
+/// Represents `[ ]`
 #[derive(Debug, PartialEq)]
 pub struct EmptyArrayLit {
     pub open_bracket: term!(OpenBracket),
@@ -157,6 +170,8 @@ impl Parse for EmptyArrayLit {
     ));
 }
 
+/// Represents `true`, `false`, `34.23`, `null`, `56`, ...
+///
 /// ### Grammar
 /// ```
 /// ConstValue ::
@@ -184,6 +199,8 @@ impl Parse for ConstValue {
     ));
 }
 
+/// Represents either `true` or `false`
+///
 /// ### Grammar
 /// ```
 /// BooleanLiteral ::
@@ -205,6 +222,8 @@ impl Parse for BooleanLiteral {
     ));
 }
 
+/// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
+///
 /// ### Grammar
 /// ```
 /// FloatLiteral ::

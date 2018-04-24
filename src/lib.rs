@@ -20,7 +20,7 @@ pub mod arguments;
 pub mod types;
 pub mod common;
 pub mod others;
-pub mod callback;
+pub mod interface;
 
 pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;

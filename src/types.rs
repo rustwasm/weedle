@@ -4,6 +4,8 @@ use common::*;
 use attributes::*;
 use term;
 
+/// Parses attributed type
+///
 /// ### Grammar
 /// ```
 /// TypeWithExtendedAttributes ::
@@ -25,6 +27,8 @@ impl Parse for TypeWithExtendedAttributes {
     ));
 }
 
+/// Parses any one of the buffer types
+///
 /// ### Grammar
 /// ```
 /// BufferRelatedType ::
@@ -73,6 +77,8 @@ impl Parse for BufferRelatedType {
     ));
 }
 
+/// Parses either single type or a union type
+///
 /// ### Grammar
 /// ```
 /// Type ::
@@ -106,6 +112,8 @@ impl Parse for UnionNullType {
     ));
 }
 
+/// Parses `any` or non-`any` types
+///
 /// ### Grammar
 /// ```
 /// SingleType ::
@@ -127,6 +135,8 @@ impl Parse for SingleType {
     ));
 }
 
+/// Parses one of the various listed types
+///
 /// ### Grammar
 /// ```
 /// NonAnyType ::
@@ -203,6 +213,8 @@ impl Parse for FrozenArrayType {
     ));
 }
 
+/// Parses a nullable type. Ex: `object?`
+///
 /// ### Grammar
 /// ```
 /// Null ::
@@ -225,6 +237,8 @@ impl<T: Parse> Parse for MayBeNull<T> {
     ));
 }
 
+/// Parses a `Promise<T>` type
+///
 /// ### Grammar
 /// ```
 /// PromiseType ::
@@ -246,6 +260,7 @@ impl Parse for PromiseType {
     ));
 }
 
+/// Parses the return type which may be `void` or any given Type
 /// ### Grammar
 /// ```
 /// ReturnType ::
@@ -267,6 +282,8 @@ impl Parse for ReturnType {
     ));
 }
 
+/// Parses one of the primitive types
+///
 /// ### Grammar
 /// ```
 /// PrimitiveType ::
@@ -297,6 +314,8 @@ impl Parse for PrimitiveType {
     ));
 }
 
+/// Parses either unsigned or signed integer type.
+///
 /// ### Grammar
 /// ```
 /// UnsignedIntegerType ::
@@ -319,6 +338,8 @@ impl Parse for UnsignedIntegerType {
     ));
 }
 
+/// Parses either long or short integer types
+///
 /// ### Grammar
 /// ```
 /// IntegerType ::
@@ -358,6 +379,8 @@ impl Parse for LongType {
     ));
 }
 
+/// Parses either unrestricted or plain float type
+///
 /// ### Grammar
 /// ```
 /// UnrestrictedFloatType ::
@@ -380,6 +403,8 @@ impl Parse for UnrestrictedFloatType {
     ));
 }
 
+/// Parses either `float` or `double`
+///
 /// ### Grammar
 /// ```
 /// FloatType ::
@@ -401,6 +426,8 @@ impl Parse for FloatType {
     ));
 }
 
+/// Parses one of the listed String types
+///
 /// ### Grammar
 /// ```
 /// StringType ::
@@ -425,6 +452,8 @@ impl Parse for StringType {
     ));
 }
 
+/// Parses a `record` type
+///
 /// ### Grammar
 /// ```
 /// RecordType ::
@@ -462,6 +491,8 @@ impl Parse for RecordTypeGenerics {
     ));
 }
 
+/// Parses a union of types
+///
 /// ### Grammar
 /// ```
 /// UnionType ::
@@ -484,6 +515,7 @@ impl Parse for UnionType {
     ));
 }
 
+/// Parses one of the parts of a union type
 /// ### Grammar
 /// ```
 /// UnionMemberType ::
@@ -531,6 +563,8 @@ impl Parse for SimpleUnionMemberType {
     ));
 }
 
+/// Parses a typedef statement
+///
 /// ### Grammar
 /// ```
 /// Typedef ::
@@ -556,6 +590,8 @@ impl Parse for TypeDefinition {
     ));
 }
 
+/// Parses a const type
+///
 /// ### Grammar
 /// ```
 /// ConstType ::

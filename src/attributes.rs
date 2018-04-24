@@ -5,6 +5,8 @@ use arguments::*;
 use others::*;
 use types::*;
 
+/// Takes a named argument list. Ex: `[NamedConstructor=Image(DOMString src)]`
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeNamedArgList ::
@@ -30,6 +32,8 @@ impl Parse for ExtendedAttributeNamedArgList {
     ));
 }
 
+/// Matches attributes of basically any form
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeList ::
@@ -54,6 +58,8 @@ impl Parse for ExtendedAttributeList {
     ));
 }
 
+/// Matches a section of [ExtendedAttributeList](struct.ExtendedAttributeList.html)
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttribute ::
@@ -141,6 +147,8 @@ impl Parse for OtherExtendedAttribute {
     ));
 }
 
+/// Matches a section of [ExtendedAttribute](struct.ExtendedAttribute.html)
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeInner ::
@@ -227,6 +235,8 @@ impl Parse for OtherExtendedAttributeInner {
     ));
 }
 
+/// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeIdentList ::
@@ -250,6 +260,8 @@ impl Parse for ExtendedAttributeIdentList {
     ));
 }
 
+/// Matches comma separated identifier list
+///
 /// ### Grammar
 /// ```
 /// IdentifierList ::
@@ -269,6 +281,8 @@ impl Parse for IdentifierList {
     ));
 }
 
+/// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeIdent ::
@@ -292,6 +306,8 @@ impl Parse for ExtendedAttributeIdent {
     ));
 }
 
+/// Takes an argument list. Ex: `[Constructor(double x, double y)]`
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeArgList ::
@@ -313,6 +329,8 @@ impl Parse for ExtendedAttributeArgList {
     ));
 }
 
+/// Takes no arguments. Ex: `[Replaceable]`
+///
 /// ### Grammar
 /// ```
 /// ExtendedAttributeNoArgs ::
@@ -332,6 +350,8 @@ impl Parse for ExtendedAttributeNoArgs {
     ));
 }
 
+/// Takes input of the form `attribute TheType theIdentifier;`
+///
 /// ### Grammar
 /// ```
 /// AttributeRest ::
@@ -347,11 +367,13 @@ pub struct AttributeRest {
     pub semi_colon: term!(;)
 }
 
+/// Parses either `required` or an **identifier**
+///
 /// ### Grammar
 /// ```
 /// AttributeName ::
 ///     AttributeNameKeyword
-///     identifier
+///     **identifier**
 ///
 /// AttributeNameKeyword ::
 ///     required
