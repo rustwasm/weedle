@@ -605,3 +605,10 @@ pub enum ConstType {
     Primitive(MayBeNull<PrimitiveType>),
     Identifier(MayBeNull<Identifier>)
 }
+
+impl Parse for ConstType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(MayBeNull<PrimitiveType>) => {|inner| ConstType::Primitive(inner)} |
+        weedle!(MayBeNull<Identifier>) => {|inner| ConstType::Identifier(inner)}
+    ));
+}

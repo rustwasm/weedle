@@ -367,6 +367,16 @@ pub struct AttributeRest {
     pub semi_colon: term!(;)
 }
 
+impl Parse for AttributeRest {
+    named!(parse -> Self, do_parse!(
+        attribute: weedle!(term!(attribute)) >>
+        type_: weedle!(TypeWithExtendedAttributes) >>
+        name: weedle!(AttributeName) >>
+        semi_colon: weedle!(term!(;)) >>
+        (AttributeRest { attribute, type_, name, semi_colon })
+    ));
+}
+
 /// Parses either `required` or an **identifier**
 ///
 /// ### Grammar
@@ -384,6 +394,13 @@ pub struct AttributeRest {
 pub enum AttributeName {
     Required(term!(required)),
     Identifier(Identifier)
+}
+
+impl Parse for AttributeName {
+    named!(parse -> Self, alt_complete!(
+        weedle!(term!(required)) => {|inner| AttributeName::Required(inner)} |
+        weedle!(Identifier) => {|inner| AttributeName::Identifier(inner)}
+    ));
 }
 
 #[cfg(test)]
