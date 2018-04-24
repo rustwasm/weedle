@@ -573,20 +573,20 @@ impl Parse for SimpleUnionMemberType {
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Typedef)
 #[derive(Debug, PartialEq)]
-pub struct TypeDefinition {
+pub struct Typedef {
     pub typedef: term!(typedef),
     pub type_: TypeWithExtendedAttributes,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
 
-impl Parse for TypeDefinition {
+impl Parse for Typedef {
     named!(parse -> Self, do_parse!(
         typedef: weedle!(term!(typedef)) >>
         type_: weedle!(TypeWithExtendedAttributes) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
-        (TypeDefinition { typedef, type_, identifier, semi_colon })
+        (Typedef { typedef, type_, identifier, semi_colon })
     ));
 }
 
