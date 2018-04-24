@@ -21,6 +21,7 @@ pub mod types;
 pub mod common;
 pub mod others;
 pub mod interface;
+pub mod enums;
 
 pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;

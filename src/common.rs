@@ -91,3 +91,16 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
         (Punctuated { list, separator: S::default() })
     ));
 }
+
+#[derive(Debug, PartialEq)]
+pub struct PunctuatedNonEmpty<T, S> {
+    pub list: Vec<T>,
+    pub separator: S
+}
+
+impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<T, S> {
+    named!(parse -> Self, do_parse!(
+        list: separated_nonempty_list!(weedle!(S), weedle!(T)) >>
+        (PunctuatedNonEmpty { list, separator: S::default() })
+    ));
+}
