@@ -4,6 +4,7 @@ use Parse;
 use common::*;
 use arguments::*;
 use others::*;
+use types::*;
 
 /// ExtendedAttributeNamedArgList ::
 ///     **identifier** = **identifier** ( ArgumentList )
@@ -285,6 +286,32 @@ impl Parse for ExtendedAttributeNoArgs {
         identifier: weedle!(Identifier) >>
         (ExtendedAttributeNoArgs { identifier })
     ));
+}
+
+/// AttributeRest ::
+///     attribute TypeWithExtendedAttributes AttributeName ;
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeRest)
+#[derive(Debug, PartialEq)]
+pub struct AttributeRest {
+    pub attribute: Attribute,
+    pub type_: TypeWithExtendedAttributes,
+    pub name: AttributeName,
+    pub semi_colon: SemiColon
+}
+
+/// AttributeName ::
+///     AttributeNameKeyword
+///     identifier
+///
+/// AttributeNameKeyword ::
+///     required
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeName)
+#[derive(Debug, PartialEq)]
+pub enum AttributeName {
+    Required(Required),
+    Identifier(Identifier)
 }
 
 #[cfg(test)]

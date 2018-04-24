@@ -19,6 +19,7 @@ mod arguments;
 mod types;
 mod common;
 mod others;
+mod callback;
 
 trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;

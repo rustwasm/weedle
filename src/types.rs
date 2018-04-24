@@ -451,10 +451,10 @@ impl Parse for SimpleUnionMemberType {
 ///     typedef TypeWithExtendedAttributes identifier ;
 #[derive(Debug, PartialEq)]
 pub struct TypeDefinition {
-    typedef: Typedef,
-    type_: TypeWithExtendedAttributes,
-    identifier: Identifier,
-    semi_colon: SemiColon
+    pub typedef: Typedef,
+    pub type_: TypeWithExtendedAttributes,
+    pub identifier: Identifier,
+    pub semi_colon: SemiColon
 }
 
 impl Parse for TypeDefinition {
@@ -465,4 +465,13 @@ impl Parse for TypeDefinition {
         semi_colon: weedle!(SemiColon) >>
         (TypeDefinition { typedef, type_, identifier, semi_colon })
     ));
+}
+
+/// ConstType ::
+///    PrimitiveType Null
+///    identifier Null
+#[derive(Debug, PartialEq)]
+pub enum ConstType {
+    Primitive(MayBeNull<PrimitiveType>),
+    Identifier(MayBeNull<Identifier>)
 }

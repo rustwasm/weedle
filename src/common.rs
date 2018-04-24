@@ -67,7 +67,7 @@ impl<T: Parse> Parse for Braced<T> {
 pub struct Generics<T> {
     pub open_angle: LessThan,
     pub body: T,
-    pub close_angle: GreaterThan,
+    pub close_angle: GreaterThan
 }
 
 impl<T: Parse> Parse for Generics<T> {

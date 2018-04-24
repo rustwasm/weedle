@@ -95,7 +95,10 @@ generate_tokens! {
     Float64Array => "Float64Array",
 
     Promise => "Promise",
-    Error => "Error"
+    Error => "Error",
+
+    ReadOnly => "readonly",
+    Mixin => "mixin"
 }
 
 #[cfg(test)]
