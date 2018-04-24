@@ -1,5 +1,4 @@
 use literals::*;
-use terminals::*;
 use types::*;
 use Parse;
 use arguments::*;
@@ -52,39 +51,39 @@ pub enum Other {
     Identifier(Identifier),
     StringLit(String),
     OtherLit(OtherLit),
-    Minus(Minus),
-    NegInfinity(NegInfinity),
-    Dot(Dot),
-    Ellipsis(Ellipsis),
-    Colon(Colon),
-    SemiColon(SemiColon),
-    LessThan(LessThan),
-    Assign(Assign),
-    GreaterThan(GreaterThan),
-    QMark(QMark),
-    ByteString(ByteString),
-    DOMString(DOMString),
-    FrozenArray(FrozenArray),
-    Infinity(Infinity),
-    NaN(NaN),
-    USVString(USVString),
-    Any(Any),
-    Boolean(Boolean),
-    Byte(Byte),
-    Double(Double),
-    False(False),
-    Float(Float),
-    Long(Long),
-    Null(Null),
-    Object(Object),
-    Octet(Octet),
-    Or(Or),
-    Optional(Optional),
-    Sequence(Sequence),
-    Short(Short),
-    True(True),
-    Unsigned(Unsigned),
-    Void(Void),
+    Minus(term!(-)),
+    NegInfinity(term!(-Infinity)),
+    Dot(term!(.)),
+    Ellipsis(term!(...)),
+    Colon(term!(:)),
+    SemiColon(term!(;)),
+    LessThan(term!(<)),
+    Assign(term!(=)),
+    GreaterThan(term!(>)),
+    QMark(term!(?)),
+    ByteString(term!(ByteString)),
+    DOMString(term!(DOMString)),
+    FrozenArray(term!(FrozenArray)),
+    Infinity(term!(Infinity)),
+    NaN(term!(NaN)),
+    USVString(term!(USVString)),
+    Any(term!(any)),
+    Boolean(term!(boolean)),
+    Byte(term!(byte)),
+    Double(term!(double)),
+    False(term!(false)),
+    Float(term!(float)),
+    Long(term!(long)),
+    Null(term!(null)),
+    Object(term!(object)),
+    Octet(term!(octet)),
+    Or(term!(or)),
+    Optional(term!(optional)),
+    Sequence(term!(sequence)),
+    Short(term!(short)),
+    True(term!(true)),
+    Unsigned(term!(unsigned)),
+    Void(term!(void)),
     ArgumentNameKeyword(ArgumentNameKeyword),
     BufferRelatedType(BufferRelatedType),
 }
@@ -96,39 +95,39 @@ impl Parse for Other {
         weedle!(Identifier) => {|inner| Other::Identifier(inner)} |
         weedle!(String) => {|inner| Other::StringLit(inner)} |
         weedle!(OtherLit) => {|inner| Other::OtherLit(inner)} |
-        weedle!(Minus) => {|inner| Other::Minus(inner)} |
-        weedle!(NegInfinity) => {|inner| Other::NegInfinity(inner)} |
-        weedle!(Dot) => {|inner| Other::Dot(inner)} |
-        weedle!(Ellipsis) => {|inner| Other::Ellipsis(inner)} |
-        weedle!(Colon) => {|inner| Other::Colon(inner)} |
-        weedle!(SemiColon) => {|inner| Other::SemiColon(inner)} |
-        weedle!(LessThan) => {|inner| Other::LessThan(inner)} |
-        weedle!(Assign) => {|inner| Other::Assign(inner)} |
-        weedle!(GreaterThan) => {|inner| Other::GreaterThan(inner)} |
-        weedle!(QMark) => {|inner| Other::QMark(inner)} |
-        weedle!(ByteString) => {|inner| Other::ByteString(inner)} |
-        weedle!(DOMString) => {|inner| Other::DOMString(inner)} |
-        weedle!(FrozenArray) => {|inner| Other::FrozenArray(inner)} |
-        weedle!(Infinity) => {|inner| Other::Infinity(inner)} |
-        weedle!(NaN) => {|inner| Other::NaN(inner)} |
-        weedle!(USVString) => {|inner| Other::USVString(inner)} |
-        weedle!(Any) => {|inner| Other::Any(inner)} |
-        weedle!(Boolean) => {|inner| Other::Boolean(inner)} |
-        weedle!(Byte) => {|inner| Other::Byte(inner)} |
-        weedle!(Double) => {|inner| Other::Double(inner)} |
-        weedle!(False) => {|inner| Other::False(inner)} |
-        weedle!(Float) => {|inner| Other::Float(inner)} |
-        weedle!(Long) => {|inner| Other::Long(inner)} |
-        weedle!(Null) => {|inner| Other::Null(inner)} |
-        weedle!(Object) => {|inner| Other::Object(inner)} |
-        weedle!(Octet) => {|inner| Other::Octet(inner)} |
-        weedle!(Or) => {|inner| Other::Or(inner)} |
-        weedle!(Optional) => {|inner| Other::Optional(inner)} |
-        weedle!(Sequence) => {|inner| Other::Sequence(inner)} |
-        weedle!(Short) => {|inner| Other::Short(inner)} |
-        weedle!(True) => {|inner| Other::True(inner)} |
-        weedle!(Unsigned) => {|inner| Other::Unsigned(inner)} |
-        weedle!(Void) => {|inner| Other::Void(inner)} |
+        weedle!(term!(-)) => {|inner| Other::Minus(inner)} |
+        weedle!(term!(-Infinity)) => {|inner| Other::NegInfinity(inner)} |
+        weedle!(term!(.)) => {|inner| Other::Dot(inner)} |
+        weedle!(term!(...)) => {|inner| Other::Ellipsis(inner)} |
+        weedle!(term!(:)) => {|inner| Other::Colon(inner)} |
+        weedle!(term!(;)) => {|inner| Other::SemiColon(inner)} |
+        weedle!(term!(<)) => {|inner| Other::LessThan(inner)} |
+        weedle!(term!(=)) => {|inner| Other::Assign(inner)} |
+        weedle!(term!(>)) => {|inner| Other::GreaterThan(inner)} |
+        weedle!(term!(?)) => {|inner| Other::QMark(inner)} |
+        weedle!(term!(ByteString)) => {|inner| Other::ByteString(inner)} |
+        weedle!(term!(DOMString)) => {|inner| Other::DOMString(inner)} |
+        weedle!(term!(FrozenArray)) => {|inner| Other::FrozenArray(inner)} |
+        weedle!(term!(Infinity)) => {|inner| Other::Infinity(inner)} |
+        weedle!(term!(NaN)) => {|inner| Other::NaN(inner)} |
+        weedle!(term!(USVString)) => {|inner| Other::USVString(inner)} |
+        weedle!(term!(any)) => {|inner| Other::Any(inner)} |
+        weedle!(term!(boolean)) => {|inner| Other::Boolean(inner)} |
+        weedle!(term!(byte)) => {|inner| Other::Byte(inner)} |
+        weedle!(term!(double)) => {|inner| Other::Double(inner)} |
+        weedle!(term!(false)) => {|inner| Other::False(inner)} |
+        weedle!(term!(float)) => {|inner| Other::Float(inner)} |
+        weedle!(term!(long)) => {|inner| Other::Long(inner)} |
+        weedle!(term!(null)) => {|inner| Other::Null(inner)} |
+        weedle!(term!(object)) => {|inner| Other::Object(inner)} |
+        weedle!(term!(octet)) => {|inner| Other::Octet(inner)} |
+        weedle!(term!(or)) => {|inner| Other::Or(inner)} |
+        weedle!(term!(optional)) => {|inner| Other::Optional(inner)} |
+        weedle!(term!(sequence)) => {|inner| Other::Sequence(inner)} |
+        weedle!(term!(short)) => {|inner| Other::Short(inner)} |
+        weedle!(term!(true)) => {|inner| Other::True(inner)} |
+        weedle!(term!(unsigned)) => {|inner| Other::Unsigned(inner)} |
+        weedle!(term!(void)) => {|inner| Other::Void(inner)} |
         weedle!(ArgumentNameKeyword) => {|inner| Other::ArgumentNameKeyword(inner)} |
         weedle!(BufferRelatedType) => {|inner| Other::BufferRelatedType(inner)}
     ));
@@ -140,13 +139,13 @@ impl Parse for Other {
 #[derive(Debug, PartialEq)]
 pub enum OtherOrComma {
     Other(Other),
-    Comma(Comma),
+    Comma(term!(,)),
 }
 
 impl Parse for OtherOrComma {
     named!(parse -> Self, alt_complete!(
         weedle!(Other) => {|inner| OtherOrComma::Other(inner)} |
-        weedle!(Comma) => {|inner| OtherOrComma::Comma(inner)}
+        weedle!(term!(,)) => {|inner| OtherOrComma::Comma(inner)}
     ));
 }
 
@@ -157,13 +156,13 @@ impl Parse for OtherOrComma {
 /// Default dictates an optional value. Uses Option<Default> instead.
 #[derive(Debug, PartialEq)]
 pub struct Default {
-    pub assign: Assign,
+    pub assign: term!(=),
     pub value: DefaultValue,
 }
 
 impl Parse for Default {
     named!(parse -> Self, do_parse!(
-        assign: weedle!(Assign) >>
+        assign: weedle!(term!(=)) >>
         value: weedle!(DefaultValue) >>
         (Default { assign, value })
     ));

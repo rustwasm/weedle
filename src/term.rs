@@ -61,7 +61,7 @@ generate_tokens! {
     NegInfinity => "-Infinity",
     ByteString => "ByteString",
     DOMString => "DOMString",
-    FrozenArray => "FrozenString",
+    FrozenArray => "FrozenArray",
     Infinity => "Infinity",
     NaN => "NaN",
     USVString => "USVString",
@@ -74,7 +74,7 @@ generate_tokens! {
     Long => "long",
     Null => "null",
     Object => "object",
-    Octet => "octect",
+    Octet => "octet",
     Sequence => "sequence",
     Short => "short",
     True => "true",
@@ -146,7 +146,7 @@ macro_rules! term {
     (-Infinity) => { $crate::term::NegInfinity };
     (ByteString) => { $crate::term::ByteString };
     (DOMString) => { $crate::term::DOMString };
-    (FrozenString) => { $crate::term::FrozenArray };
+    (FrozenArray) => { $crate::term::FrozenArray };
     (Infinity) => { $crate::term::Infinity };
     (NaN) => { $crate::term::NaN };
     (USVString) => { $crate::term::USVString };
@@ -159,7 +159,7 @@ macro_rules! term {
     (long) => { $crate::term::Long };
     (null) => { $crate::term::Null };
     (object) => { $crate::term::Object };
-    (octect) => { $crate::term::Octet };
+    (octet) => { $crate::term::Octet };
     (sequence) => { $crate::term::Sequence };
     (short) => { $crate::term::Short };
     (true) => { $crate::term::True };

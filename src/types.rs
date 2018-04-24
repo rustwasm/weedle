@@ -1,8 +1,8 @@
 use literals::*;
-use terminals::*;
 use Parse;
 use common::*;
 use attributes::*;
+use term;
 
 /// TypeWithExtendedAttributes ::
 ///     ExtendedAttributeList Type
@@ -35,32 +35,32 @@ impl Parse for TypeWithExtendedAttributes {
 ///     Float64Array
 #[derive(Debug, PartialEq)]
 pub enum BufferRelatedType {
-    ArrayBuffer(ArrayBuffer),
-    DataView(DataView),
-    Int8Array(Int8Array),
-    Int16Array(Int16Array),
-    Int32Array(Int32Array),
-    Uint8Array(Uint8Array),
-    Uint16Array(Uint16Array),
-    Uint32Array(Uint32Array),
-    Uint8ClampedArray(Uint8ClampedArray),
-    Float32Array(Float32Array),
-    Float64Array(Float64Array),
+    ArrayBuffer(term!(ArrayBuffer)),
+    DataView(term!(DataView)),
+    Int8Array(term!(Int8Array)),
+    Int16Array(term!(Int16Array)),
+    Int32Array(term!(Int32Array)),
+    Uint8Array(term!(Uint8Array)),
+    Uint16Array(term!(Uint16Array)),
+    Uint32Array(term!(Uint32Array)),
+    Uint8ClampedArray(term!(Uint8ClampedArray)),
+    Float32Array(term!(Float32Array)),
+    Float64Array(term!(Float64Array)),
 }
 
 impl Parse for BufferRelatedType {
     named!(parse -> Self, alt_complete!(
-        weedle!(ArrayBuffer) => {|inner| BufferRelatedType::ArrayBuffer(inner)} |
-        weedle!(DataView) => {|inner| BufferRelatedType::DataView(inner)} |
-        weedle!(Int8Array) => {|inner| BufferRelatedType::Int8Array(inner)} |
-        weedle!(Int16Array) => {|inner| BufferRelatedType::Int16Array(inner)} |
-        weedle!(Int32Array) => {|inner| BufferRelatedType::Int32Array(inner)} |
-        weedle!(Uint8Array) => {|inner| BufferRelatedType::Uint8Array(inner)} |
-        weedle!(Uint16Array) => {|inner| BufferRelatedType::Uint16Array(inner)} |
-        weedle!(Uint32Array) => {|inner| BufferRelatedType::Uint32Array(inner)} |
-        weedle!(Uint8ClampedArray) => {|inner| BufferRelatedType::Uint8ClampedArray(inner)} |
-        weedle!(Float32Array) => {|inner| BufferRelatedType::Float32Array(inner)} |
-        weedle!(Float64Array) => {|inner| BufferRelatedType::Float64Array(inner)}
+        weedle!(term!(ArrayBuffer)) => {|inner| BufferRelatedType::ArrayBuffer(inner)} |
+        weedle!(term!(DataView)) => {|inner| BufferRelatedType::DataView(inner)} |
+        weedle!(term!(Int8Array)) => {|inner| BufferRelatedType::Int8Array(inner)} |
+        weedle!(term!(Int16Array)) => {|inner| BufferRelatedType::Int16Array(inner)} |
+        weedle!(term!(Int32Array)) => {|inner| BufferRelatedType::Int32Array(inner)} |
+        weedle!(term!(Uint8Array)) => {|inner| BufferRelatedType::Uint8Array(inner)} |
+        weedle!(term!(Uint16Array)) => {|inner| BufferRelatedType::Uint16Array(inner)} |
+        weedle!(term!(Uint32Array)) => {|inner| BufferRelatedType::Uint32Array(inner)} |
+        weedle!(term!(Uint8ClampedArray)) => {|inner| BufferRelatedType::Uint8ClampedArray(inner)} |
+        weedle!(term!(Float32Array)) => {|inner| BufferRelatedType::Float32Array(inner)} |
+        weedle!(term!(Float64Array)) => {|inner| BufferRelatedType::Float64Array(inner)}
     ));
 }
 
@@ -99,13 +99,13 @@ impl Parse for UnionNullType {
 #[derive(Debug, PartialEq)]
 pub enum SingleType {
     NonAny(NonAnyType),
-    Any(Any),
+    Any(term!(any)),
 }
 
 impl Parse for SingleType {
     named!(parse -> Self, alt_complete!(
         weedle!(NonAnyType) => {|inner| SingleType::NonAny(inner)} |
-        weedle!(Any) => {|inner| SingleType::Any(inner)}
+        weedle!(term!(any)) => {|inner| SingleType::Any(inner)}
     ));
 }
 
@@ -128,9 +128,9 @@ pub enum NonAnyType {
     MayBeString(MayBeNull<StringType>),
     MayBeIdentifier(MayBeNull<Identifier>),
     MayBeSequence(MayBeNull<SequenceType>),
-    MayBeObject(MayBeNull<Object>),
-    MayBeSymbol(MayBeNull<Symbol>),
-    MayBeError(MayBeNull<Error>),
+    MayBeObject(MayBeNull<term!(object)>),
+    MayBeSymbol(MayBeNull<term!(symbol)>),
+    MayBeError(MayBeNull<term!(Error)>),
     MayBeBufferedRelated(MayBeNull<BufferRelatedType>),
     MayBeFrozenArray(MayBeNull<FrozenArrayType>),
     MayBeRecord(MayBeNull<RecordType>),
@@ -143,9 +143,9 @@ impl Parse for NonAnyType {
         weedle!(MayBeNull<StringType>) => {|inner| NonAnyType::MayBeString(inner)} |
         weedle!(MayBeNull<Identifier>) => {|inner| NonAnyType::MayBeIdentifier(inner)} |
         weedle!(MayBeNull<SequenceType>) => {|inner| NonAnyType::MayBeSequence(inner)} |
-        weedle!(MayBeNull<Object>) => {|inner| NonAnyType::MayBeObject(inner)} |
-        weedle!(MayBeNull<Symbol>) => {|inner| NonAnyType::MayBeSymbol(inner)} |
-        weedle!(MayBeNull<Error>) => {|inner| NonAnyType::MayBeError(inner)} |
+        weedle!(MayBeNull<term!(object)>) => {|inner| NonAnyType::MayBeObject(inner)} |
+        weedle!(MayBeNull<term!(symbol)>) => {|inner| NonAnyType::MayBeSymbol(inner)} |
+        weedle!(MayBeNull<term!(Error)>) => {|inner| NonAnyType::MayBeError(inner)} |
         weedle!(MayBeNull<BufferRelatedType>) => {|inner| NonAnyType::MayBeBufferedRelated(inner)} |
         weedle!(MayBeNull<FrozenArrayType>) => {|inner| NonAnyType::MayBeFrozenArray(inner)} |
         weedle!(MayBeNull<RecordType>) => {|inner| NonAnyType::MayBeRecord(inner)}
@@ -154,13 +154,13 @@ impl Parse for NonAnyType {
 
 #[derive(Debug, PartialEq)]
 pub struct SequenceType {
-    pub sequence: Sequence,
+    pub sequence: term!(sequence),
     pub generics: Generics<TypeWithExtendedAttributes>,
 }
 
 impl Parse for SequenceType {
     named!(parse -> Self, do_parse!(
-        sequence: weedle!(Sequence) >>
+        sequence: weedle!(term!(sequence)) >>
         generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
         (SequenceType { sequence, generics })
     ));
@@ -168,13 +168,13 @@ impl Parse for SequenceType {
 
 #[derive(Debug, PartialEq)]
 pub struct FrozenArrayType {
-    pub frozen_array: FrozenArray,
+    pub frozen_array: term!(FrozenArray),
     pub generics: Generics<TypeWithExtendedAttributes>,
 }
 
 impl Parse for FrozenArrayType {
     named!(parse -> Self, do_parse!(
-        frozen_array: weedle!(FrozenArray) >>
+        frozen_array: weedle!(term!(FrozenArray)) >>
         generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
         (FrozenArrayType { frozen_array, generics })
     ));
@@ -186,13 +186,13 @@ impl Parse for FrozenArrayType {
 #[derive(Debug, PartialEq)]
 pub struct MayBeNull<T> {
     pub type_: T,
-    pub q_mark: Option<QMark>,
+    pub q_mark: Option<term::QMark>,
 }
 
 impl<T: Parse> Parse for MayBeNull<T> {
     named!(parse -> Self, do_parse!(
         type_: weedle!(T) >>
-        q_mark: weedle!(Option<QMark>) >>
+        q_mark: weedle!(Option<term!(?)>) >>
         (MayBeNull { type_, q_mark })
     ));
 }
@@ -201,13 +201,13 @@ impl<T: Parse> Parse for MayBeNull<T> {
 ///    Promise < ReturnType >
 #[derive(Debug, PartialEq)]
 pub struct PromiseType {
-    pub promise: Promise,
+    pub promise: term!(Promise),
     pub generics: Generics<ReturnType>,
 }
 
 impl Parse for PromiseType {
     named!(parse -> Self, do_parse!(
-        promise: weedle!(Promise) >>
+        promise: weedle!(term!(Promise)) >>
         generics: weedle!(Generics<ReturnType>) >>
         (PromiseType { promise, generics })
     ));
@@ -219,13 +219,13 @@ impl Parse for PromiseType {
 #[derive(Debug, PartialEq)]
 pub enum ReturnType {
     Type(Type),
-    Void(Void),
+    Void(term!(void)),
 }
 
 impl Parse for ReturnType {
     named!(parse -> Self, alt_complete!(
         weedle!(Type) => {|inner| ReturnType::Type(inner)} |
-        weedle!(Void) => {|inner| ReturnType::Void(inner)}
+        weedle!(term!(void)) => {|inner| ReturnType::Void(inner)}
     ));
 }
 
@@ -239,18 +239,18 @@ impl Parse for ReturnType {
 pub enum PrimitiveType {
     UnsignedIntegerType(UnsignedIntegerType),
     UnrestrictedFloatType(UnrestrictedFloatType),
-    Boolean(Boolean),
-    Byte(Byte),
-    Octet(Octet),
+    Boolean(term!(boolean)),
+    Byte(term!(byte)),
+    Octet(term!(octet)),
 }
 
 impl Parse for PrimitiveType {
     named!(parse -> Self, alt_complete!(
         weedle!(UnsignedIntegerType) => {|inner| PrimitiveType::UnsignedIntegerType(inner)} |
         weedle!(UnrestrictedFloatType) => {|inner| PrimitiveType::UnrestrictedFloatType(inner)} |
-        weedle!(Boolean) => {|inner| PrimitiveType::Boolean(inner)} |
-        weedle!(Byte) => {|inner| PrimitiveType::Byte(inner)} |
-        weedle!(Octet) => {|inner| PrimitiveType::Octet(inner)}
+        weedle!(term!(boolean)) => {|inner| PrimitiveType::Boolean(inner)} |
+        weedle!(term!(byte)) => {|inner| PrimitiveType::Byte(inner)} |
+        weedle!(term!(octet)) => {|inner| PrimitiveType::Octet(inner)}
     ));
 }
 
@@ -259,13 +259,13 @@ impl Parse for PrimitiveType {
 ///     IntegerType
 #[derive(Debug, PartialEq)]
 pub struct UnsignedIntegerType {
-    pub unsigned: Option<Unsigned>,
+    pub unsigned: Option<term!(unsigned)>,
     pub type_: IntegerType,
 }
 
 impl Parse for UnsignedIntegerType {
     named!(parse -> Self, do_parse!(
-        unsigned: weedle!(Option<Unsigned>) >>
+        unsigned: weedle!(Option<term!(unsigned)>) >>
         type_: weedle!(IntegerType) >>
         (UnsignedIntegerType { unsigned, type_ })
     ));
@@ -276,13 +276,13 @@ impl Parse for UnsignedIntegerType {
 ///     long OptionalLong
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
-    Short(Short),
+    Short(term!(short)),
     Long(LongType),
 }
 
 impl Parse for IntegerType {
     named!(parse -> Self, alt_complete!(
-        weedle!(Short) => {|inner| IntegerType::Short(inner)} |
+        weedle!(term!(short)) => {|inner| IntegerType::Short(inner)} |
         weedle!(LongType) => {|inner| IntegerType::Long(inner)}
     ));
 }
@@ -292,14 +292,14 @@ impl Parse for IntegerType {
 ///     ε
 #[derive(Debug, PartialEq)]
 pub struct LongType {
-    pub long: Long,
-    pub optional: Option<Long>,
+    pub long: term!(long),
+    pub optional: Option<term!(long)>,
 }
 
 impl Parse for LongType {
     named!(parse -> Self, do_parse!(
-        long: weedle!(Long) >>
-        optional: weedle!(Option<Long>) >>
+        long: weedle!(term!(long)) >>
+        optional: weedle!(Option<term!(long)>) >>
         (LongType { long, optional })
     ));
 }
@@ -309,13 +309,13 @@ impl Parse for LongType {
 ///     FloatType
 #[derive(Debug, PartialEq)]
 pub struct UnrestrictedFloatType {
-    pub unrestricted: Option<Unrestricted>,
+    pub unrestricted: Option<term!(unrestricted)>,
     pub type_: FloatType,
 }
 
 impl Parse for UnrestrictedFloatType {
     named!(parse -> Self, do_parse!(
-        unrestricted: weedle!(Option<Unrestricted>) >>
+        unrestricted: weedle!(Option<term!(unrestricted)>) >>
         type_: weedle!(FloatType) >>
         (UnrestrictedFloatType { unrestricted, type_ })
     ));
@@ -326,14 +326,14 @@ impl Parse for UnrestrictedFloatType {
 ///     double
 #[derive(Debug, PartialEq)]
 pub enum FloatType {
-    Float(Float),
-    Double(Double),
+    Float(term!(float)),
+    Double(term!(double)),
 }
 
 impl Parse for FloatType {
     named!(parse -> Self, alt_complete!(
-        weedle!(Float) => {|inner| FloatType::Float(inner)} |
-        weedle!(Double) => {|inner| FloatType::Double(inner)}
+        weedle!(term!(float)) => {|inner| FloatType::Float(inner)} |
+        weedle!(term!(double)) => {|inner| FloatType::Double(inner)}
     ));
 }
 
@@ -343,16 +343,16 @@ impl Parse for FloatType {
 ///     USVString
 #[derive(Debug, PartialEq)]
 pub enum StringType {
-    Byte(ByteString),
-    DOM(DOMString),
-    USV(USVString),
+    Byte(term!(ByteString)),
+    DOM(term!(DOMString)),
+    USV(term!(USVString)),
 }
 
 impl Parse for StringType {
     named!(parse -> Self, alt_complete!(
-        weedle!(ByteString) => {|inner| StringType::Byte(inner)} |
-        weedle!(DOMString) => {|inner| StringType::DOM(inner)} |
-        weedle!(USVString) => {|inner| StringType::USV(inner)}
+        weedle!(term!(ByteString)) => {|inner| StringType::Byte(inner)} |
+        weedle!(term!(DOMString)) => {|inner| StringType::DOM(inner)} |
+        weedle!(term!(USVString)) => {|inner| StringType::USV(inner)}
     ));
 }
 
@@ -360,13 +360,13 @@ impl Parse for StringType {
 ///     record < StringType , TypeWithExtendedAttributes >
 #[derive(Debug, PartialEq)]
 pub struct RecordType {
-    pub record: Record,
+    pub record: term!(record),
     pub generics: Generics<RecordTypeGenerics>,
 }
 
 impl Parse for RecordType {
     named!(parse -> Self, do_parse!(
-        record: weedle!(Record) >>
+        record: weedle!(term!(record)) >>
         generics: weedle!(Generics<RecordTypeGenerics>) >>
         (RecordType { record, generics })
     ));
@@ -375,14 +375,14 @@ impl Parse for RecordType {
 #[derive(Debug, PartialEq)]
 pub struct RecordTypeGenerics {
     pub string_type: StringType,
-    pub comma: Comma,
+    pub comma: term!(,),
     pub type_: TypeWithExtendedAttributes,
 }
 
 impl Parse for RecordTypeGenerics {
     named!(parse -> Self, do_parse!(
         string_type: weedle!(StringType) >>
-        comma: weedle!(Comma) >>
+        comma: weedle!(term!(,)) >>
         type_: weedle!(TypeWithExtendedAttributes) >>
         (RecordTypeGenerics { string_type, comma, type_ })
     ));
@@ -395,12 +395,12 @@ impl Parse for RecordTypeGenerics {
 ///     ε
 #[derive(Debug, PartialEq)]
 pub struct UnionType {
-    pub punctuated: Punctuated<UnionMemberType, Or>
+    pub punctuated: Punctuated<UnionMemberType, term!(or)>
 }
 
 impl Parse for UnionType {
     named!(parse -> Self, do_parse!(
-        punctuated: weedle!(Punctuated<UnionMemberType, Or>) >>
+        punctuated: weedle!(Punctuated<UnionMemberType, term!(or)>) >>
         (UnionType { punctuated })
     ));
 }
@@ -451,18 +451,18 @@ impl Parse for SimpleUnionMemberType {
 ///     typedef TypeWithExtendedAttributes identifier ;
 #[derive(Debug, PartialEq)]
 pub struct TypeDefinition {
-    pub typedef: Typedef,
+    pub typedef: term!(typedef),
     pub type_: TypeWithExtendedAttributes,
     pub identifier: Identifier,
-    pub semi_colon: SemiColon
+    pub semi_colon: term!(;)
 }
 
 impl Parse for TypeDefinition {
     named!(parse -> Self, do_parse!(
-        typedef: weedle!(Typedef) >>
+        typedef: weedle!(term!(typedef)) >>
         type_: weedle!(TypeWithExtendedAttributes) >>
         identifier: weedle!(Identifier) >>
-        semi_colon: weedle!(SemiColon) >>
+        semi_colon: weedle!(term!(;)) >>
         (TypeDefinition { typedef, type_, identifier, semi_colon })
     ));
 }

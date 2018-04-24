@@ -12,7 +12,8 @@ use nom::{IResult, types::CompleteStr};
 
 #[macro_use]
 mod macros;
-mod terminals;
+#[macro_use]
+mod term;
 mod literals;
 mod attributes;
 mod arguments;

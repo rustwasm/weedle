@@ -1,5 +1,4 @@
 use literals::*;
-use terminals::*;
 use types::*;
 use Parse;
 use common::*;
@@ -15,12 +14,12 @@ use others::*;
 ///     ε
 #[derive(Debug, PartialEq)]
 pub struct ArgumentList {
-    pub args: Punctuated<Argument, Comma>
+    pub args: Punctuated<Argument, term!(,)>
 }
 
 impl Parse for ArgumentList {
     named!(parse -> Self, do_parse!(
-        args: weedle!(Punctuated<Argument, Comma>) >>
+        args: weedle!(Punctuated<Argument, term!(,)>) >>
         (ArgumentList { args })
     ));
 }
@@ -60,7 +59,7 @@ impl Parse for ArgumentRest {
 
 #[derive(Debug, PartialEq)]
 pub struct OptionalArgumentRest {
-    pub optional: Optional,
+    pub optional: term!(optional),
     pub type_: TypeWithExtendedAttributes,
     pub name: ArgumentName,
     pub default: Option<Default>,
@@ -68,7 +67,7 @@ pub struct OptionalArgumentRest {
 
 impl Parse for OptionalArgumentRest {
     named!(parse -> Self, do_parse!(
-        optional: weedle!(Optional) >>
+        optional: weedle!(term!(optional)) >>
         type_: weedle!(TypeWithExtendedAttributes) >>
         name: weedle!(ArgumentName) >>
         default: weedle!(Option<Default>) >>
@@ -79,14 +78,14 @@ impl Parse for OptionalArgumentRest {
 #[derive(Debug, PartialEq)]
 pub struct NormalArgumentRest {
     pub type_: Type,
-    pub ellipsis: Option<Ellipsis>,
+    pub ellipsis: Option<term!(...)>,
     pub name: ArgumentName,
 }
 
 impl Parse for NormalArgumentRest {
     named!(parse -> Self, do_parse!(
         type_: weedle!(Type) >>
-        ellipsis: weedle!(Option<Ellipsis>) >>
+        ellipsis: weedle!(Option<term!(...)>) >>
         name: weedle!(ArgumentName) >>
         (NormalArgumentRest { type_, ellipsis, name })
     ));
@@ -132,52 +131,52 @@ impl Parse for ArgumentName {
 ///     unrestricted
 #[derive(Debug, PartialEq)]
 pub enum ArgumentNameKeyword {
-    Attribute(Attribute),
-    Callback(Callback),
-    Const(Const),
-    Deleter(Deleter),
-    Dictionary(Dictionary),
-    Enum(Enum),
-    Getter(Getter),
-    Includes(Includes),
-    Inherit(Inherit),
-    Interface(Interface),
-    Iterable(Iterable),
-    Maplike(Maplike),
-    Namespace(Namespace),
-    Partial(Partial),
-    Required(Required),
-    Setlike(Setlike),
-    Setter(Setter),
-    Static(Static),
-    Stringifier(Stringifier),
-    Typedef(Typedef),
-    Unrestricted(Unrestricted),
+    Attribute(term!(attribute)),
+    Callback(term!(callback)),
+    Const(term!(const)),
+    Deleter(term!(deleter)),
+    Dictionary(term!(dictionary)),
+    Enum(term!(enum)),
+    Getter(term!(getter)),
+    Includes(term!(includes)),
+    Inherit(term!(inherit)),
+    Interface(term!(interface)),
+    Iterable(term!(iterable)),
+    Maplike(term!(maplike)),
+    Namespace(term!(namespace)),
+    Partial(term!(partial)),
+    Required(term!(required)),
+    Setlike(term!(setlike)),
+    Setter(term!(setter)),
+    Static(term!(static)),
+    Stringifier(term!(stringifier)),
+    Typedef(term!(typedef)),
+    Unrestricted(term!(unrestricted)),
 }
 
 impl Parse for ArgumentNameKeyword {
     named!(parse -> Self, alt_complete!(
-        weedle!(Attribute) => {|inner| ArgumentNameKeyword::Attribute(inner)} |
-        weedle!(Callback) => {|inner| ArgumentNameKeyword::Callback(inner)} |
-        weedle!(Const) => {|inner| ArgumentNameKeyword::Const(inner)} |
-        weedle!(Deleter) => {|inner| ArgumentNameKeyword::Deleter(inner)} |
-        weedle!(Dictionary) => {|inner| ArgumentNameKeyword::Dictionary(inner)} |
-        weedle!(Enum) => {|inner| ArgumentNameKeyword::Enum(inner)} |
-        weedle!(Getter) => {|inner| ArgumentNameKeyword::Getter(inner)} |
-        weedle!(Includes) => {|inner| ArgumentNameKeyword::Includes(inner)} |
-        weedle!(Inherit) => {|inner| ArgumentNameKeyword::Inherit(inner)} |
-        weedle!(Interface) => {|inner| ArgumentNameKeyword::Interface(inner)} |
-        weedle!(Iterable) => {|inner| ArgumentNameKeyword::Iterable(inner)} |
-        weedle!(Maplike) => {|inner| ArgumentNameKeyword::Maplike(inner)} |
-        weedle!(Namespace) => {|inner| ArgumentNameKeyword::Namespace(inner)} |
-        weedle!(Partial) => {|inner| ArgumentNameKeyword::Partial(inner)} |
-        weedle!(Required) => {|inner| ArgumentNameKeyword::Required(inner)} |
-        weedle!(Setlike) => {|inner| ArgumentNameKeyword::Setlike(inner)} |
-        weedle!(Setter) => {|inner| ArgumentNameKeyword::Setter(inner)} |
-        weedle!(Static) => {|inner| ArgumentNameKeyword::Static(inner)} |
-        weedle!(Stringifier) => {|inner| ArgumentNameKeyword::Stringifier(inner)} |
-        weedle!(Typedef) => {|inner| ArgumentNameKeyword::Typedef(inner)} |
-        weedle!(Unrestricted) => {|inner| ArgumentNameKeyword::Unrestricted(inner)}
+        weedle!(term!(attribute)) => {|inner| ArgumentNameKeyword::Attribute(inner)} |
+        weedle!(term!(callback)) => {|inner| ArgumentNameKeyword::Callback(inner)} |
+        weedle!(term!(const)) => {|inner| ArgumentNameKeyword::Const(inner)} |
+        weedle!(term!(deleter)) => {|inner| ArgumentNameKeyword::Deleter(inner)} |
+        weedle!(term!(dictionary)) => {|inner| ArgumentNameKeyword::Dictionary(inner)} |
+        weedle!(term!(enum)) => {|inner| ArgumentNameKeyword::Enum(inner)} |
+        weedle!(term!(getter)) => {|inner| ArgumentNameKeyword::Getter(inner)} |
+        weedle!(term!(includes)) => {|inner| ArgumentNameKeyword::Includes(inner)} |
+        weedle!(term!(inherit)) => {|inner| ArgumentNameKeyword::Inherit(inner)} |
+        weedle!(term!(interface)) => {|inner| ArgumentNameKeyword::Interface(inner)} |
+        weedle!(term!(iterable)) => {|inner| ArgumentNameKeyword::Iterable(inner)} |
+        weedle!(term!(maplike)) => {|inner| ArgumentNameKeyword::Maplike(inner)} |
+        weedle!(term!(namespace)) => {|inner| ArgumentNameKeyword::Namespace(inner)} |
+        weedle!(term!(partial)) => {|inner| ArgumentNameKeyword::Partial(inner)} |
+        weedle!(term!(required)) => {|inner| ArgumentNameKeyword::Required(inner)} |
+        weedle!(term!(setlike)) => {|inner| ArgumentNameKeyword::Setlike(inner)} |
+        weedle!(term!(setter)) => {|inner| ArgumentNameKeyword::Setter(inner)} |
+        weedle!(term!(static)) => {|inner| ArgumentNameKeyword::Static(inner)} |
+        weedle!(term!(stringifier)) => {|inner| ArgumentNameKeyword::Stringifier(inner)} |
+        weedle!(term!(typedef)) => {|inner| ArgumentNameKeyword::Typedef(inner)} |
+        weedle!(term!(unrestricted)) => {|inner| ArgumentNameKeyword::Unrestricted(inner)}
     ));
 }
 

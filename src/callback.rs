@@ -1,5 +1,4 @@
 use literals::*;
-use terminals::*;
 use arguments::*;
 use common::*;
 use Parse;
@@ -17,13 +16,13 @@ pub enum CallbackOrInterfaceOrMixin {
 
 #[derive(Debug, PartialEq)]
 pub struct CallbackRestOrInterfacePart {
-    pub callback: Callback,
+    pub callback: term!(callback),
     pub rest: CallbackRestOrInterface,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct InterfaceOrMixinPart {
-    pub interface: Interface,
+    pub interface: term!(interface),
     pub rest: InterfaceOrMixin,
 }
 
@@ -38,16 +37,16 @@ pub enum CallbackRestOrInterface {
 
 #[derive(Debug, PartialEq)]
 pub struct InterfaceRestPart {
-    pub interface: Interface,
+    pub interface: term!(interface),
     pub rest: InterfaceRest,
 }
 
 /// CallbackRest ::
-///     identifier = ReturnType ( ArgumentList ) ;
+///     **identifier** = ReturnType ( ArgumentList ) ;
 #[derive(Debug, PartialEq)]
 pub struct CallbackRest {
     pub identifier: Identifier,
-    pub assign: Assign,
+    pub assign: term!(=),
     pub return_type: ReturnType,
     pub braced: Braced<ArgumentList>,
 }
@@ -55,7 +54,7 @@ pub struct CallbackRest {
 impl Parse for CallbackRest {
     named!(parse -> Self, do_parse!(
         identifier: weedle!(Identifier) >>
-        assign: weedle!(Assign) >>
+        assign: weedle!(term!(=)) >>
         return_type: weedle!(ReturnType) >>
         braced: weedle!(Braced<ArgumentList>) >>
         (CallbackRest { identifier, assign, return_type, braced })
@@ -63,23 +62,23 @@ impl Parse for CallbackRest {
 }
 
 /// InterfaceRest ::
-///     identifier Inheritance { InterfaceMembers } ;
+///     **identifier** Inheritance { InterfaceMembers } ;
 #[derive(Debug, PartialEq)]
 pub struct InterfaceRest {
     pub identifier: Identifier,
     pub inheritance: Option<Inheritance>,
     pub parenthesized: Parenthesized<InterfaceMembers>,
-    pub semi_colon: SemiColon,
+    pub semi_colon: term!(;),
 }
 
 /// Inheritance ::
-///     : identifier
+///     : **identifier**
 ///     ε
 ///
 /// Since it is optional, Option<Inheritance> be used
 #[derive(Debug, PartialEq)]
 pub struct Inheritance {
-    pub colon: Colon,
+    pub colon: term!(:),
     pub identifier: Identifier,
 }
 
@@ -124,12 +123,12 @@ pub enum InterfaceMember {
 ///     const ConstType identifier = ConstValue ;
 #[derive(Debug, PartialEq)]
 pub struct ConstItem {
-    pub const_: Const,
+    pub const_: term!(const),
     pub const_type: ConstType,
     pub identifier: Identifier,
-    pub assign: Assign,
+    pub assign: term!(=),
     pub const_value: ConstValue,
-    pub semi_colon: SemiColon
+    pub semi_colon: term!(;)
 }
 
 /// Operation ::
@@ -171,9 +170,9 @@ pub struct SpecialOperation {
 ///     deleter
 #[derive(Debug, PartialEq)]
 pub enum Special {
-    Getter(Getter),
-    Setter(Setter),
-    Deleter(Deleter)
+    Getter(term!(getter)),
+    Setter(term!(setter)),
+    Deleter(term!(deleter))
 }
 
 /// Stringifier ::
@@ -182,7 +181,7 @@ pub enum Special {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Stringifier)
 #[derive(Debug, PartialEq)]
 pub struct StringifierItem {
-    pub stringifier: Stringifier,
+    pub stringifier: term!(stringifier),
     pub rest: StringifierRest
 }
 
@@ -191,17 +190,21 @@ pub struct StringifierItem {
 ///     RegularOperation
 ///     ;
 ///
+/// ReadOnly ::
+///     readonly
+///     ε
+///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StringifierRest)
 #[derive(Debug, PartialEq)]
 pub enum StringifierRest {
     ReadOnly(ReadOnlyAttributeRest),
     RegularOperation(RegularOperation),
-    SemiColon(SemiColon)
+    SemiColon(term!(;))
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ReadOnlyAttributeRest {
-    pub readonly: Option<ReadOnly>,
+    pub readonly: Option<term!(readonly)>,
     pub rest: AttributeRest
 }
 
@@ -211,7 +214,7 @@ pub struct ReadOnlyAttributeRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StaticMember)
 #[derive(Debug, PartialEq)]
 pub struct StaticMember {
-    pub static_: Static,
+    pub static_: term!(static),
     pub rest: StaticMemberRest
 }
 
@@ -232,7 +235,7 @@ pub enum StaticMemberRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Iterable)
 #[derive(Debug, PartialEq)]
 pub struct IterableItem {
-    pub iterable: Iterable,
+    pub iterable: term!(iterable),
     pub generics: Generics<IterableGenericsType>
 }
 
@@ -249,7 +252,7 @@ pub struct IterableGenericsType {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-OptionalType)
 #[derive(Debug, PartialEq)]
 pub struct IterableGenericsTypeRest {
-    pub comma: Comma,
+    pub comma: term!(,),
     pub type_: TypeWithExtendedAttributes
 }
 
@@ -259,7 +262,7 @@ pub struct IterableGenericsTypeRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadOnlyMember)
 #[derive(Debug, PartialEq)]
 pub struct ReadOnlyMember {
-    pub readonly: ReadOnly,
+    pub readonly: term!(readonly),
     pub rest: ReadOnlyMemberRest
 }
 
@@ -285,15 +288,15 @@ pub enum ReadOnlyMemberRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadWriteMaplike)
 #[derive(Debug, PartialEq)]
 pub struct ReadWriteMaplike {
-    pub maplike: Maplike,
+    pub maplike: term!(maplike),
     pub generics: Generics<MaplikeGenericsType>,
-    pub semi_colon: SemiColon
+    pub semi_colon: term!(;)
 }
 
 #[derive(Debug, PartialEq)]
 pub struct MaplikeGenericsType {
     pub type_1: TypeWithExtendedAttributes,
-    pub comma: Comma,
+    pub comma: term!(,),
     pub type_2: TypeWithExtendedAttributes
 }
 
@@ -306,9 +309,9 @@ pub struct MaplikeGenericsType {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadWriteSetlike)
 #[derive(Debug, PartialEq)]
 pub struct ReadWriteSetlike {
-    pub setlike: Setlike,
+    pub setlike: term!(setlike),
     pub generics: Generics<TypeWithExtendedAttributes>,
-    pub semi_colon: SemiColon
+    pub semi_colon: term!(;)
 }
 
 /// ReadWriteAttribute ::
@@ -328,8 +331,8 @@ pub enum ReadWriteAttribute {
 
 #[derive(Debug, PartialEq)]
 pub struct InheritAttribute {
-    pub inherit: Inherit,
-    pub readonly: Option<ReadOnly>,
+    pub inherit: term!(inherit),
+    pub readonly: Option<term!(readonly)>,
     pub rest: AttributeRest
 }
 
@@ -345,12 +348,12 @@ pub enum InterfaceOrMixin {
 }
 
 /// MixinRest ::
-///     mixin identifier { MixinMembers } ;
+///     mixin **identifier** { MixinMembers } ;
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinRest)
 #[derive(Debug, PartialEq)]
 pub struct MixinRest {
-    pub mixin: Mixin,
+    pub mixin: term!(mixin),
     pub identifier: Identifier,
     pub parenthesized: Parenthesized<MixinMembers>
 }

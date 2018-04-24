@@ -1,5 +1,4 @@
 use literals::*;
-use terminals::*;
 use Parse;
 use common::*;
 use arguments::*;
@@ -11,7 +10,7 @@ use types::*;
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
-    pub assign: Assign,
+    pub assign: term!(=),
     pub rhs_identifier: Identifier,
     pub args_signature: Braced<ArgumentList>,
 }
@@ -19,7 +18,7 @@ pub struct ExtendedAttributeNamedArgList {
 impl Parse for ExtendedAttributeNamedArgList {
     named!(parse -> Self, do_parse!(
         lhs_identifier: weedle!(Identifier) >>
-        assign: weedle!(Assign) >>
+        assign: weedle!(term!(=)) >>
         rhs_identifier: weedle!(Identifier) >>
         args_signature: weedle!(Braced<ArgumentList>) >>
         (ExtendedAttributeNamedArgList { lhs_identifier, assign, rhs_identifier, args_signature })
@@ -35,12 +34,12 @@ impl Parse for ExtendedAttributeNamedArgList {
 ///     ε
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeList {
-    pub list: Option<Bracketed<Punctuated<ExtendedAttribute, Comma>>>
+    pub list: Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>
 }
 
 impl Parse for ExtendedAttributeList {
     named!(parse -> Self, do_parse!(
-        list: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, Comma>>>) >>
+        list: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>) >>
         (ExtendedAttributeList { list })
     ));
 }
@@ -213,14 +212,14 @@ impl Parse for OtherExtendedAttributeInner {
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdentList {
     pub identifier: Identifier,
-    pub assign: Assign,
+    pub assign: term!(=),
     pub braced: Braced<IdentifierList>
 }
 
 impl Parse for ExtendedAttributeIdentList {
     named!(parse -> Self, do_parse!(
         identifier: weedle!(Identifier) >>
-        assign: weedle!(Assign) >>
+        assign: weedle!(term!(=)) >>
         braced: weedle!(Braced<IdentifierList>) >>
         (ExtendedAttributeIdentList { identifier, assign, braced })
     ));
@@ -230,12 +229,12 @@ impl Parse for ExtendedAttributeIdentList {
 ///     identifier Identifiers
 #[derive(Debug, PartialEq)]
 pub struct IdentifierList {
-    pub punctuated: Punctuated<Identifier, Comma>
+    pub punctuated: Punctuated<Identifier, term!(,)>
 }
 
 impl Parse for IdentifierList {
     named!(parse -> Self, do_parse!(
-        punctuated: weedle!(Punctuated<Identifier, Comma>) >>
+        punctuated: weedle!(Punctuated<Identifier, term!(,)>) >>
         (IdentifierList { punctuated })
     ));
 }
@@ -245,14 +244,14 @@ impl Parse for IdentifierList {
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdent {
     pub lhs_identifier: Identifier,
-    pub assign: Assign,
+    pub assign: term!(=),
     pub rhs_identifier: Identifier
 }
 
 impl Parse for ExtendedAttributeIdent {
     named!(parse -> Self, do_parse!(
         lhs_identifier: weedle!(Identifier) >>
-        assign: weedle!(Assign) >>
+        assign: weedle!(term!(=)) >>
         rhs_identifier: weedle!(Identifier) >>
         (ExtendedAttributeIdent { lhs_identifier, assign, rhs_identifier })
     ));
@@ -294,10 +293,10 @@ impl Parse for ExtendedAttributeNoArgs {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeRest)
 #[derive(Debug, PartialEq)]
 pub struct AttributeRest {
-    pub attribute: Attribute,
+    pub attribute: term!(attribute),
     pub type_: TypeWithExtendedAttributes,
     pub name: AttributeName,
-    pub semi_colon: SemiColon
+    pub semi_colon: term!(;)
 }
 
 /// AttributeName ::
@@ -310,7 +309,7 @@ pub struct AttributeRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeName)
 #[derive(Debug, PartialEq)]
 pub enum AttributeName {
-    Required(Required),
+    Required(term!(required)),
     Identifier(Identifier)
 }
 
@@ -329,7 +328,7 @@ mod test {
             lhs_identifier: Identifier {
                 name: "NamedConstructor".to_string()
             },
-            assign: Assign,
+            assign: term!(=),
             rhs_identifier: Identifier {
                 name: "Image".to_string()
             },
