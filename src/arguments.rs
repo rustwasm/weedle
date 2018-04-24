@@ -8,7 +8,7 @@ use others::*;
 /// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ArgumentList ::
 ///     Argument Arguments
 ///     ε
@@ -34,7 +34,7 @@ impl Parse for ArgumentList {
 /// Parses an argument. Ex: `double v1`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Argument ::
 ///     ExtendedAttributeList ArgumentRest
 /// ```
@@ -57,7 +57,7 @@ impl Parse for Argument {
 /// Parses either optional or non-optional argument. Ex: `optional double alpha` or `double alpha`.
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ArgumentRest ::
 ///     optional TypeWithExtendedAttributes ArgumentName Default
 ///     Type Ellipsis ArgumentName
@@ -114,7 +114,7 @@ impl Parse for NormalArgumentRest {
 /// Parses the argument name
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ArgumentName ::
 ///     ArgumentNameKeyword
 ///     **identifier**
@@ -137,7 +137,7 @@ impl Parse for ArgumentName {
 /// Parses any one of the keyword
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ArgumentNameKeyword ::
 ///     attribute
 ///     callback

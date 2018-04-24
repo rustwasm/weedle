@@ -11,7 +11,7 @@ use attributes::*;
 /// };`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// CallbackOrInterfaceOrMixin ::
 ///     callback CallbackRestOrInterface
 ///     interface InterfaceOrMixin
@@ -39,7 +39,7 @@ pub struct InterfaceOrMixinPart {
 /// Parses a `callback` definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// CallbackRestOrInterface ::
 ///     CallbackRest
 ///     interface InterfaceRest
@@ -61,7 +61,7 @@ pub struct InterfaceRestPart {
 /// Parses the remaining parts of a `callback` definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// CallbackRest ::
 ///     **identifier** = ReturnType ( ArgumentList ) ;
 /// ```
@@ -88,7 +88,7 @@ impl Parse for CallbackRest {
 /// Parses the remaining parts of a interface definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// InterfaceRest ::
 ///     **identifier** Inheritance { InterfaceMembers } ;
 /// ```
@@ -105,7 +105,7 @@ pub struct InterfaceRest {
 /// Parses inheritance definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Inheritance ::
 ///     : **identifier**
 ///     ε
@@ -123,7 +123,7 @@ pub struct Inheritance {
 /// Parses interface members
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// InterfaceMembers ::
 ///     ExtendedAttributeList InterfaceMember InterfaceMembers
 ///     ε
@@ -144,7 +144,7 @@ pub struct InterfaceMembersItem {
 /// Parses one of the interface member variants
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// InterfaceMember ::
 ///     Const
 ///     Operation
@@ -174,7 +174,7 @@ pub enum InterfaceMember {
 /// Parses a `const` statement
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Const ::
 ///     const ConstType **identifier** = ConstValue ;
 /// ```
@@ -193,7 +193,7 @@ pub struct Const {
 /// Parses either Regular or Special operation
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Operation ::
 ///     RegularOperation
 ///     SpecialOperation
@@ -209,7 +209,7 @@ pub enum Operation {
 /// Parses a regular operation with a return type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// RegularOperation ::
 ///    ReturnType OperationRest
 /// ```
@@ -224,7 +224,7 @@ pub struct RegularOperation {
 /// Parses rest of the operation definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// OperationRest ::
 ///     OptionalIdentifier ( ArgumentList ) ;
 /// ```
@@ -239,7 +239,7 @@ pub struct OperationRest {
 /// Parses special operation
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// SpecialOperation ::
 ///     Special Specials RegularOperation
 ///
@@ -258,7 +258,7 @@ pub struct SpecialOperation {
 /// Parses one of the special keyword
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Special ::
 ///     getter
 ///     setter
@@ -276,7 +276,7 @@ pub enum Special {
 /// Parses the stringifier statement
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Stringifier ::
 ///     stringifier StringifierRest
 /// ```
@@ -291,7 +291,7 @@ pub struct Stringifier {
 /// Parses the remaining part of the stringifier statement
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// StringifierRest ::
 ///     ReadOnly AttributeRest
 ///     RegularOperation
@@ -319,7 +319,7 @@ pub struct ReadOnlyAttributeRest {
 /// Parses a `static` member definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// StaticMember ::
 ///     static StaticMemberRest
 /// ```
@@ -334,7 +334,7 @@ pub struct StaticMember {
 /// Parses the remaining part of the static member definition
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// StaticMemberRest ::
 ///     ReadOnly AttributeRest
 ///     RegularOperation
@@ -350,7 +350,7 @@ pub enum StaticMemberRest {
 /// Parses an `iterable` declarations
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Iterable ::
 ///     iterable < TypeWithExtendedAttributes OptionalType > ;
 /// ```
@@ -371,7 +371,7 @@ pub struct IterableGenericsType {
 /// Parses the optional half of the generics type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// OptionalType ::
 ///     , TypeWithExtendedAttributes
 ///     ε
@@ -387,7 +387,7 @@ pub struct IterableGenericsTypeRest {
 /// Parses a `readonly` declaration
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ReadOnlyMember ::
 ///     readonly ReadOnlyMemberRest
 /// ```
@@ -402,7 +402,7 @@ pub struct ReadOnlyMember {
 /// Parses the remaining part of the `readonly` declaration
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ReadOnlyMemberRest ::
 ///     AttributeRest
 ///     ReadWriteMaplike
@@ -420,7 +420,7 @@ pub enum ReadOnlyMemberRest {
 /// Parses `maplike` declaration
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ReadWriteMaplike ::
 ///     MaplikeRest
 ///
@@ -446,7 +446,7 @@ pub struct MaplikeGenericsType {
 /// Parses `setlike` declaration
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ReadWriteSetlike ::
 ///     SetlikeRest
 ///
@@ -465,7 +465,7 @@ pub struct ReadWriteSetlike {
 /// Parses a ReadWrite attribute declaration
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ReadWriteAttribute ::
 ///     inherit ReadOnly AttributeRest
 ///     AttributeRest
@@ -491,7 +491,7 @@ pub struct InheritAttribute {
 
 /// Parses either interface part or a mixin part
 /// ### Grammar
-/// ```
+/// ```other
 /// InterfaceOrMixin ::
 ///     InterfaceRest
 ///     MixinRest
@@ -507,7 +507,7 @@ pub enum InterfaceOrMixin {
 /// Parses the half of a mixin
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// MixinRest ::
 ///     mixin **identifier** { MixinMembers } ;
 /// ```
@@ -523,7 +523,7 @@ pub struct MixinRest {
 /// Parses the members declarations of a mixin
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// MixinMembers ::
 ///     ExtendedAttributeList MixinMember MixinMembers
 ///     ε
@@ -544,7 +544,7 @@ pub struct MixinMembersItem {
 /// Parses one of the variants of a `mixin` member
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// MixinMember ::
 ///     Const
 ///     RegularOperation

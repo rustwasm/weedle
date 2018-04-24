@@ -31,7 +31,7 @@ macro_rules! re_capture_static (
 /// Represents an **identifier**
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
 /// ```
 ///
@@ -71,7 +71,7 @@ impl Parse for OtherLit {
 /// Represents an integer value
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
 /// ```
 ///
@@ -132,7 +132,7 @@ impl Parse for String {
 /// Represents a default literal value
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// DefaultValue ::
 ///     ConstValue
 ///     **string**
@@ -173,7 +173,7 @@ impl Parse for EmptyArrayLit {
 /// Represents `true`, `false`, `34.23`, `null`, `56`, ...
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ConstValue ::
 ///     BooleanLiteral
 ///     FloatLiteral
@@ -202,7 +202,7 @@ impl Parse for ConstValue {
 /// Represents either `true` or `false`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// BooleanLiteral ::
 ///     true
 ///     false
@@ -225,7 +225,7 @@ impl Parse for BooleanLiteral {
 /// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// FloatLiteral ::
 ///     **float**
 ///     -Infinity

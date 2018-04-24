@@ -7,7 +7,7 @@ use term;
 /// Parses attributed type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// TypeWithExtendedAttributes ::
 ///     ExtendedAttributeList Type
 /// ```
@@ -30,7 +30,7 @@ impl Parse for TypeWithExtendedAttributes {
 /// Parses any one of the buffer types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// BufferRelatedType ::
 ///     ArrayBuffer
 ///     DataView
@@ -80,7 +80,7 @@ impl Parse for BufferRelatedType {
 /// Parses either single type or a union type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Type ::
 ///     SingleType
 ///     UnionType Null
@@ -115,7 +115,7 @@ impl Parse for UnionNullType {
 /// Parses `any` or non-`any` types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// SingleType ::
 ///     NonAnyType
 ///     any
@@ -138,7 +138,7 @@ impl Parse for SingleType {
 /// Parses one of the various listed types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// NonAnyType ::
 ///     PromiseType ε
 ///     PrimitiveType Null
@@ -216,7 +216,7 @@ impl Parse for FrozenArrayType {
 /// Parses a nullable type. Ex: `object?`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Null ::
 ///     ?
 ///     ε
@@ -240,7 +240,7 @@ impl<T: Parse> Parse for MayBeNull<T> {
 /// Parses a `Promise<T>` type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// PromiseType ::
 ///    Promise < ReturnType >
 /// ```
@@ -262,7 +262,7 @@ impl Parse for PromiseType {
 
 /// Parses the return type which may be `void` or any given Type
 /// ### Grammar
-/// ```
+/// ```other
 /// ReturnType ::
 ///     Type
 ///     void
@@ -285,7 +285,7 @@ impl Parse for ReturnType {
 /// Parses one of the primitive types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// PrimitiveType ::
 ///     UnsignedIntegerType
 ///     UnrestrictedFloatType
@@ -317,7 +317,7 @@ impl Parse for PrimitiveType {
 /// Parses either unsigned or signed integer type.
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// UnsignedIntegerType ::
 ///     unsigned IntegerType
 ///     IntegerType
@@ -341,7 +341,7 @@ impl Parse for UnsignedIntegerType {
 /// Parses either long or short integer types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// IntegerType ::
 ///     short
 ///     long OptionalLong
@@ -382,7 +382,7 @@ impl Parse for LongType {
 /// Parses either unrestricted or plain float type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// UnrestrictedFloatType ::
 ///     unrestricted FloatType
 ///     FloatType
@@ -406,7 +406,7 @@ impl Parse for UnrestrictedFloatType {
 /// Parses either `float` or `double`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// FloatType ::
 ///     float
 ///     double
@@ -429,7 +429,7 @@ impl Parse for FloatType {
 /// Parses one of the listed String types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// StringType ::
 ///     ByteString
 ///     DOMString
@@ -455,7 +455,7 @@ impl Parse for StringType {
 /// Parses a `record` type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
 /// ```
@@ -494,7 +494,7 @@ impl Parse for RecordTypeGenerics {
 /// Parses a union of types
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// UnionType ::
 ///     ( UnionMemberType or UnionMemberType UnionMemberTypes )
 /// UnionMemberTypes ::
@@ -517,7 +517,7 @@ impl Parse for UnionType {
 
 /// Parses one of the parts of a union type
 /// ### Grammar
-/// ```
+/// ```other
 /// UnionMemberType ::
 ///     ExtendedAttributeList NonAnyType
 ///     UnionType Null
@@ -566,7 +566,7 @@ impl Parse for SimpleUnionMemberType {
 /// Parses a typedef statement
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Typedef ::
 ///     typedef TypeWithExtendedAttributes **identifier** ;
 /// ```
@@ -593,7 +593,7 @@ impl Parse for TypeDefinition {
 /// Parses a const type
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ConstType ::
 ///    PrimitiveType Null
 ///    **identifier** Null

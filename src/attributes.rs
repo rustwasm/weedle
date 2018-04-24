@@ -8,7 +8,7 @@ use types::*;
 /// Takes a named argument list. Ex: `[NamedConstructor=Image(DOMString src)]`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeNamedArgList ::
 ///     **identifier** = **identifier** ( ArgumentList )
 /// ```
@@ -35,7 +35,7 @@ impl Parse for ExtendedAttributeNamedArgList {
 /// Matches attributes of basically any form
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeList ::
 ///     [ ExtendedAttribute ExtendedAttributes ]
 ///     ε
@@ -61,7 +61,7 @@ impl Parse for ExtendedAttributeList {
 /// Matches a section of [ExtendedAttributeList](struct.ExtendedAttributeList.html)
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttribute ::
 ///     ( ExtendedAttributeInner ) ExtendedAttributeRest
 ///     [ ExtendedAttributeInner ] ExtendedAttributeRest
@@ -150,7 +150,7 @@ impl Parse for OtherExtendedAttribute {
 /// Matches a section of [ExtendedAttribute](struct.ExtendedAttribute.html)
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeInner ::
 ///     ( ExtendedAttributeInner ) ExtendedAttributeInner
 ///     [ ExtendedAttributeInner ] ExtendedAttributeInner
@@ -238,7 +238,7 @@ impl Parse for OtherExtendedAttributeInner {
 /// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeIdentList ::
 ///     **identifier** = ( IdentifierList )
 /// ```
@@ -263,7 +263,7 @@ impl Parse for ExtendedAttributeIdentList {
 /// Matches comma separated identifier list
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// IdentifierList ::
 ///     **identifier** Identifiers
 /// ```
@@ -284,7 +284,7 @@ impl Parse for IdentifierList {
 /// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeIdent ::
 ///     **identifier** = **identifier**
 /// ```
@@ -309,7 +309,7 @@ impl Parse for ExtendedAttributeIdent {
 /// Takes an argument list. Ex: `[Constructor(double x, double y)]`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeArgList ::
 ///     **identifier** ( ArgumentList )
 /// ```
@@ -332,7 +332,7 @@ impl Parse for ExtendedAttributeArgList {
 /// Takes no arguments. Ex: `[Replaceable]`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// ExtendedAttributeNoArgs ::
 ///     **identifier**
 /// ```
@@ -353,7 +353,7 @@ impl Parse for ExtendedAttributeNoArgs {
 /// Takes input of the form `attribute TheType theIdentifier;`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// AttributeRest ::
 ///     attribute TypeWithExtendedAttributes AttributeName ;
 /// ```
@@ -370,7 +370,7 @@ pub struct AttributeRest {
 /// Parses either `required` or an **identifier**
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// AttributeName ::
 ///     AttributeNameKeyword
 ///     **identifier**

@@ -6,7 +6,7 @@ use arguments::*;
 /// Parses any one of the `Other` variants
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// Other ::
 ///     **integer**
 ///     **float**
@@ -143,7 +143,7 @@ impl Parse for Other {
 /// Parses either `Other` or `,`
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// OtherOrComma ::
 ///     Other
 ///     ,
@@ -165,7 +165,7 @@ impl Parse for OtherOrComma {
 
 /// Parses rhs of an assignment expression. Ex: `= 45`
 /// ### Grammar
-/// ```
+/// ```other
 /// Default ::
 ///     = DefaultValue
 ///     ε
