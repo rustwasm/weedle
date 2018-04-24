@@ -5,6 +5,8 @@ use common::*;
 use attributes::*;
 use others::*;
 
+/// ### Grammar
+/// ```
 /// ArgumentList ::
 ///     Argument Arguments
 ///     ε
@@ -12,6 +14,9 @@ use others::*;
 /// Arguments ::
 ///     , Argument Arguments
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentList)
 #[derive(Debug, PartialEq)]
 pub struct ArgumentList {
     pub args: Punctuated<Argument, term!(,)>
@@ -24,8 +29,13 @@ impl Parse for ArgumentList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// Argument ::
 ///     ExtendedAttributeList ArgumentRest
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Argument)
 #[derive(Debug, PartialEq)]
 pub struct Argument {
     pub attributes: ExtendedAttributeList,
@@ -40,10 +50,14 @@ impl Parse for Argument {
     ));
 }
 
-
+/// ### Grammar
+/// ```
 /// ArgumentRest ::
 ///     optional TypeWithExtendedAttributes ArgumentName Default
 ///     Type Ellipsis ArgumentName
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentRest)
 #[derive(Debug, PartialEq)]
 pub enum ArgumentRest {
     Optional(OptionalArgumentRest),
@@ -91,9 +105,14 @@ impl Parse for NormalArgumentRest {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ArgumentName ::
 ///     ArgumentNameKeyword
-///     identifier
+///     **identifier**
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentName)
 #[derive(Debug, PartialEq)]
 pub enum ArgumentName {
     Keyword(ArgumentNameKeyword),
@@ -107,6 +126,8 @@ impl Parse for ArgumentName {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ArgumentNameKeyword ::
 ///     attribute
 ///     callback
@@ -129,6 +150,9 @@ impl Parse for ArgumentName {
 ///     stringifier
 ///     typedef
 ///     unrestricted
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentNameKeyword)
 #[derive(Debug, PartialEq)]
 pub enum ArgumentNameKeyword {
     Attribute(term!(attribute)),

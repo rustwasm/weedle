@@ -5,8 +5,13 @@ use arguments::*;
 use others::*;
 use types::*;
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeNamedArgList ::
 ///     **identifier** = **identifier** ( ArgumentList )
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeNamedArgList)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
@@ -25,6 +30,8 @@ impl Parse for ExtendedAttributeNamedArgList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeList ::
 ///     [ ExtendedAttribute ExtendedAttributes ]
 ///     ε
@@ -32,6 +39,9 @@ impl Parse for ExtendedAttributeNamedArgList {
 /// ExtendedAttributes ::
 ///     , ExtendedAttribute ExtendedAttributes
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeList)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeList {
     pub list: Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>
@@ -44,6 +54,8 @@ impl Parse for ExtendedAttributeList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttribute ::
 ///     ( ExtendedAttributeInner ) ExtendedAttributeRest
 ///     [ ExtendedAttributeInner ] ExtendedAttributeRest
@@ -53,6 +65,9 @@ impl Parse for ExtendedAttributeList {
 /// ExtendedAttributeRest ::
 ///     ExtendedAttribute
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttribute)
 #[derive(Debug, PartialEq)]
 pub enum ExtendedAttribute {
     Parenthesized(ParenthesizedExtendedAttribute),
@@ -126,12 +141,17 @@ impl Parse for OtherExtendedAttribute {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeInner ::
 ///     ( ExtendedAttributeInner ) ExtendedAttributeInner
 ///     [ ExtendedAttributeInner ] ExtendedAttributeInner
 ///     { ExtendedAttributeInner } ExtendedAttributeInner
 ///     OtherOrComma ExtendedAttributeInner
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeInner)
 #[derive(Debug, PartialEq)]
 pub enum ExtendedAttributeInner {
     Parenthesized(ParenthesizedExtendedAttributeInner),
@@ -207,8 +227,13 @@ impl Parse for OtherExtendedAttributeInner {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeIdentList ::
-///     identifier = ( IdentifierList )
+///     **identifier** = ( IdentifierList )
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeIdentList)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdentList {
     pub identifier: Identifier,
@@ -225,8 +250,13 @@ impl Parse for ExtendedAttributeIdentList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// IdentifierList ::
-///     identifier Identifiers
+///     **identifier** Identifiers
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-IdentifierList)
 #[derive(Debug, PartialEq)]
 pub struct IdentifierList {
     pub punctuated: Punctuated<Identifier, term!(,)>
@@ -239,8 +269,13 @@ impl Parse for IdentifierList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeIdent ::
-///     identifier = identifier
+///     **identifier** = **identifier**
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeIdent)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdent {
     pub lhs_identifier: Identifier,
@@ -257,8 +292,13 @@ impl Parse for ExtendedAttributeIdent {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeArgList ::
-///     identifier ( ArgumentList )
+///     **identifier** ( ArgumentList )
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeArgList)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeArgList {
     pub identifier: Identifier,
@@ -273,8 +313,13 @@ impl Parse for ExtendedAttributeArgList {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ExtendedAttributeNoArgs ::
-///     identifier
+///     **identifier**
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeNoArgs)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNoArgs {
     identifier: Identifier
@@ -287,8 +332,11 @@ impl Parse for ExtendedAttributeNoArgs {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// AttributeRest ::
 ///     attribute TypeWithExtendedAttributes AttributeName ;
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeRest)
 #[derive(Debug, PartialEq)]
@@ -299,12 +347,15 @@ pub struct AttributeRest {
     pub semi_colon: term!(;)
 }
 
+/// ### Grammar
+/// ```
 /// AttributeName ::
 ///     AttributeNameKeyword
 ///     identifier
 ///
 /// AttributeNameKeyword ::
 ///     required
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeName)
 #[derive(Debug, PartialEq)]

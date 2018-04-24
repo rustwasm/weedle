@@ -3,6 +3,8 @@ use types::*;
 use Parse;
 use arguments::*;
 
+/// ### Grammar
+/// ```
 /// Other ::
 ///     **integer**
 ///     **float**
@@ -44,6 +46,9 @@ use arguments::*;
 ///     void
 ///     ArgumentNameKeyword
 ///     BufferRelatedType
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Other)
 #[derive(Debug, PartialEq)]
 pub enum Other {
     IntegerLit(i64),
@@ -133,9 +138,14 @@ impl Parse for Other {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// OtherOrComma ::
 ///     Other
 ///     ,
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-OtherOrComma)
 #[derive(Debug, PartialEq)]
 pub enum OtherOrComma {
     Other(Other),
@@ -149,11 +159,16 @@ impl Parse for OtherOrComma {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// Default ::
 ///     = DefaultValue
 ///     ε
+/// ```
 ///
 /// Default dictates an optional value. Uses Option<Default> instead.
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Default)
 #[derive(Debug, PartialEq)]
 pub struct Default {
     pub assign: term!(=),

@@ -28,7 +28,12 @@ macro_rules! re_capture_static (
   )
 );
 
+/// ### Grammar
+/// ```
 /// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
 #[derive(Debug, Eq, PartialEq)]
 pub struct Identifier {
     pub name: String
@@ -41,7 +46,12 @@ impl Parse for Identifier {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// **other** = /[^\t\n\r 0-9A-Za-z]/
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
 #[derive(Debug, Eq, PartialEq)]
 pub struct OtherLit {
     pub value: String
@@ -54,7 +64,12 @@ impl Parse for OtherLit {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
 impl Parse for i64 {
     named!(parse -> Self, do_parse!(
         value: flat_map!(
@@ -68,7 +83,12 @@ impl Parse for i64 {
     ));
 }
 
+/// ### Grammar
+/// ```other
 /// **float** = /-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
 impl Parse for f64 {
     named!(parse -> Self, do_parse!(
         value: flat_map!(
@@ -82,7 +102,12 @@ impl Parse for f64 {
     ));
 }
 
+/// ### Grammar
+/// ```other
 /// **string** = /"[^"]*"/
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
 impl Parse for String {
     named!(parse -> Self, do_parse!(
         value: ws!(re_capture_static!(r#"^("[^"]*")"#)) >>
@@ -94,10 +119,15 @@ impl Parse for String {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// DefaultValue ::
 ///     ConstValue
 ///     **string**
 ///     **[ ]**
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-DefaultValue)
 #[derive(Debug, PartialEq)]
 pub enum DefaultValue {
     Const(ConstValue),
@@ -127,11 +157,16 @@ impl Parse for EmptyArrayLit {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ConstValue ::
 ///     BooleanLiteral
 ///     FloatLiteral
 ///     **integer**
 ///     null
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ConstValue)
 #[derive(Debug, PartialEq)]
 pub enum ConstValue {
     BooleanLiteral(BooleanLiteral),
@@ -149,9 +184,14 @@ impl Parse for ConstValue {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// BooleanLiteral ::
 ///     true
 ///     false
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-BooleanLiteral)
 #[derive(Debug, PartialEq)]
 pub enum BooleanLiteral {
     True(term!(true)),
@@ -165,11 +205,16 @@ impl Parse for BooleanLiteral {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// FloatLiteral ::
 ///     **float**
 ///     -Infinity
 ///     Infinity
 ///     NaN
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-FloatLiteral)
 #[derive(Debug, PartialEq)]
 pub enum FloatLiteral {
     Float(f64),

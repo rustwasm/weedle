@@ -13,15 +13,15 @@ use nom::{IResult, types::CompleteStr};
 #[macro_use]
 mod macros;
 #[macro_use]
-mod term;
-mod literals;
-mod attributes;
-mod arguments;
-mod types;
-mod common;
-mod others;
-mod callback;
+pub mod term;
+pub mod literals;
+pub mod attributes;
+pub mod arguments;
+pub mod types;
+pub mod common;
+pub mod others;
+pub mod callback;
 
-trait Parse: Sized {
+pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
 }

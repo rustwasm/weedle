@@ -4,8 +4,13 @@ use common::*;
 use attributes::*;
 use term;
 
+/// ### Grammar
+/// ```
 /// TypeWithExtendedAttributes ::
 ///     ExtendedAttributeList Type
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-TypeWithExtendedAttributes)
 #[derive(Debug, PartialEq)]
 pub struct TypeWithExtendedAttributes {
     pub attributes: ExtendedAttributeList,
@@ -20,7 +25,8 @@ impl Parse for TypeWithExtendedAttributes {
     ));
 }
 
-
+/// ### Grammar
+/// ```
 /// BufferRelatedType ::
 ///     ArrayBuffer
 ///     DataView
@@ -33,6 +39,9 @@ impl Parse for TypeWithExtendedAttributes {
 ///     Uint8ClampedArray
 ///     Float32Array
 ///     Float64Array
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-BufferRelatedType)
 #[derive(Debug, PartialEq)]
 pub enum BufferRelatedType {
     ArrayBuffer(term!(ArrayBuffer)),
@@ -64,10 +73,14 @@ impl Parse for BufferRelatedType {
     ));
 }
 
-
+/// ### Grammar
+/// ```
 /// Type ::
 ///     SingleType
 ///     UnionType Null
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Type)
 #[derive(Debug, PartialEq)]
 pub enum Type {
     Single(Box<SingleType>),
@@ -93,9 +106,14 @@ impl Parse for UnionNullType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// SingleType ::
 ///     NonAnyType
 ///     any
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-SingleType)
 #[derive(Debug, PartialEq)]
 pub enum SingleType {
     NonAny(NonAnyType),
@@ -109,11 +127,13 @@ impl Parse for SingleType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// NonAnyType ::
 ///     PromiseType ε
 ///     PrimitiveType Null
 ///     StringType Null
-///     identifier Null
+///     **identifier** Null
 ///     sequence < TypeWithExtendedAttributes > Null
 ///     object Null
 ///     symbol Null
@@ -121,6 +141,9 @@ impl Parse for SingleType {
 ///     BufferRelatedType Null
 ///     FrozenArray < TypeWithExtendedAttributes > Null
 ///     RecordType Null
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-NonAnyType)
 #[derive(Debug, PartialEq)]
 pub enum NonAnyType {
     Promise(PromiseType),
@@ -180,9 +203,14 @@ impl Parse for FrozenArrayType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// Null ::
 ///     ?
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Null)
 #[derive(Debug, PartialEq)]
 pub struct MayBeNull<T> {
     pub type_: T,
@@ -197,8 +225,13 @@ impl<T: Parse> Parse for MayBeNull<T> {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// PromiseType ::
 ///    Promise < ReturnType >
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-PromiseType)
 #[derive(Debug, PartialEq)]
 pub struct PromiseType {
     pub promise: term!(Promise),
@@ -213,9 +246,14 @@ impl Parse for PromiseType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ReturnType ::
 ///     Type
 ///     void
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReturnType)
 #[derive(Debug, PartialEq)]
 pub enum ReturnType {
     Type(Type),
@@ -229,12 +267,17 @@ impl Parse for ReturnType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// PrimitiveType ::
 ///     UnsignedIntegerType
 ///     UnrestrictedFloatType
 ///     boolean
 ///     byte
 ///     octet
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-PrimitiveType)
 #[derive(Debug, PartialEq)]
 pub enum PrimitiveType {
     UnsignedIntegerType(UnsignedIntegerType),
@@ -254,9 +297,14 @@ impl Parse for PrimitiveType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// UnsignedIntegerType ::
 ///     unsigned IntegerType
 ///     IntegerType
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnsignedIntegerType)
 #[derive(Debug, PartialEq)]
 pub struct UnsignedIntegerType {
     pub unsigned: Option<term!(unsigned)>,
@@ -271,9 +319,18 @@ impl Parse for UnsignedIntegerType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// IntegerType ::
 ///     short
 ///     long OptionalLong
+///
+/// OptionalLong ::
+///     long
+///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-IntegerType)
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
     Short(term!(short)),
@@ -287,9 +344,6 @@ impl Parse for IntegerType {
     ));
 }
 
-/// OptionalLong ::
-///     long
-///     ε
 #[derive(Debug, PartialEq)]
 pub struct LongType {
     pub long: term!(long),
@@ -304,9 +358,14 @@ impl Parse for LongType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// UnrestrictedFloatType ::
 ///     unrestricted FloatType
 ///     FloatType
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnrestrictedFloatType)
 #[derive(Debug, PartialEq)]
 pub struct UnrestrictedFloatType {
     pub unrestricted: Option<term!(unrestricted)>,
@@ -321,9 +380,14 @@ impl Parse for UnrestrictedFloatType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// FloatType ::
 ///     float
 ///     double
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-FloatType)
 #[derive(Debug, PartialEq)]
 pub enum FloatType {
     Float(term!(float)),
@@ -337,10 +401,15 @@ impl Parse for FloatType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// StringType ::
 ///     ByteString
 ///     DOMString
 ///     USVString
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StringType)
 #[derive(Debug, PartialEq)]
 pub enum StringType {
     Byte(term!(ByteString)),
@@ -356,8 +425,13 @@ impl Parse for StringType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// RecordType ::
 ///     record < StringType , TypeWithExtendedAttributes >
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-RecordType)
 #[derive(Debug, PartialEq)]
 pub struct RecordType {
     pub record: term!(record),
@@ -388,11 +462,16 @@ impl Parse for RecordTypeGenerics {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// UnionType ::
 ///     ( UnionMemberType or UnionMemberType UnionMemberTypes )
 /// UnionMemberTypes ::
 ///     or UnionMemberType UnionMemberTypes
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnionType)
 #[derive(Debug, PartialEq)]
 pub struct UnionType {
     pub punctuated: Punctuated<UnionMemberType, term!(or)>
@@ -405,9 +484,14 @@ impl Parse for UnionType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// UnionMemberType ::
 ///     ExtendedAttributeList NonAnyType
 ///     UnionType Null
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnionMemberType)
 #[derive(Debug, PartialEq)]
 pub enum UnionMemberType {
     Attributed(AttributedUnionMemberType),
@@ -447,8 +531,13 @@ impl Parse for SimpleUnionMemberType {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// Typedef ::
-///     typedef TypeWithExtendedAttributes identifier ;
+///     typedef TypeWithExtendedAttributes **identifier** ;
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Typedef)
 #[derive(Debug, PartialEq)]
 pub struct TypeDefinition {
     pub typedef: term!(typedef),
@@ -467,9 +556,14 @@ impl Parse for TypeDefinition {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// ConstType ::
 ///    PrimitiveType Null
-///    identifier Null
+///    **identifier** Null
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#index-prod-ConstType)
 #[derive(Debug, PartialEq)]
 pub enum ConstType {
     Primitive(MayBeNull<PrimitiveType>),

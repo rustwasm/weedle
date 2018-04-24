@@ -5,9 +5,14 @@ use Parse;
 use types::*;
 use attributes::*;
 
+/// ### Grammar
+/// ```
 /// CallbackOrInterfaceOrMixin ::
 ///     callback CallbackRestOrInterface
 ///     interface InterfaceOrMixin
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-CallbackOrInterfaceOrMixin)
 #[derive(Debug, PartialEq)]
 pub enum CallbackOrInterfaceOrMixin {
     Callback(CallbackRestOrInterfacePart),
@@ -26,9 +31,14 @@ pub struct InterfaceOrMixinPart {
     pub rest: InterfaceOrMixin,
 }
 
+/// ### Grammar
+/// ```
 /// CallbackRestOrInterface ::
 ///     CallbackRest
 ///     interface InterfaceRest
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-CallbackRestOrInterface)
 #[derive(Debug, PartialEq)]
 pub enum CallbackRestOrInterface {
     CallbackRest(CallbackRest),
@@ -41,8 +51,13 @@ pub struct InterfaceRestPart {
     pub rest: InterfaceRest,
 }
 
+/// ### Grammar
+/// ```
 /// CallbackRest ::
 ///     **identifier** = ReturnType ( ArgumentList ) ;
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-CallbackRest)
 #[derive(Debug, PartialEq)]
 pub struct CallbackRest {
     pub identifier: Identifier,
@@ -61,8 +76,13 @@ impl Parse for CallbackRest {
     ));
 }
 
+/// ### Grammar
+/// ```
 /// InterfaceRest ::
 ///     **identifier** Inheritance { InterfaceMembers } ;
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-InterfaceRest)
 #[derive(Debug, PartialEq)]
 pub struct InterfaceRest {
     pub identifier: Identifier,
@@ -71,20 +91,30 @@ pub struct InterfaceRest {
     pub semi_colon: term!(;),
 }
 
+/// ### Grammar
+/// ```
 /// Inheritance ::
 ///     : **identifier**
 ///     ε
+/// ```
 ///
 /// Since it is optional, Option<Inheritance> be used
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Inheritance)
 #[derive(Debug, PartialEq)]
 pub struct Inheritance {
     pub colon: term!(:),
     pub identifier: Identifier,
 }
 
+/// ### Grammar
+/// ```
 /// InterfaceMembers ::
 ///     ExtendedAttributeList InterfaceMember InterfaceMembers
 ///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-InterfaceMembers)
 #[derive(Debug, PartialEq)]
 pub struct InterfaceMembers {
     pub members: Vec<InterfaceMembersItem>
@@ -96,6 +126,8 @@ pub struct InterfaceMembersItem {
     pub member: InterfaceMember,
 }
 
+/// ### Grammar
+/// ```
 /// InterfaceMember ::
 ///     Const
 ///     Operation
@@ -106,6 +138,9 @@ pub struct InterfaceMembersItem {
 ///     ReadWriteAttribute
 ///     ReadWriteMaplike
 ///     ReadWriteSetlike
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-InterfaceMember)
 #[derive(Debug, PartialEq)]
 pub enum InterfaceMember {
     Const(ConstItem),
@@ -119,8 +154,13 @@ pub enum InterfaceMember {
     ReadWriteSetlike(ReadWriteSetlike),
 }
 
+/// ### Grammar
+/// ```
 /// Const ::
-///     const ConstType identifier = ConstValue ;
+///     const ConstType **identifier** = ConstValue ;
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Const)
 #[derive(Debug, PartialEq)]
 pub struct ConstItem {
     pub const_: term!(const),
@@ -131,43 +171,72 @@ pub struct ConstItem {
     pub semi_colon: term!(;)
 }
 
+/// ### Grammar
+/// ```
 /// Operation ::
 ///     RegularOperation
 ///     SpecialOperation
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Operation)
 #[derive(Debug, PartialEq)]
 pub enum Operation {
     Regular(RegularOperation),
     Special(SpecialOperation)
 }
 
+/// ### Grammar
+/// ```
 /// RegularOperation ::
 ///    ReturnType OperationRest
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-RegularOperation)
 #[derive(Debug, PartialEq)]
 pub struct RegularOperation {
     pub return_type: ReturnType,
     pub rest: OperationRest
 }
 
+/// ### Grammar
+/// ```
 /// OperationRest ::
 ///     OptionalIdentifier ( ArgumentList ) ;
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-OperationRest)
 #[derive(Debug, PartialEq)]
 pub struct OperationRest {
     pub identifier: Option<Identifier>,
     pub braced: Braced<ArgumentList>
 }
 
+/// ### Grammar
+/// ```
 /// SpecialOperation ::
 ///     Special Specials RegularOperation
+///
+/// Specials ::
+///     Special Specials
+///     ε
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-SpecialOperation)
 #[derive(Debug, PartialEq)]
 pub struct SpecialOperation {
     pub specials: Vec<Special>,
     pub regular_operation: RegularOperation
 }
 
+/// ### Grammar
+/// ```
 /// Special ::
 ///     getter
 ///     setter
 ///     deleter
+/// ```
+///
+/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Special)
 #[derive(Debug, PartialEq)]
 pub enum Special {
     Getter(term!(getter)),
@@ -175,8 +244,11 @@ pub enum Special {
     Deleter(term!(deleter))
 }
 
+/// ### Grammar
+/// ```
 /// Stringifier ::
 ///     stringifier StringifierRest
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Stringifier)
 #[derive(Debug, PartialEq)]
@@ -185,6 +257,8 @@ pub struct StringifierItem {
     pub rest: StringifierRest
 }
 
+/// ### Grammar
+/// ```
 /// StringifierRest ::
 ///     ReadOnly AttributeRest
 ///     RegularOperation
@@ -193,6 +267,7 @@ pub struct StringifierItem {
 /// ReadOnly ::
 ///     readonly
 ///     ε
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StringifierRest)
 #[derive(Debug, PartialEq)]
@@ -208,8 +283,11 @@ pub struct ReadOnlyAttributeRest {
     pub rest: AttributeRest
 }
 
+/// ### Grammar
+/// ```
 /// StaticMember ::
 ///     static StaticMemberRest
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StaticMember)
 #[derive(Debug, PartialEq)]
@@ -218,9 +296,12 @@ pub struct StaticMember {
     pub rest: StaticMemberRest
 }
 
+/// ### Grammar
+/// ```
 /// StaticMemberRest ::
 ///     ReadOnly AttributeRest
 ///     RegularOperation
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StaticMemberRest)
 #[derive(Debug, PartialEq)]
@@ -229,8 +310,11 @@ pub enum StaticMemberRest {
     RegularOperation(RegularOperation)
 }
 
+/// ### Grammar
+/// ```
 /// Iterable ::
 ///     iterable < TypeWithExtendedAttributes OptionalType > ;
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Iterable)
 #[derive(Debug, PartialEq)]
@@ -245,9 +329,12 @@ pub struct IterableGenericsType {
     pub rest: Option<IterableGenericsTypeRest>
 }
 
+/// ### Grammar
+/// ```
 /// OptionalType ::
 ///     , TypeWithExtendedAttributes
 ///     ε
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-OptionalType)
 #[derive(Debug, PartialEq)]
@@ -256,8 +343,11 @@ pub struct IterableGenericsTypeRest {
     pub type_: TypeWithExtendedAttributes
 }
 
+/// ### Grammar
+/// ```
 /// ReadOnlyMember ::
 ///     readonly ReadOnlyMemberRest
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadOnlyMember)
 #[derive(Debug, PartialEq)]
@@ -266,10 +356,13 @@ pub struct ReadOnlyMember {
     pub rest: ReadOnlyMemberRest
 }
 
+/// ### Grammar
+/// ```
 /// ReadOnlyMemberRest ::
 ///     AttributeRest
 ///     ReadWriteMaplike
 ///     ReadWriteSetlike
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadOnlyMemberRest)
 #[derive(Debug, PartialEq)]
@@ -279,11 +372,14 @@ pub enum ReadOnlyMemberRest {
     ReadWriteSetlike(ReadWriteSetlike)
 }
 
+/// ### Grammar
+/// ```
 /// ReadWriteMaplike ::
 ///     MaplikeRest
 ///
 /// MaplikeRest ::
 ///     maplike < TypeWithExtendedAttributes , TypeWithExtendedAttributes > ;
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadWriteMaplike)
 #[derive(Debug, PartialEq)]
@@ -300,11 +396,14 @@ pub struct MaplikeGenericsType {
     pub type_2: TypeWithExtendedAttributes
 }
 
+/// ### Grammar
+/// ```
 /// ReadWriteSetlike ::
 ///     SetlikeRest
 ///
 /// SetlikeRest ::
 ///     setlike < TypeWithExtendedAttributes > ;
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadWriteSetlike)
 #[derive(Debug, PartialEq)]
@@ -314,6 +413,8 @@ pub struct ReadWriteSetlike {
     pub semi_colon: term!(;)
 }
 
+/// ### Grammar
+/// ```
 /// ReadWriteAttribute ::
 ///     inherit ReadOnly AttributeRest
 ///     AttributeRest
@@ -321,6 +422,7 @@ pub struct ReadWriteSetlike {
 /// ReadOnly ::
 ///     readonly
 ///     ε
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReadWriteAttribute)
 #[derive(Debug, PartialEq)]
@@ -336,9 +438,12 @@ pub struct InheritAttribute {
     pub rest: AttributeRest
 }
 
+/// ### Grammar
+/// ```
 /// InterfaceOrMixin ::
 ///     InterfaceRest
 ///     MixinRest
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-InterfaceOrMixin)
 #[derive(Debug, PartialEq)]
@@ -347,8 +452,11 @@ pub enum InterfaceOrMixin {
     MixinRest(MixinRest)
 }
 
+/// ### Grammar
+/// ```
 /// MixinRest ::
 ///     mixin **identifier** { MixinMembers } ;
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinRest)
 #[derive(Debug, PartialEq)]
@@ -358,9 +466,12 @@ pub struct MixinRest {
     pub parenthesized: Parenthesized<MixinMembers>
 }
 
+/// ### Grammar
+/// ```
 /// MixinMembers ::
 ///     ExtendedAttributeList MixinMember MixinMembers
 ///     ε
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinMembers)
 #[derive(Debug, PartialEq)]
@@ -374,11 +485,14 @@ pub struct MixinMembersItem {
     pub member: MixinMember
 }
 
+/// ### Grammar
+/// ```
 /// MixinMember ::
 ///     Const
 ///     RegularOperation
 ///     Stringifier
 ///     ReadOnly AttributeRest
+/// ```
 ///
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinMember)
 #[derive(Debug, PartialEq)]
