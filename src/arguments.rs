@@ -227,7 +227,7 @@ mod test {
                 fn $name() {
                     let (rem, parsed) = ArgumentNameKeyword::parse(CompleteStr($val)).unwrap();
                     assert_eq!(rem, CompleteStr(""));
-                    assert_eq!(parsed, ArgumentNameKeyword::$var($var));
+                    assert_eq!(parsed, ArgumentNameKeyword::$var(::term::$var));
                 }
             )*
         };
@@ -261,7 +261,7 @@ mod test {
     fn should_parse_argument_name_variant_keyword() {
         let (rem, parsed) = ArgumentName::parse(CompleteStr("getter")).unwrap();
         assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, ArgumentName::Keyword(ArgumentNameKeyword::Getter(Getter)));
+        assert_eq!(parsed, ArgumentName::Keyword(ArgumentNameKeyword::Getter(term!(getter))));
     }
 
     #[test]

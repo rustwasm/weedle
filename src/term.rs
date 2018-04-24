@@ -427,7 +427,7 @@ mod test {
         neginfinity, NegInfinity, "-Infinity";
         bytestring, ByteString, "ByteString";
         domstring, DOMString, "DOMString";
-        frozenarray, FrozenArray, "FrozenString";
+        frozenarray, FrozenArray, "FrozenArray";
         infinity, Infinity, "Infinity";
         nan, NaN, "NaN";
         usvstring, USVString, "USVString";
@@ -440,7 +440,7 @@ mod test {
         long, Long, "long";
         null, Null, "null";
         object, Object, "object";
-        octet, Octet, "octect";
+        octet, Octet, "octet";
         sequence, Sequence, "sequence";
         short, Short, "short";
         true_, True, "true";

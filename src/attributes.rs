@@ -390,7 +390,6 @@ pub enum AttributeName {
 mod test {
     use super::*;
     use nom::types::CompleteStr;
-    use types::*;
 
     #[test]
     fn should_take_named_argument_list() {
@@ -406,7 +405,7 @@ mod test {
                 name: "Image".to_string()
             },
             args_signature: Braced {
-                open_brace: OpenBrace,
+                open_brace: term!(OpenBrace),
                 body: ArgumentList {
                     args: Punctuated {
                         list: vec![
@@ -422,7 +421,7 @@ mod test {
                                         Box::new(SingleType::NonAny(
                                             NonAnyType::MayBeString(
                                                 MayBeNull {
-                                                    type_: StringType::DOM(DOMString),
+                                                    type_: StringType::DOM(term!(DOMString)),
                                                     q_mark: None
                                                 }
                                             )
@@ -432,10 +431,10 @@ mod test {
                                 }),
                             },
                         ],
-                        separator: Comma,
+                        separator: term!(,),
                     }
                 },
-                close_brace: CloseBrace,
+                close_brace: term!(CloseBrace),
             },
         })
     }
