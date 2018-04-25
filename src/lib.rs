@@ -23,6 +23,7 @@ pub mod others;
 pub mod interface;
 pub mod enums;
 pub mod dictionary;
+pub mod namespace;
 
 pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
