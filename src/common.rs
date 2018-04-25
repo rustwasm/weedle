@@ -104,3 +104,116 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<
         (PunctuatedNonEmpty { list, separator: S::default() })
     ));
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use literal::*;
+    use nom::types::CompleteStr;
+
+    #[test]
+    fn should_parse_optional_present() {
+        let (rem, parsed) = Option::<Identifier>::parse(CompleteStr("one")).unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Some(Identifier { name: "one".to_string() }));
+    }
+
+    #[test]
+    fn should_parse_optional_not_present() {
+        let (rem, parsed) = Option::<Identifier>::parse(CompleteStr("")).unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, None);
+    }
+
+    #[test]
+    fn should_parse_boxed() {
+        let (rem, parsed) = Box::<Identifier>::parse(CompleteStr("one")).unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Box::new(Identifier { name: "one".to_string() }));
+    }
+
+    #[test]
+    fn should_parse_parenthesized() {
+        let (rem, parsed) = Parenthesized::<Identifier>::parse(CompleteStr("{ one }"))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Parenthesized {
+            open_paren: term!(OpenParen),
+            body: Identifier { name: "one".to_string() },
+            close_paren: term!(CloseParen)
+        });
+    }
+
+    #[test]
+    fn should_parse_bracketed() {
+        let (rem, parsed) = Bracketed::<Identifier>::parse(CompleteStr("[ one ]"))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Bracketed {
+            open_bracket: term!(OpenBracket),
+            body: Identifier { name: "one".to_string() },
+            close_bracket: term!(CloseBracket)
+        });
+    }
+
+    #[test]
+    fn should_parse_braced() {
+        let (rem, parsed) = Braced::<Identifier>::parse(CompleteStr("( one )"))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Braced {
+            open_brace: term!(OpenBrace),
+            body: Identifier { name: "one".to_string() },
+            close_brace: term!(CloseBrace)
+        });
+    }
+
+    #[test]
+    fn should_parse_generics() {
+        let (rem, parsed) = Generics::<Identifier>::parse(CompleteStr("<one>"))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Generics {
+            open_angle: term!(<),
+            body: Identifier {
+                name: "one".to_string()
+            },
+            close_angle: term!(>)
+        });
+    }
+
+    #[test]
+    fn should_parse_comma_separated_values() {
+        let (rem, parsed) = Punctuated::<Identifier, term!(,)>::parse(CompleteStr("one, two, three"))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Punctuated {
+            list: vec![
+                Identifier {
+                    name: "one".to_string()
+                },
+                Identifier {
+                    name: "two".to_string()
+                },
+                Identifier {
+                    name: "three".to_string()
+                },
+            ],
+            separator: term!(,)
+        });
+    }
+
+    #[test]
+    fn should_not_parse_comma_separated_values_empty() {
+        PunctuatedNonEmpty::<Identifier, term!(,)>::parse(CompleteStr(""))
+            .unwrap_err();
+    }
+}

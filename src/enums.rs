@@ -57,3 +57,54 @@ impl Parse for EnumValueList {
         (EnumValueList { punctuated })
     ));
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use nom::types::CompleteStr;
+
+    #[test]
+    fn should_parse_enum_value_list() {
+        let (rem, parsed) = EnumValueList::parse(CompleteStr(r#" "first", "second", "third" "#))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, EnumValueList {
+            punctuated: PunctuatedNonEmpty {
+                list: vec![
+                    "first".to_string(),
+                    "second".to_string(),
+                    "third".to_string(),
+                ],
+                separator: term!(,)
+            }
+        });
+    }
+
+    #[test]
+    fn should_parse_an_enum() {
+        let (rem, parsed) = Enum::parse(CompleteStr(r#" enum Kinds { "first", "second", "third" } ; "#))
+            .unwrap();
+
+        assert_eq!(rem, CompleteStr(""));
+        assert_eq!(parsed, Enum {
+            enum_: term!(enum),
+            identifier: Identifier { name: "Kinds".to_string() },
+            parenthesized: Parenthesized {
+                open_paren: term!(OpenParen),
+                body: EnumValueList {
+                    punctuated: PunctuatedNonEmpty {
+                        list: vec![
+                            "first".to_string(),
+                            "second".to_string(),
+                            "third".to_string(),
+                        ],
+                        separator: term!(,)
+                    }
+                },
+                close_paren: term!(CloseParen)
+            },
+            semi_colon: term!(;)
+        });
+    }
+}
