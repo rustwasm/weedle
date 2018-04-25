@@ -1,8 +1,8 @@
-use literals::*;
+use literal::*;
 use types::*;
 use Parse;
 use common::*;
-use attributes::*;
+use attribute::*;
 use others::*;
 
 /// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`

@@ -1,9 +1,9 @@
-use literals::*;
-use arguments::*;
+use literal::*;
+use argument::*;
 use common::*;
 use Parse;
 use types::*;
-use attributes::*;
+use attribute::*;
 
 /// Parses a `callback` or `interface` definition. Ex:
 /// `callback interface identifier {

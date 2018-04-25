@@ -1,7 +1,7 @@
-use literals::*;
+use literal::*;
 use types::*;
 use Parse;
-use arguments::*;
+use argument::*;
 
 /// Parses any one of the `Other` variants
 ///

@@ -14,9 +14,9 @@ use nom::{IResult, types::CompleteStr};
 mod macros;
 #[macro_use]
 pub mod term;
-pub mod literals;
-pub mod attributes;
-pub mod arguments;
+pub mod literal;
+pub mod attribute;
+pub mod argument;
 pub mod types;
 pub mod common;
 pub mod others;

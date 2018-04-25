@@ -1,4 +1,4 @@
-use literals::*;
+use literal::*;
 use common::*;
 use Parse;
 

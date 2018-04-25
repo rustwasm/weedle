@@ -1,7 +1,7 @@
-use literals::*;
+use literal::*;
 use Parse;
 use common::*;
-use attributes::*;
+use attribute::*;
 use term;
 
 /// Parses attributed type
