@@ -340,7 +340,7 @@ impl Parse for ExtendedAttributeArgList {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeNoArgs)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNoArgs {
-    identifier: Identifier
+    pub identifier: Identifier
 }
 
 impl Parse for ExtendedAttributeNoArgs {

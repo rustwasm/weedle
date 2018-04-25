@@ -47,7 +47,7 @@ impl Parse for Dictionary {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-DictionaryMembers)
 #[derive(Debug, PartialEq)]
 pub struct DictionaryMembers {
-    members: Vec<DictionaryMember>
+    pub members: Vec<DictionaryMember>
 }
 
 impl Parse for DictionaryMembers {

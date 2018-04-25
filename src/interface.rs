@@ -810,7 +810,7 @@ impl Parse for MixinRest {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-MixinMembers)
 #[derive(Debug, PartialEq)]
 pub struct MixinMembers {
-    members: Vec<MixinMembersItem>
+    pub members: Vec<MixinMembersItem>
 }
 
 impl Parse for MixinMembers {

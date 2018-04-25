@@ -51,7 +51,7 @@ pub trait Parse: Sized {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Definitions)
 #[derive(Debug, PartialEq)]
 pub struct Definitions {
-    definitions: Vec<DefinitionsItem>
+    pub definitions: Vec<DefinitionsItem>
 }
 
 impl Parse for Definitions {
@@ -68,8 +68,8 @@ impl Parse for Definitions {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Definitions)
 #[derive(Debug, PartialEq)]
 pub struct DefinitionsItem {
-    attributes: ExtendedAttributeList,
-    definition: Definition
+    pub attributes: ExtendedAttributeList,
+    pub definition: Definition
 }
 
 impl Parse for DefinitionsItem {
