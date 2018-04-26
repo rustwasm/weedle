@@ -270,9 +270,4 @@ mod test {
         assert_eq!(rem, CompleteStr(""));
         assert_eq!(parsed, ArgumentName::Identifier(Identifier { name: "document".to_string() }));
     }
-
-    #[test]
-    fn should_parse_argument_rest() {
-
-    }
 }

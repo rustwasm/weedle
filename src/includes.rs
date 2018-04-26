@@ -4,7 +4,7 @@ use Parse;
 /// Parses a include statement
 ///
 /// ### Grammar
-/// ```
+/// ```other
 /// IncludesStatement ::
 ///     **identifier** includes **identifier** ;
 /// ```

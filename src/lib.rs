@@ -39,7 +39,7 @@ pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
 }
 
-/// Parses definitions
+/// Parses WebIDL definitions
 ///
 /// ### Grammar
 /// ```other

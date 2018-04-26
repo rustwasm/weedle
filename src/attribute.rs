@@ -48,13 +48,13 @@ impl Parse for ExtendedAttributeNamedArgList {
 /// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeList)
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeList {
-    pub list: Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>
+    pub bracketed: Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>
 }
 
 impl Parse for ExtendedAttributeList {
     named!(parse -> Self, do_parse!(
-        list: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>) >>
-        (ExtendedAttributeList { list })
+        bracketed: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>) >>
+        (ExtendedAttributeList { bracketed })
     ));
 }
 
@@ -428,7 +428,7 @@ mod test {
                         list: vec![
                             Argument {
                                 attributes: ExtendedAttributeList {
-                                    list: None
+                                    bracketed: None
                                 },
                                 rest: ArgumentRest::Normal(NormalArgumentRest {
                                     name: ArgumentName::Identifier(Identifier {
