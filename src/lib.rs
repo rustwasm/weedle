@@ -25,7 +25,6 @@ use argument::*;
 use attribute::*;
 use common::*;
 use dictionary::*;
-use enums::*;
 use interface::*;
 use literal::*;
 use namespace::*;
@@ -45,7 +44,6 @@ pub mod common;
 pub mod others;
 pub mod interface;
 pub mod mixin;
-pub mod enums;
 pub mod dictionary;
 pub mod namespace;
 
@@ -398,3 +396,7 @@ impl Parse for IncludesStatementDefinition {
         (IncludesStatementDefinition { attributes, lhs_identifier, includes, rhs_identifier, semi_colon })
     ));
 }
+
+
+/// Parses a non-empty enum value list
+pub type EnumValueList = PunctuatedNonEmpty<String, term!(,)>;
