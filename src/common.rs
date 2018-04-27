@@ -1,5 +1,6 @@
 use Parse;
 use term;
+use literal::*;
 
 impl<T: Parse> Parse for Option<T> {
     named!(parse -> Self, opt!(weedle!(T)));
@@ -129,6 +130,21 @@ impl Parse for Identifier {
     ));
 }
 
+/// Parses rhs of an assignment expression. Ex: `= 45`
+#[derive(Debug, PartialEq)]
+pub struct Default {
+    pub assign: term!(=),
+    pub value: DefaultValue,
+}
+
+impl Parse for Default {
+    named!(parse -> Self, do_parse!(
+        assign: weedle!(term!(=)) >>
+        value: weedle!(DefaultValue) >>
+        (Default { assign, value })
+    ));
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -240,4 +256,46 @@ mod test {
         PunctuatedNonEmpty::<Identifier, term!(,)>::parse(CompleteStr(""))
             .unwrap_err();
     }
+
+    test!(should_parse_identifier { "hello" =>
+        "";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_numbered_identifier { "hello5" =>
+        "";
+        Identifier {
+            name => "hello5".to_string()
+        }
+    });
+
+    test!(should_parse_underscored_identifier { "_hello_" =>
+        "";
+        Identifier {
+            name => "_hello_".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>
+        "";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_preceeding_others { "hello  note" =>
+        "note";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_attached_to_symbol { "hello=" =>
+        "=";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
 }

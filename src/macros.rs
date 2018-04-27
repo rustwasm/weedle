@@ -35,3 +35,23 @@ macro_rules! re_capture_static (
     }
   )
 );
+
+#[cfg(test)]
+macro_rules! test {
+    ($name:ident { $raw:expr => $rem:expr; $typ:ident => $val:expr }) => {
+        #[test]
+        fn $name() {
+            let (rem, parsed) = $typ::parse(CompleteStr($raw)).unwrap();
+            assert_eq!(rem, CompleteStr($rem));
+            assert_eq!(parsed, $val);
+        }
+    };
+    ($name:ident { $raw:expr => $rem:expr; $typ:ident { $($field:ident => $val:expr),* } }) => {
+        #[test]
+        fn $name() {
+            let (rem, parsed) = $typ::parse(CompleteStr($raw)).unwrap();
+            assert_eq!(rem, CompleteStr($rem));
+            assert_eq!(parsed, $typ { $($field: $val),* });
+        }
+    };
+}
