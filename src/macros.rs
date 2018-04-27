@@ -38,10 +38,16 @@ macro_rules! re_capture_static (
 
 #[cfg(test)]
 macro_rules! test {
-    ($name:ident { $raw:expr => $rem:expr; $typ:ident => $val:expr }) => {
+    (err $name:ident { $raw:expr => $typ:ty }) => {
         #[test]
         fn $name() {
-            let (rem, parsed) = $typ::parse(CompleteStr($raw)).unwrap();
+            <$typ>::parse(CompleteStr($raw)).unwrap_err();
+        }
+    };
+    ($name:ident { $raw:expr => $rem:expr; $typ:ty => $val:expr }) => {
+        #[test]
+        fn $name() {
+            let (rem, parsed) = <$typ>::parse(CompleteStr($raw)).unwrap();
             assert_eq!(rem, CompleteStr($rem));
             assert_eq!(parsed, $val);
         }
