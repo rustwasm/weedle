@@ -148,7 +148,6 @@ impl Parse for Default {
 #[cfg(test)]
 mod test {
     use super::*;
-    use literal::*;
     use nom::types::CompleteStr;
 
     #[test]

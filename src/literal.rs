@@ -52,19 +52,21 @@ impl Parse for String {
 pub enum DefaultValue {
     Const(ConstValue),
     String(String),
-    EmptyArray([(); 0]),
+    EmptyArray(EmptyArray),
 }
 
 impl Parse for DefaultValue {
     named!(parse -> Self, alt_complete!(
         weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
         weedle!(String) => {|inner| DefaultValue::String(inner)} |
-        weedle!([(); 0]) => {|inner| DefaultValue::EmptyArray(inner)}
+        weedle!(EmptyArray) => {|inner| DefaultValue::EmptyArray(inner)}
     ));
 }
 
 /// Represents `[ ]`
-impl Parse for [(); 0] {
+pub type EmptyArray = [(); 0];
+
+impl Parse for EmptyArray {
     named!(parse -> Self, do_parse!(
         weedle!(term!(OpenBracket)) >>
         weedle!(term!(CloseBracket)) >>
@@ -117,8 +119,9 @@ impl Parse for f64 {
 #[cfg(test)]
 mod test {
     use Parse;
-    use super::OtherLit;
+    use super::*;
     use nom::types::CompleteStr;
+    use term::*;
 
     test!(should_parse_other_lit { "&" =>
         "";
@@ -177,6 +180,16 @@ mod test {
         f64 => 3e23
     });
 
+    test!(should_parse_neg_infinity { "-Infinity" =>
+        "";
+        f64 => ::std::f64::NEG_INFINITY
+    });
+
+    test!(should_parse_infinity { "Infinity" =>
+        "";
+        f64 => ::std::f64::INFINITY
+    });
+
     test!(should_parse_string { r#""this is a string""# =>
         "";
         String => "this is a string"
@@ -190,5 +203,20 @@ mod test {
     test!(should_parse_string_followed_by_string { r#" "this is first"  "this is second" "# =>
         r#""this is second" "#;
         String => "this is first"
+    });
+
+    test!(should_parse_null { "null" =>
+        "";
+        Null => Null
+    });
+
+    test!(should_parse_empty_array { "[]" =>
+        "";
+        EmptyArray => []
+    });
+
+    test!(should_parse_bool { "true" =>
+        "";
+        bool => true
     });
 }
