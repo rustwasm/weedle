@@ -4,7 +4,7 @@ use common::*;
 use argument::*;
 use types::*;
 
-/// Parses a list of attributes
+/// Parses a list of attributes. Ex: `[ attribute1, attribute2 ]`
 pub type ExtendedAttributeList = Bracketed<Punctuated<ExtendedAttribute, term!(,)>>;
 
 /// Parses on of the forms of attribute
@@ -27,7 +27,7 @@ impl Parse for ExtendedAttribute {
     ));
 }
 
-/// Parses a named argument list. Ex: `[NamedConstructor=Image(DOMString src)]`
+/// Parses a named argument list. Ex: `NamedConstructor=Image(DOMString src)`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
@@ -111,101 +111,6 @@ impl Parse for ExtendedAttributeNoArgs {
     ));
 }
 
-/// Takes input of the form `attribute TheType theIdentifier;`
-#[derive(Debug, PartialEq)]
-pub struct AttributeRest {
-    pub attribute: term!(attribute),
-    pub type_: TypeWithExtendedAttributes,
-    pub name: AttributeName,
-    pub semi_colon: term!(;)
-}
-
-impl Parse for AttributeRest {
-    named!(parse -> Self, do_parse!(
-        attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(TypeWithExtendedAttributes) >>
-        name: weedle!(AttributeName) >>
-        semi_colon: weedle!(term!(;)) >>
-        (AttributeRest { attribute, type_, name, semi_colon })
-    ));
-}
-
-/// Parses either `required` or an **identifier**
-///
-/// ### Grammar
-/// ```other
-/// AttributeName ::
-///     AttributeNameKeyword
-///     **identifier**
-///
-/// AttributeNameKeyword ::
-///     required
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeName)
-#[derive(Debug, PartialEq)]
-pub enum AttributeName {
-    Required(term!(required)),
-    Identifier(Identifier)
-}
-
-impl Parse for AttributeName {
-    named!(parse -> Self, alt_complete!(
-        weedle!(term!(required)) => {|inner| AttributeName::Required(inner)} |
-        weedle!(Identifier) => {|inner| AttributeName::Identifier(inner)}
-    ));
-}
-
 #[cfg(test)]
 mod test {
-    use super::*;
-    use nom::types::CompleteStr;
-
-    #[test]
-    fn should_take_named_argument_list() {
-        let (rem, parsed) = ExtendedAttributeNamedArgList::parse("NamedConstructor=Image(DOMString src)".into())
-            .unwrap();
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, ExtendedAttributeNamedArgList {
-            lhs_identifier: Identifier {
-                name: "NamedConstructor".to_string()
-            },
-            assign: term!(=),
-            rhs_identifier: Identifier {
-                name: "Image".to_string()
-            },
-            args_signature: Braced {
-                open_brace: term!(OpenBrace),
-                body: ArgumentList {
-                    args: Punctuated {
-                        list: vec![
-                            Argument {
-                                attributes: ExtendedAttributeList {
-                                    bracketed: None
-                                },
-                                rest: ArgumentRest::Normal(NormalArgumentRest {
-                                    name: ArgumentName::Identifier(Identifier {
-                                        name: "src".to_string()
-                                    }),
-                                    type_: Type::Single(
-                                        Box::new(SingleType::NonAny(
-                                            NonAnyType::MayBeString(
-                                                MayBeNull {
-                                                    type_: StringType::DOM(term!(DOMString)),
-                                                    q_mark: None
-                                                }
-                                            )
-                                        ))
-                                    ),
-                                    ellipsis: None
-                                }),
-                            },
-                        ],
-                        separator: term!(,),
-                    }
-                },
-                close_brace: term!(CloseBrace),
-            },
-        })
-    }
 }
