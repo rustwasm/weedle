@@ -8,138 +8,61 @@ use others::*;
 /// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`
 pub type ArgumentList = Punctuated<Argument, term!(,)>;
 
-/// Parses an argument. Ex: `double v1`
-///
-/// ### Grammar
-/// ```other
-/// Argument ::
-///     ExtendedAttributeList ArgumentRest
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Argument)
+/// Parses an argument. Ex: `double v1|double... v1s`
 #[derive(Debug, PartialEq)]
-pub struct Argument {
-    pub attributes: ExtendedAttributeList,
-    pub rest: ArgumentRest,
+pub enum Argument {
+    Single(SingleArgument),
+    Variadic(VariadicArgument)
 }
 
 impl Parse for Argument {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(ExtendedAttributeList) >>
-        rest: weedle!(ArgumentRest) >>
-        (Argument { attributes, rest })
+    named!(parse -> Self, alt!(
+        weedle!(SingleArgument) => {|inner| Argument::Single(inner)} |
+        weedle!(VariadicArgument) => {|inner| Argument::Variadic(inner)}
     ));
 }
 
-/// Parses either optional or non-optional argument. Ex: `optional double alpha` or `double alpha`.
-///
-/// ### Grammar
-/// ```other
-/// ArgumentRest ::
-///     optional TypeWithExtendedAttributes ArgumentName Default
-///     Type Ellipsis ArgumentName
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentRest)
+/// Parses `/* [attributes] */ /* optional */ type identifier /* = default */`
 #[derive(Debug, PartialEq)]
-pub enum ArgumentRest {
-    Optional(OptionalArgumentRest),
-    Normal(NormalArgumentRest),
+pub struct SingleArgument {
+    pub attributes: Option<ExtendedAttributeList>,
+    pub optional: Option<term!(optional)>,
+    pub type_: Type,
+    pub identifier: Identifier,
+    pub default: Option<Default>
 }
 
-impl Parse for ArgumentRest {
-    named!(parse -> Self, alt_complete!(
-        weedle!(OptionalArgumentRest) => {|inner| ArgumentRest::Optional(inner)} |
-        weedle!(NormalArgumentRest) => {|inner| ArgumentRest::Normal(inner)}
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct OptionalArgumentRest {
-    pub optional: term!(optional),
-    pub type_: TypeWithExtendedAttributes,
-    pub name: ArgumentName,
-    pub default: Option<Default>,
-}
-
-impl Parse for OptionalArgumentRest {
+impl Parse for SingleArgument {
     named!(parse -> Self, do_parse!(
-        optional: weedle!(term!(optional)) >>
-        type_: weedle!(TypeWithExtendedAttributes) >>
-        name: weedle!(ArgumentName) >>
+        attributes: weedle!(Option<ExtendedAttributeList>) >>
+        optional: weedle!(Option<term!(optional)>) >>
+        type_: weedle!(Type) >>
+        identifier: weedle!(Identifier) >>
         default: weedle!(Option<Default>) >>
-        (OptionalArgumentRest { optional, type_, name, default })
+        (SingleArgument { attributes, optional, type_, identifier, default })
     ));
 }
 
+/// Parses `/* [attributes] */ type/* ... */ identifier`
 #[derive(Debug, PartialEq)]
-pub struct NormalArgumentRest {
+pub struct VariadicArgument {
+    pub attributes: Option<ExtendedAttributeList>,
     pub type_: Type,
     pub ellipsis: Option<term!(...)>,
-    pub name: ArgumentName,
+    pub identifier: Identifier
 }
 
-impl Parse for NormalArgumentRest {
+impl Parse for VariadicArgument {
     named!(parse -> Self, do_parse!(
+        attributes: weedle!(Option<ExtendedAttributeList>) >>
         type_: weedle!(Type) >>
         ellipsis: weedle!(Option<term!(...)>) >>
-        name: weedle!(ArgumentName) >>
-        (NormalArgumentRest { type_, ellipsis, name })
-    ));
-}
-
-/// Parses the argument name
-///
-/// ### Grammar
-/// ```other
-/// ArgumentName ::
-///     ArgumentNameKeyword
-///     **identifier**
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentName)
-#[derive(Debug, PartialEq)]
-pub enum ArgumentName {
-    Keyword(ArgumentNameKeyword),
-    Identifier(Identifier),
-}
-
-impl Parse for ArgumentName {
-    named!(parse -> Self, alt_complete!(
-        weedle!(ArgumentNameKeyword) => {|inner| ArgumentName::Keyword(inner)} |
-        weedle!(Identifier) => {|inner| ArgumentName::Identifier(inner)}
+        identifier: weedle!(Identifier) >>
+        (VariadicArgument { attributes, type_, ellipsis, identifier })
     ));
 }
 
 /// Parses any one of the keyword
-///
-/// ### Grammar
-/// ```other
-/// ArgumentNameKeyword ::
-///     attribute
-///     callback
-///     const
-///     deleter
-///     dictionary
-///     enum
-///     getter
-///     includes
-///     inherit
-///     interface
-///     iterable
-///     maplike
-///     namespace
-///     partial
-///     required
-///     setlike
-///     setter
-///     static
-///     stringifier
-///     typedef
-///     unrestricted
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentNameKeyword)
 #[derive(Debug, PartialEq)]
 pub enum ArgumentNameKeyword {
     Attribute(term!(attribute)),
