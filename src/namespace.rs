@@ -1,4 +1,3 @@
-use literal::Identifier;
 use common::*;
 use argument::*;
 use types::*;

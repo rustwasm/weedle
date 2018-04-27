@@ -1,8 +1,8 @@
-use literal::*;
 use attribute::*;
 use types::*;
 use others::*;
 use Parse;
+use common::*;
 
 /// Parses dictionary members
 pub type DictionaryMembers = Vec<DictionaryMember>;

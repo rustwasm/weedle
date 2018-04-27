@@ -1,4 +1,3 @@
-use literal::*;
 use Parse;
 use common::*;
 use attribute::*;

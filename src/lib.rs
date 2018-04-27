@@ -26,7 +26,6 @@ use attribute::*;
 use common::*;
 use dictionary::*;
 use interface::*;
-use literal::*;
 use namespace::*;
 use nom::{IResult, types::CompleteStr};
 use types::*;

@@ -1,8 +1,6 @@
-use literal::*;
 use Parse;
 use common::*;
 use argument::*;
-use types::*;
 
 /// Parses a list of attributes. Ex: `[ attribute1, attribute2 ]`
 pub type ExtendedAttributeList = Bracketed<Punctuated<ExtendedAttribute, term!(,)>>;

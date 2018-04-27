@@ -1,5 +1,4 @@
 use Parse;
-use literal::*;
 use common::*;
 use argument::*;
 use interface::*;

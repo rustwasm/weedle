@@ -1,4 +1,3 @@
-use literal::*;
 use types::*;
 use Parse;
 use common::*;

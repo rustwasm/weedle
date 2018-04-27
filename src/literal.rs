@@ -5,57 +5,9 @@ fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
     input[0]
 }
 
-// Workaround to use `CompleteStr`
-macro_rules! re_capture_static (
-  ($i:expr, $re:expr) => (
-    {
-      use $crate::nom::{Err,ErrorKind,IResult};
-      use $crate::nom::Slice;
-
-      regex!(RE, $re);
-      if let Some(c) = RE.captures(&$i) {
-        let v:Vec<_> = c.iter().filter(|el| el.is_some()).map(|el| el.unwrap()).map(|m| $i.slice(m.start()..m.end())).collect();
-        let offset = {
-          let end = v.last().unwrap();
-          end.as_ptr() as usize + end.len() - $i.as_ptr() as usize
-        };
-        Ok(($i.slice(offset..), v))
-      } else {
-        let res: IResult<_,_> = Err(Err::Error(error_position!($i, ErrorKind::RegexpCapture::<u32>)));
-        res
-      }
-    }
-  )
-);
-
-/// Represents an **identifier**
-///
-/// ### Grammar
-/// ```other
-/// **identifier** = /_?[A-Za-z][0-9A-Z_a-z-]*/
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
-#[derive(Debug, Eq, PartialEq)]
-pub struct Identifier {
-    pub name: String
-}
-
-impl Parse for Identifier {
-    named!(parse -> Self, do_parse!(
-        name: ws!(re_capture_static!(r"^(_?[A-Za-z][0-9A-Z_a-z-]*)")) >>
-        (Identifier { name: name[0].to_string() })
-    ));
-}
-
 /// Represents other literal symbols
 ///
-/// ### Grammar
-/// ```other
-/// **other** = /[^\t\n\r 0-9A-Za-z]/
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
+/// Follows `/[^\t\n\r 0-9A-Za-z]/`
 #[derive(Debug, Eq, PartialEq)]
 pub struct OtherLit {
     pub value: String
@@ -70,54 +22,20 @@ impl Parse for OtherLit {
 
 /// Represents an integer value
 ///
-/// ### Grammar
-/// ```other
-/// **integer** = /-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
+/// Follows `/-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/`
 impl Parse for i64 {
-    named!(parse -> Self, do_parse!(
-        value: flat_map!(
-            map!(
-                ws!(re_capture_static!(r"^(-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*))")),
-                select_first
-            ),
-            parse_to!(i64)
-        ) >>
-        (value)
-    ));
-}
-
-/// Represents a floating point value
-///
-/// ### Grammar
-/// ```other
-/// **float** = /-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
-impl Parse for f64 {
-    named!(parse -> Self, do_parse!(
-        value: flat_map!(
-            map!(
-                ws!(re_capture_static!(r"^(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))")),
-                select_first
-            ),
-            parse_to!(f64)
-        ) >>
-        (value)
+    named!(parse -> Self, flat_map!(
+        map!(
+            ws!(re_capture_static!(r"^(-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*))")),
+            select_first
+        ),
+        parse_to!(i64)
     ));
 }
 
 /// Represents a string value
 ///
-/// ### Grammar
-/// ```other
-/// **string** = /"[^"]*"/
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#idl-grammar)
+/// Follow `/"[^"]*"/`
 impl Parse for String {
     named!(parse -> Self, do_parse!(
         value: ws!(re_capture_static!(r#"^("[^"]*")"#)) >>
@@ -129,125 +47,70 @@ impl Parse for String {
     ));
 }
 
-/// Represents a default literal value
-///
-/// ### Grammar
-/// ```other
-/// DefaultValue ::
-///     ConstValue
-///     **string**
-///     [ ]
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-DefaultValue)
+/// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
 #[derive(Debug, PartialEq)]
 pub enum DefaultValue {
     Const(ConstValue),
     String(String),
-    EmptyArray(EmptyArrayLit),
+    EmptyArray([(); 0]),
 }
 
 impl Parse for DefaultValue {
     named!(parse -> Self, alt_complete!(
         weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
         weedle!(String) => {|inner| DefaultValue::String(inner)} |
-        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
+        weedle!([(); 0]) => {|inner| DefaultValue::EmptyArray(inner)}
     ));
 }
 
 /// Represents `[ ]`
-#[derive(Debug, PartialEq)]
-pub struct EmptyArrayLit {
-    pub open_bracket: term!(OpenBracket),
-    pub close_bracket: term!(CloseBracket),
-}
-
-impl Parse for EmptyArrayLit {
+impl Parse for [(); 0] {
     named!(parse -> Self, do_parse!(
-        open_bracket: weedle!(term!(OpenBracket)) >>
-        close_bracket: weedle!(term!(CloseBracket)) >>
-        (EmptyArrayLit { open_bracket, close_bracket })
+        weedle!(term!(OpenBracket)) >>
+        weedle!(term!(CloseBracket)) >>
+        ([])
     ));
 }
 
 /// Represents `true`, `false`, `34.23`, `null`, `56`, ...
-///
-/// ### Grammar
-/// ```other
-/// ConstValue ::
-///     BooleanLiteral
-///     FloatLiteral
-///     **integer**
-///     null
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ConstValue)
 #[derive(Debug, PartialEq)]
 pub enum ConstValue {
-    BooleanLiteral(BooleanLiteral),
-    FloatLiteral(FloatLiteral),
+    BooleanLiteral(bool),
+    FloatLiteral(f64),
     Integer(i64),
     Null(term!(null)),
 }
 
 impl Parse for ConstValue {
     named!(parse -> Self, alt_complete!(
-        weedle!(BooleanLiteral) => {|inner| ConstValue::BooleanLiteral(inner)} |
-        weedle!(FloatLiteral) => {|inner| ConstValue::FloatLiteral(inner)} |
+        weedle!(bool) => {|inner| ConstValue::BooleanLiteral(inner)} |
+        weedle!(f64) => {|inner| ConstValue::FloatLiteral(inner)} |
         weedle!(i64) => {|inner| ConstValue::Integer(inner)} |
         weedle!(term!(null)) => {|inner| ConstValue::Null(inner)}
     ));
 }
 
 /// Represents either `true` or `false`
-///
-/// ### Grammar
-/// ```other
-/// BooleanLiteral ::
-///     true
-///     false
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-BooleanLiteral)
-#[derive(Debug, PartialEq)]
-pub enum BooleanLiteral {
-    True(term!(true)),
-    False(term!(false)),
-}
-
-impl Parse for BooleanLiteral {
+impl Parse for bool {
     named!(parse -> Self, alt_complete!(
-        weedle!(term!(true)) => {|inner| BooleanLiteral::True(inner)} |
-        weedle!(term!(false)) => {|inner| BooleanLiteral::False(inner)}
+        weedle!(term!(true)) => {|_| true} |
+        weedle!(term!(false)) => {|_| false}
     ));
 }
 
 /// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
 ///
-/// ### Grammar
-/// ```other
-/// FloatLiteral ::
-///     **float**
-///     -Infinity
-///     Infinity
-///     NaN
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-FloatLiteral)
-#[derive(Debug, PartialEq)]
-pub enum FloatLiteral {
-    Float(f64),
-    NegInfinity(term!(-Infinity)),
-    Infinity(term!(Infinity)),
-    NaN(term!(NaN)),
-}
-
-impl Parse for FloatLiteral {
+/// Follows `/-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/`
+impl Parse for f64 {
     named!(parse -> Self, alt_complete!(
-        weedle!(f64) => {|inner| FloatLiteral::Float(inner)} |
-        weedle!(term!(-Infinity)) => {|inner| FloatLiteral::NegInfinity(inner)} |
-        weedle!(term!(Infinity)) => {|inner| FloatLiteral::Infinity(inner)} |
-        weedle!(term!(NaN)) => {|inner| FloatLiteral::NaN(inner)}
+        flat_map!(map!(ws!(
+            re_capture_static!(r"^(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))")),
+            select_first
+        ),
+        parse_to!(f64)) => {|inner| inner} |
+        weedle!(term!(-Infinity)) => {|_| ::std::f64::NEG_INFINITY} |
+        weedle!(term!(Infinity)) => {|_| ::std::f64::INFINITY} |
+        weedle!(term!(NaN)) => {|_| ::std::f64::NAN}
     ));
 }
 

@@ -2,6 +2,7 @@ use literal::*;
 use types::*;
 use Parse;
 use argument::*;
+use common::*;
 
 /// Parses any one of the `Other` variants
 ///
