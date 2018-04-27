@@ -6,30 +6,7 @@ use attribute::*;
 use others::*;
 
 /// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`
-///
-/// ### Grammar
-/// ```other
-/// ArgumentList ::
-///     Argument Arguments
-///     ε
-///
-/// Arguments ::
-///     , Argument Arguments
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ArgumentList)
-#[derive(Debug, PartialEq)]
-pub struct ArgumentList {
-    pub args: Punctuated<Argument, term!(,)>
-}
-
-impl Parse for ArgumentList {
-    named!(parse -> Self, do_parse!(
-        args: weedle!(Punctuated<Argument, term!(,)>) >>
-        (ArgumentList { args })
-    ));
-}
+pub type ArgumentList = Punctuated<Argument, term!(,)>;
 
 /// Parses an argument. Ex: `double v1`
 ///
