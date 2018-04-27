@@ -31,6 +31,7 @@ use literal::*;
 use namespace::*;
 use nom::{IResult, types::CompleteStr};
 use types::*;
+use mixin::*;
 
 #[macro_use]
 mod macros;
@@ -43,10 +44,10 @@ pub mod types;
 pub mod common;
 pub mod others;
 pub mod interface;
+pub mod mixin;
 pub mod enums;
 pub mod dictionary;
 pub mod namespace;
-pub mod includes;
 
 pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
