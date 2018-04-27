@@ -2,16 +2,25 @@ use Parse;
 use term;
 
 impl<T: Parse> Parse for Option<T> {
-    named!(parse -> Self, do_parse!(
-        parsed: opt!(weedle!(T)) >>
-        (parsed)
-    ));
+    named!(parse -> Self, opt!(weedle!(T)));
 }
 
 impl<T: Parse> Parse for Box<T> {
     named!(parse -> Self, do_parse!(
         inner: weedle!(T) >>
         (Box::new(inner))
+    ));
+}
+
+impl<T: Parse> Parse for Vec<T> {
+    named!(parse -> Self, many0!(weedle!(T)));
+}
+
+impl<T: Parse, U: Parse> Parse for (T, U) {
+    named!(parse-> Self, do_parse!(
+        f: weedle!(T) >>
+        s: weedle!(U) >>
+        ((f, s))
     ));
 }
 

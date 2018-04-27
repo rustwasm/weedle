@@ -1,6 +1,19 @@
 //! Weedle - A WebIDL Parser
 //!
-//! Follows the grammar as defined on [WebIDL](https://heycam.github.io/webidl)
+//! Tries to follow the grammar given at [WebIDL](https://heycam.github.io/webidl) but is not
+//! one-to-one. Makes necessary assumptions as per the real world `idl` definitions.
+//!
+//! For ex: `[attributes] attribute Type identifier` instead of
+//! `[attributes] attribute AttributedType AttributeName` where `AttributedType` is
+//! `[attribute] Type` and `AttributeName` is one of `required|identifier`.
+//! Using attributes within is redundant, Also the attribute names can either be
+//! `required|identifier` which is taken care of by `identifier` as it takes in any possible
+//! value without regard of whether they are keywords or not.
+//!
+//! This also means any inner `[attributes]` used in the grammar are omitted. Only preceding
+//! attributes to declarations are considered.
+//!
+//! Also, the parser only allows stricter attributes defined in the grammar.
 
 #[macro_use]
 extern crate lazy_static;
@@ -33,7 +46,6 @@ pub mod interface;
 pub mod enums;
 pub mod dictionary;
 pub mod namespace;
-pub mod partial;
 pub mod includes;
 
 pub trait Parse: Sized {

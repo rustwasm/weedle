@@ -1,96 +1,61 @@
 use literal::Identifier;
 use common::*;
-use attribute::*;
-use interface::*;
+use argument::*;
+use types::*;
 use Parse;
 
-/// Parses a `namespace` declaration
-///
-/// ### Grammar
-/// ```other
-/// Namespace ::
-///     namespace identifier { NamespaceMembers } ;
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Namespace)
-#[derive(Debug, PartialEq)]
-pub struct Namespace {
-    pub namespace: term!(namespace),
-    pub identifier: Identifier,
-    pub parenthesized: Parenthesized<NamespaceMembers>,
-    pub semi_colon: term!(;)
-}
+/// Parses namespace members declaration
+pub type NamespaceMembers = Vec<NamespaceMember>;
 
-impl Parse for Namespace {
-    named!(parse -> Self, do_parse!(
-        namespace: weedle!(term!(namespace)) >>
-        identifier: weedle!(Identifier) >>
-        parenthesized: weedle!(Parenthesized<NamespaceMembers>) >>
-        semi_colon: weedle!(term!(;)) >>
-        (Namespace { namespace, identifier, parenthesized, semi_colon })
-    ));
-}
-
-/// Parses a `namespace` members declaration
-///
-/// ### Grammar
-/// ```other
-/// NamespaceMembers ::
-///     ExtendedAttributeList NamespaceMember NamespaceMembers
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-NamespaceMembers)
-#[derive(Debug, PartialEq)]
-pub struct NamespaceMembers {
-    pub members: Vec<NamespaceMembersItem>
-}
-
-impl Parse for NamespaceMembers {
-    named!(parse -> Self, do_parse!(
-        members: many0!(weedle!(NamespaceMembersItem)) >>
-        (NamespaceMembers { members })
-    ));
-}
-
-/// Parses a single unit of [`NamespaceMembers`](struct.NamespaceMembers.html)
-///
-/// `ExtendedAttributeList NamespaceMember`
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-NamespaceMembers)
-#[derive(Debug, PartialEq)]
-pub struct NamespaceMembersItem {
-    pub attributes: ExtendedAttributeList,
-    pub member: NamespaceMember
-}
-
-impl Parse for NamespaceMembersItem {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(ExtendedAttributeList) >>
-        member: weedle!(NamespaceMember) >>
-        (NamespaceMembersItem { attributes, member })
-    ));
-}
-
-/// Parses a `namespace` member declaration
-///
-/// ### Grammar
-/// ```other
-/// NamespaceMember ::
-///     RegularOperation
-///     readonly AttributeRest
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-NamespaceMember)
+/// Parses namespace member declaration
 #[derive(Debug, PartialEq)]
 pub enum NamespaceMember {
-    RegularOperation(RegularOperation),
-    ReadOnly(ReadOnlyAttributeRest)
+    Operation(OperationNamespaceMember),
+    Attribute(AttributeNamespaceMember)
 }
 
 impl Parse for NamespaceMember {
     named!(parse -> Self, alt!(
-        weedle!(RegularOperation) => {|inner| NamespaceMember::RegularOperation(inner)} |
-        weedle!(ReadOnlyAttributeRest) => {|inner| NamespaceMember::ReadOnly(inner)}
+        weedle!(OperationNamespaceMember) => {|inner| NamespaceMember::Operation(inner)} |
+        weedle!(AttributeNamespaceMember) => {|inner| NamespaceMember::Attribute(inner)}
+    ));
+}
+
+/// Parses `returntype /* identifier */( args );`
+#[derive(Debug, PartialEq)]
+pub struct OperationNamespaceMember {
+    pub return_type: ReturnType,
+    pub identifier: Option<Identifier>,
+    pub args: Braced<ArgumentList>,
+    pub semi_colon: term!(;)
+}
+
+impl Parse for OperationNamespaceMember {
+    named!(parse -> Self, do_parse!(
+        return_type: weedle!(ReturnType) >>
+        identifier: weedle!(Option<Identifier>) >>
+        args: weedle!(Braced<ArgumentList>) >>
+        semi_colon: weedle!(term!(;)) >>
+        (OperationNamespaceMember { return_type, identifier, args, semi_colon })
+    ));
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AttributeNamespaceMember {
+    pub readonly: term!(readonly),
+    pub attribute: term!(attribute),
+    pub type_: Type,
+    pub identifier: Identifier,
+    pub semi_colon: term!(;)
+}
+
+impl Parse for AttributeNamespaceMember {
+    named!(parse -> Self, do_parse!(
+        readonly: weedle!(term!(readonly)) >>
+        attribute: weedle!(term!(attribute)) >>
+        type_: weedle!(Type) >>
+        identifier: weedle!(Identifier) >>
+        semi_colon: weedle!(term!(;)) >>
+        (AttributeNamespaceMember { readonly, attribute, type_, identifier, semi_colon })
     ));
 }
