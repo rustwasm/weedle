@@ -1,25 +1,37 @@
-use literal::*;
 use Parse;
 use common::*;
 use argument::*;
-use others::*;
-use types::*;
 
-/// Takes a named argument list. Ex: `[NamedConstructor=Image(DOMString src)]`
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeNamedArgList ::
-///     **identifier** = **identifier** ( ArgumentList )
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeNamedArgList)
+/// Parses a list of attributes. Ex: `[ attribute1, attribute2 ]`
+pub type ExtendedAttributeList = Bracketed<Punctuated<ExtendedAttribute, term!(,)>>;
+
+/// Parses on of the forms of attribute
+#[derive(Debug, PartialEq)]
+pub enum ExtendedAttribute {
+    ArgList(ExtendedAttributeArgList),
+    NamedArgList(ExtendedAttributeNamedArgList),
+    IdentList(ExtendedAttributeIdentList),
+    Ident(ExtendedAttributeIdent),
+    NoArgs(ExtendedAttributeNoArgs),
+}
+
+impl Parse for ExtendedAttribute {
+    named!(parse -> Self, alt!(
+        weedle!(ExtendedAttributeArgList) => {|inner| ExtendedAttribute::ArgList(inner)} |
+        weedle!(ExtendedAttributeNamedArgList) => {|inner| ExtendedAttribute::NamedArgList(inner)} |
+        weedle!(ExtendedAttributeIdentList) => {|inner| ExtendedAttribute::IdentList(inner)} |
+        weedle!(ExtendedAttributeIdent) => {|inner| ExtendedAttribute::Ident(inner)} |
+        weedle!(ExtendedAttributeNoArgs) => {|inner| ExtendedAttribute::NoArgs(inner)}
+    ));
+}
+
+/// Parses a named argument list. Ex: `NamedConstructor=Image(DOMString src)`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
     pub assign: term!(=),
     pub rhs_identifier: Identifier,
-    pub args_signature: Braced<ArgumentList>,
+    pub args: Braced<ArgumentList>,
 }
 
 impl Parse for ExtendedAttributeNamedArgList {
@@ -27,269 +39,32 @@ impl Parse for ExtendedAttributeNamedArgList {
         lhs_identifier: weedle!(Identifier) >>
         assign: weedle!(term!(=)) >>
         rhs_identifier: weedle!(Identifier) >>
-        args_signature: weedle!(Braced<ArgumentList>) >>
-        (ExtendedAttributeNamedArgList { lhs_identifier, assign, rhs_identifier, args_signature })
+        args: weedle!(Braced<ArgumentList>) >>
+        (ExtendedAttributeNamedArgList { lhs_identifier, assign, rhs_identifier, args })
     ));
 }
 
-/// Matches attributes of basically any form
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeList ::
-///     [ ExtendedAttribute ExtendedAttributes ]
-///     ε
-///
-/// ExtendedAttributes ::
-///     , ExtendedAttribute ExtendedAttributes
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeList)
-#[derive(Debug, PartialEq)]
-pub struct ExtendedAttributeList {
-    pub bracketed: Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>
-}
-
-impl Parse for ExtendedAttributeList {
-    named!(parse -> Self, do_parse!(
-        bracketed: weedle!(Option<Bracketed<Punctuated<ExtendedAttribute, term!(,)>>>) >>
-        (ExtendedAttributeList { bracketed })
-    ));
-}
-
-/// Matches a section of [ExtendedAttributeList](struct.ExtendedAttributeList.html)
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttribute ::
-///     ( ExtendedAttributeInner ) ExtendedAttributeRest
-///     [ ExtendedAttributeInner ] ExtendedAttributeRest
-///     { ExtendedAttributeInner } ExtendedAttributeRest
-///     Other ExtendedAttributeRest
-///
-/// ExtendedAttributeRest ::
-///     ExtendedAttribute
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttribute)
-#[derive(Debug, PartialEq)]
-pub enum ExtendedAttribute {
-    Parenthesized(ParenthesizedExtendedAttribute),
-    Bracketed(BracketedExtendedAttribute),
-    Braced(BracedExtendedAttribute),
-    Other(OtherExtendedAttribute),
-}
-
-impl Parse for ExtendedAttribute {
-    named!(parse -> Self, alt_complete!(
-        weedle!(ParenthesizedExtendedAttribute) => {|inner| ExtendedAttribute::Parenthesized(inner) } |
-        weedle!(BracketedExtendedAttribute) => {|inner| ExtendedAttribute::Bracketed(inner)} |
-        weedle!(BracedExtendedAttribute) => {|inner| ExtendedAttribute::Braced(inner)} |
-        weedle!(OtherExtendedAttribute) => {|inner| ExtendedAttribute::Other(inner)}
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ParenthesizedExtendedAttribute {
-    pub inner: Parenthesized<ExtendedAttributeInner>,
-    pub rest: Option<Box<ExtendedAttribute>>,
-}
-
-impl Parse for ParenthesizedExtendedAttribute {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Parenthesized<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
-        (ParenthesizedExtendedAttribute { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct BracketedExtendedAttribute {
-    pub inner: Bracketed<ExtendedAttributeInner>,
-    pub rest: Option<Box<ExtendedAttribute>>,
-}
-
-impl Parse for BracketedExtendedAttribute {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Bracketed<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
-        (BracketedExtendedAttribute { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct BracedExtendedAttribute {
-    pub inner: Braced<ExtendedAttributeInner>,
-    pub rest: Option<Box<ExtendedAttribute>>,
-}
-
-impl Parse for BracedExtendedAttribute {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Braced<ExtendedAttributeInner>) >>
-        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
-        (BracedExtendedAttribute { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct OtherExtendedAttribute {
-    pub other: Other,
-    pub rest: Option<Box<ExtendedAttribute>>,
-}
-
-impl Parse for OtherExtendedAttribute {
-    named!(parse -> Self, do_parse!(
-        other: weedle!(Other) >>
-        rest: weedle!(Option<Box<ExtendedAttribute>>) >>
-        (OtherExtendedAttribute { other, rest })
-    ));
-}
-
-/// Matches a section of [ExtendedAttribute](struct.ExtendedAttribute.html)
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeInner ::
-///     ( ExtendedAttributeInner ) ExtendedAttributeInner
-///     [ ExtendedAttributeInner ] ExtendedAttributeInner
-///     { ExtendedAttributeInner } ExtendedAttributeInner
-///     OtherOrComma ExtendedAttributeInner
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeInner)
-#[derive(Debug, PartialEq)]
-pub enum ExtendedAttributeInner {
-    Parenthesized(ParenthesizedExtendedAttributeInner),
-    Bracketed(BracketedExtendedAttributeInner),
-    Braced(BracedExtendedAttributeInner),
-    Other(OtherExtendedAttributeInner),
-    None,
-}
-
-impl Parse for ExtendedAttributeInner {
-    named!(parse -> Self, alt_complete!(
-        weedle!(ParenthesizedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Parenthesized(inner)} |
-        weedle!(BracketedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Bracketed(inner)} |
-        weedle!(BracedExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Braced(inner) }|
-        weedle!(OtherExtendedAttributeInner) => {|inner| ExtendedAttributeInner::Other(inner)} |
-        tag!("") => {|_| ExtendedAttributeInner::None}
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ParenthesizedExtendedAttributeInner {
-    pub inner: Parenthesized<Box<ExtendedAttributeInner>>,
-    pub rest: Box<ExtendedAttributeInner>,
-}
-
-impl Parse for ParenthesizedExtendedAttributeInner {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Parenthesized<Box<ExtendedAttributeInner>>) >>
-        rest: weedle!(Box<ExtendedAttributeInner>) >>
-        (ParenthesizedExtendedAttributeInner { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct BracketedExtendedAttributeInner {
-    pub inner: Bracketed<Box<ExtendedAttributeInner>>,
-    pub rest: Box<ExtendedAttributeInner>,
-}
-
-impl Parse for BracketedExtendedAttributeInner {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Bracketed<Box<ExtendedAttributeInner>>) >>
-        rest: weedle!(Box<ExtendedAttributeInner>) >>
-        (BracketedExtendedAttributeInner { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct BracedExtendedAttributeInner {
-    pub inner: Braced<Box<ExtendedAttributeInner>>,
-    pub rest: Box<ExtendedAttributeInner>,
-}
-
-impl Parse for BracedExtendedAttributeInner {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(Braced<Box<ExtendedAttributeInner>>) >>
-        rest: weedle!(Box<ExtendedAttributeInner>) >>
-        (BracedExtendedAttributeInner { inner, rest })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct OtherExtendedAttributeInner {
-    pub inner: OtherOrComma,
-    pub rest: Box<ExtendedAttributeInner>,
-}
-
-impl Parse for OtherExtendedAttributeInner {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(OtherOrComma) >>
-        rest: weedle!(Box<ExtendedAttributeInner>) >>
-        (OtherExtendedAttributeInner { inner, rest })
-    ));
-}
-
-/// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeIdentList ::
-///     **identifier** = ( IdentifierList )
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeIdentList)
+/// Parses an identifier list. Ex: `Exposed=(Window,Worker)`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdentList {
     pub identifier: Identifier,
     pub assign: term!(=),
-    pub braced: Braced<IdentifierList>
+    pub list: Braced<IdentifierList>
 }
 
 impl Parse for ExtendedAttributeIdentList {
     named!(parse -> Self, do_parse!(
         identifier: weedle!(Identifier) >>
         assign: weedle!(term!(=)) >>
-        braced: weedle!(Braced<IdentifierList>) >>
-        (ExtendedAttributeIdentList { identifier, assign, braced })
+        list: weedle!(Braced<IdentifierList>) >>
+        (ExtendedAttributeIdentList { identifier, assign, list })
     ));
 }
 
 /// Matches comma separated identifier list
-///
-/// ### Grammar
-/// ```other
-/// IdentifierList ::
-///     **identifier** Identifiers
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-IdentifierList)
-#[derive(Debug, PartialEq)]
-pub struct IdentifierList {
-    pub punctuated: Punctuated<Identifier, term!(,)>
-}
+pub type IdentifierList = Punctuated<Identifier, term!(,)>;
 
-impl Parse for IdentifierList {
-    named!(parse -> Self, do_parse!(
-        punctuated: weedle!(Punctuated<Identifier, term!(,)>) >>
-        (IdentifierList { punctuated })
-    ));
-}
-
-/// Takes an identifier list. Ex: `[Exposed=(Window,Worker)]`
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeIdent ::
-///     **identifier** = **identifier**
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeIdent)
+/// Parses an attribute with an identifier. Ex: `PutForwards=name`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdent {
     pub lhs_identifier: Identifier,
@@ -306,38 +81,22 @@ impl Parse for ExtendedAttributeIdent {
     ));
 }
 
-/// Takes an argument list. Ex: `[Constructor(double x, double y)]`
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeArgList ::
-///     **identifier** ( ArgumentList )
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeArgList)
+/// Parses an argument list. Ex: `Constructor(double x, double y)`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeArgList {
     pub identifier: Identifier,
-    pub braced: Braced<ArgumentList>
+    pub args: Braced<ArgumentList>
 }
 
 impl Parse for ExtendedAttributeArgList {
     named!(parse -> Self, do_parse!(
         identifier: weedle!(Identifier) >>
-        braced: weedle!(Braced<ArgumentList>) >>
-        (ExtendedAttributeArgList { identifier, braced })
+        args: weedle!(Braced<ArgumentList>) >>
+        (ExtendedAttributeArgList { identifier, args })
     ));
 }
 
-/// Takes no arguments. Ex: `[Replaceable]`
-///
-/// ### Grammar
-/// ```other
-/// ExtendedAttributeNoArgs ::
-///     **identifier**
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ExtendedAttributeNoArgs)
+/// Parses a plain attribute. Ex: `Replaceable`
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNoArgs {
     pub identifier: Identifier
@@ -350,109 +109,137 @@ impl Parse for ExtendedAttributeNoArgs {
     ));
 }
 
-/// Takes input of the form `attribute TheType theIdentifier;`
-///
-/// ### Grammar
-/// ```other
-/// AttributeRest ::
-///     attribute TypeWithExtendedAttributes AttributeName ;
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeRest)
-#[derive(Debug, PartialEq)]
-pub struct AttributeRest {
-    pub attribute: term!(attribute),
-    pub type_: TypeWithExtendedAttributes,
-    pub name: AttributeName,
-    pub semi_colon: term!(;)
-}
-
-impl Parse for AttributeRest {
-    named!(parse -> Self, do_parse!(
-        attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(TypeWithExtendedAttributes) >>
-        name: weedle!(AttributeName) >>
-        semi_colon: weedle!(term!(;)) >>
-        (AttributeRest { attribute, type_, name, semi_colon })
-    ));
-}
-
-/// Parses either `required` or an **identifier**
-///
-/// ### Grammar
-/// ```other
-/// AttributeName ::
-///     AttributeNameKeyword
-///     **identifier**
-///
-/// AttributeNameKeyword ::
-///     required
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-AttributeName)
-#[derive(Debug, PartialEq)]
-pub enum AttributeName {
-    Required(term!(required)),
-    Identifier(Identifier)
-}
-
-impl Parse for AttributeName {
-    named!(parse -> Self, alt_complete!(
-        weedle!(term!(required)) => {|inner| AttributeName::Required(inner)} |
-        weedle!(Identifier) => {|inner| AttributeName::Identifier(inner)}
-    ));
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use nom::types::CompleteStr;
+    use types::*;
 
-    #[test]
-    fn should_take_named_argument_list() {
-        let (rem, parsed) = ExtendedAttributeNamedArgList::parse("NamedConstructor=Image(DOMString src)".into())
-            .unwrap();
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, ExtendedAttributeNamedArgList {
-            lhs_identifier: Identifier {
+    test!(should_parse_attribute_no_args { "Replaceable" =>
+        "";
+        ExtendedAttributeNoArgs {
+            identifier => Identifier {
+                name: "Replaceable".to_string()
+            }
+        }
+    });
+
+    test!(should_parse_attribute_arg_list { "Constructor(double x, double y)" =>
+        "";
+        ExtendedAttributeArgList {
+            identifier => Identifier {
+                name: "Constructor".to_string()
+            },
+            args => Braced {
+                open_brace: term!(OpenBrace),
+                body: Punctuated {
+                    list: vec![
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::FloatingPoint(MayBeNull {
+                                type_: FloatingPointType::Double(DoubleType {
+                                    unrestricted: None,
+                                    double: term!(double)
+                                }),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "x".to_string()
+                            },
+                            default: None
+                        }),
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::FloatingPoint(MayBeNull {
+                                type_: FloatingPointType::Double(DoubleType {
+                                    unrestricted: None,
+                                    double: term!(double)
+                                }),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "y".to_string()
+                            },
+                            default: None
+                        }),
+                    ],
+                    separator: term!(,)
+                },
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
+
+    test!(should_parse_attribute_ident { "PutForwards=name" =>
+        "";
+        ExtendedAttributeIdent {
+            lhs_identifier => Identifier {
+                name: "PutForwards".to_string()
+            },
+            assign => term!(=),
+            rhs_identifier => Identifier {
+                name: "name".to_string()
+            }
+        }
+    });
+
+    test!(should_parse_ident_list { "Exposed=(Window,Worker)" =>
+        "";
+        ExtendedAttributeIdentList {
+            identifier => Identifier {
+                name: "Exposed".to_string()
+            },
+            assign => term!(=),
+            list => Braced {
+                open_brace: term!(OpenBrace),
+                body: Punctuated {
+                    list: vec![
+                        Identifier {
+                            name: "Window".to_string()
+                        },
+                        Identifier {
+                            name: "Worker".to_string()
+                        }
+                    ],
+                    separator: term!(,)
+                },
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
+
+    test!(should_parse_named_arg_list { "NamedConstructor=Image(DOMString src)" =>
+        "";
+        ExtendedAttributeNamedArgList {
+            lhs_identifier => Identifier {
                 name: "NamedConstructor".to_string()
             },
-            assign: term!(=),
-            rhs_identifier: Identifier {
+            assign => term!(=),
+            rhs_identifier => Identifier {
                 name: "Image".to_string()
             },
-            args_signature: Braced {
+            args => Braced {
                 open_brace: term!(OpenBrace),
-                body: ArgumentList {
-                    args: Punctuated {
-                        list: vec![
-                            Argument {
-                                attributes: ExtendedAttributeList {
-                                    bracketed: None
-                                },
-                                rest: ArgumentRest::Normal(NormalArgumentRest {
-                                    name: ArgumentName::Identifier(Identifier {
-                                        name: "src".to_string()
-                                    }),
-                                    type_: Type::Single(
-                                        Box::new(SingleType::NonAny(
-                                            NonAnyType::MayBeString(
-                                                MayBeNull {
-                                                    type_: StringType::DOM(term!(DOMString)),
-                                                    q_mark: None
-                                                }
-                                            )
-                                        ))
-                                    ),
-                                    ellipsis: None
-                                }),
+                body: Punctuated {
+                    list: vec![
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::DOMString(MayBeNull {
+                                type_: term!(DOMString),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "src".to_string()
                             },
-                        ],
-                        separator: term!(,),
-                    }
+                            default: None
+                        })
+                    ],
+                    separator: term!(,)
                 },
-                close_brace: term!(CloseBrace),
-            },
-        })
-    }
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
 }

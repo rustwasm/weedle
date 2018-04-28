@@ -1,11 +1,9 @@
 use Parse;
 use term;
+use literal::*;
 
 impl<T: Parse> Parse for Option<T> {
-    named!(parse -> Self, do_parse!(
-        parsed: opt!(weedle!(T)) >>
-        (parsed)
-    ));
+    named!(parse -> Self, opt!(weedle!(T)));
 }
 
 impl<T: Parse> Parse for Box<T> {
@@ -15,6 +13,29 @@ impl<T: Parse> Parse for Box<T> {
     ));
 }
 
+/// Parses `item1 item2 item3...`
+impl<T: Parse> Parse for Vec<T> {
+    named!(parse -> Self, many0!(weedle!(T)));
+}
+
+impl<T: Parse, U: Parse> Parse for (T, U) {
+    named!(parse-> Self, do_parse!(
+        f: weedle!(T) >>
+        s: weedle!(U) >>
+        ((f, s))
+    ));
+}
+
+impl<T: Parse, U: Parse, V: Parse> Parse for (T, U, V) {
+    named!(parse-> Self, do_parse!(
+        f: weedle!(T) >>
+        s: weedle!(U) >>
+        t: weedle!(V) >>
+        ((f, s, t))
+    ));
+}
+
+/// Parses `{ body }`
 #[derive(Debug, PartialEq)]
 pub struct Parenthesized<T> {
     pub open_paren: term::OpenParen,
@@ -31,6 +52,7 @@ impl<T: Parse> Parse for Parenthesized<T> {
     ));
 }
 
+/// Parses `[ body ]`
 #[derive(Debug, PartialEq)]
 pub struct Bracketed<T> {
     pub open_bracket: term::OpenBracket,
@@ -47,6 +69,7 @@ impl<T: Parse> Parse for Bracketed<T> {
     ));
 }
 
+/// Parses `( body )`
 #[derive(Debug, PartialEq)]
 pub struct Braced<T> {
     pub open_brace: term::OpenBrace,
@@ -63,6 +86,7 @@ impl<T: Parse> Parse for Braced<T> {
     ));
 }
 
+/// Parses `< body >`
 #[derive(Debug, PartialEq)]
 pub struct Generics<T> {
     pub open_angle: term::LessThan,
@@ -79,6 +103,7 @@ impl<T: Parse> Parse for Generics<T> {
     ));
 }
 
+/// Parses `` or `item1, item2, item3,...`
 #[derive(Debug, PartialEq)]
 pub struct Punctuated<T, S> {
     pub list: Vec<T>,
@@ -92,6 +117,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
     ));
 }
 
+/// Parses `item1, item2, item3,...`
 #[derive(Debug, PartialEq)]
 pub struct PunctuatedNonEmpty<T, S> {
     pub list: Vec<T>,
@@ -105,97 +131,121 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<
     ));
 }
 
+/// Represents an **identifier**
+///
+/// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
+#[derive(Debug, Eq, PartialEq)]
+pub struct Identifier {
+    pub name: String
+}
+
+impl Parse for Identifier {
+    named!(parse -> Self, do_parse!(
+        name: ws!(re_capture_static!(r"^(_?[A-Za-z][0-9A-Z_a-z]*)")) >>
+        (Identifier { name: name[0].to_string() })
+    ));
+}
+
+/// Parses rhs of an assignment expression. Ex: `= 45`
+#[derive(Debug, PartialEq)]
+pub struct Default {
+    pub assign: term!(=),
+    pub value: DefaultValue,
+}
+
+impl Parse for Default {
+    named!(parse -> Self, do_parse!(
+        assign: weedle!(term!(=)) >>
+        value: weedle!(DefaultValue) >>
+        (Default { assign, value })
+    ));
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-    use literal::*;
-    use nom::types::CompleteStr;
 
-    #[test]
-    fn should_parse_optional_present() {
-        let (rem, parsed) = Option::<Identifier>::parse(CompleteStr("one")).unwrap();
+    test!(should_parse_optional_present { "one" =>
+        "";
+        Option<Identifier> => Some(Identifier { name: "one".to_string() })
+    });
 
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Some(Identifier { name: "one".to_string() }));
-    }
+    test!(should_parse_optional_not_present { "" =>
+        "";
+        Option<Identifier> => None
+    });
 
-    #[test]
-    fn should_parse_optional_not_present() {
-        let (rem, parsed) = Option::<Identifier>::parse(CompleteStr("")).unwrap();
+    test!(should_parse_boxed { "one" =>
+        "";
+        Box<Identifier> => Box::new(Identifier { name: "one".to_string() })
+    });
 
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, None);
-    }
-
-    #[test]
-    fn should_parse_boxed() {
-        let (rem, parsed) = Box::<Identifier>::parse(CompleteStr("one")).unwrap();
-
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Box::new(Identifier { name: "one".to_string() }));
-    }
-
-    #[test]
-    fn should_parse_parenthesized() {
-        let (rem, parsed) = Parenthesized::<Identifier>::parse(CompleteStr("{ one }"))
-            .unwrap();
-
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Parenthesized {
-            open_paren: term!(OpenParen),
-            body: Identifier { name: "one".to_string() },
-            close_paren: term!(CloseParen)
-        });
-    }
-
-    #[test]
-    fn should_parse_bracketed() {
-        let (rem, parsed) = Bracketed::<Identifier>::parse(CompleteStr("[ one ]"))
-            .unwrap();
-
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Bracketed {
-            open_bracket: term!(OpenBracket),
-            body: Identifier { name: "one".to_string() },
-            close_bracket: term!(CloseBracket)
-        });
-    }
-
-    #[test]
-    fn should_parse_braced() {
-        let (rem, parsed) = Braced::<Identifier>::parse(CompleteStr("( one )"))
-            .unwrap();
-
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Braced {
-            open_brace: term!(OpenBrace),
-            body: Identifier { name: "one".to_string() },
-            close_brace: term!(CloseBrace)
-        });
-    }
-
-    #[test]
-    fn should_parse_generics() {
-        let (rem, parsed) = Generics::<Identifier>::parse(CompleteStr("<one>"))
-            .unwrap();
-
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Generics {
-            open_angle: term!(<),
-            body: Identifier {
+    test!(should_parse_vec { "one two three" =>
+        "";
+        Vec<Identifier> => vec![
+            Identifier {
                 name: "one".to_string()
             },
-            close_angle: term!(>)
-        });
-    }
+            Identifier {
+                name: "two".to_string()
+            },
+            Identifier {
+                name: "three".to_string()
+            }
+        ]
+    });
 
-    #[test]
-    fn should_parse_comma_separated_values() {
-        let (rem, parsed) = Punctuated::<Identifier, term!(,)>::parse(CompleteStr("one, two, three"))
-            .unwrap();
+    test!(should_parse_parenthesized { "{ one }" =>
+        "";
+        Parenthesized {
+            open_paren => term!(OpenParen),
+            body => Identifier { name: "one".to_string() },
+            close_paren => term!(CloseParen)
+        }
+    });
 
-        assert_eq!(rem, CompleteStr(""));
-        assert_eq!(parsed, Punctuated {
+    test!(should_parse_bracketed { "[ one ]" =>
+        "";
+        Bracketed {
+            open_bracket => term!(OpenBracket),
+            body => Identifier { name: "one".to_string() },
+            close_bracket => term!(CloseBracket)
+        }
+    });
+
+    test!(should_parse_braced { "( one )" =>
+        "";
+        Braced {
+            open_brace => term!(OpenBrace),
+            body => Identifier { name: "one".to_string() },
+            close_brace => term!(CloseBrace)
+        }
+    });
+
+    test!(should_parse_generics { "<one>" =>
+        "";
+        Generics {
+            open_angle => term!(<),
+            body => Identifier {
+                name: "one".to_string()
+            },
+            close_angle => term!(>)
+        }
+    });
+
+    test!(should_parse_generics_two { "<one, two>" =>
+        "";
+        Generics<(Identifier, term!(,), Identifier)>;
+        body == (Identifier {
+            name: "one".to_string()
+        }, term!(,), Identifier {
+            name: "two".to_string()
+        })
+    });
+
+    test!(should_parse_comma_separated_values { "one, two, three" =>
+        "";
+        Punctuated<Identifier, term!(,)> => Punctuated {
             list: vec![
                 Identifier {
                     name: "one".to_string()
@@ -208,12 +258,52 @@ mod test {
                 },
             ],
             separator: term!(,)
-        });
-    }
+        }
+    });
 
-    #[test]
-    fn should_not_parse_comma_separated_values_empty() {
-        PunctuatedNonEmpty::<Identifier, term!(,)>::parse(CompleteStr(""))
-            .unwrap_err();
-    }
+    test!(err should_not_parse_comma_separated_values_empty { "" =>
+        PunctuatedNonEmpty<Identifier, term!(,)>
+    });
+
+    test!(should_parse_identifier { "hello" =>
+        "";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_numbered_identifier { "hello5" =>
+        "";
+        Identifier {
+            name => "hello5".to_string()
+        }
+    });
+
+    test!(should_parse_underscored_identifier { "_hello_" =>
+        "";
+        Identifier {
+            name => "_hello_".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>
+        "";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_preceeding_others { "hello  note" =>
+        "note";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
+
+    test!(should_parse_identifier_attached_to_symbol { "hello=" =>
+        "=";
+        Identifier {
+            name => "hello".to_string()
+        }
+    });
 }
