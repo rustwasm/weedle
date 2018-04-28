@@ -8,20 +8,20 @@ pub type ExtendedAttributeList = Bracketed<Punctuated<ExtendedAttribute, term!(,
 /// Parses on of the forms of attribute
 #[derive(Debug, PartialEq)]
 pub enum ExtendedAttribute {
-    NoArgs(ExtendedAttributeNoArgs),
     ArgList(ExtendedAttributeArgList),
     NamedArgList(ExtendedAttributeNamedArgList),
-    Ident(ExtendedAttributeIdent),
     IdentList(ExtendedAttributeIdentList),
+    Ident(ExtendedAttributeIdent),
+    NoArgs(ExtendedAttributeNoArgs),
 }
 
 impl Parse for ExtendedAttribute {
-    named!(parse -> Self, alt_complete!(
-        weedle!(ExtendedAttributeNoArgs) => {|inner| ExtendedAttribute::NoArgs(inner)} |
+    named!(parse -> Self, alt!(
         weedle!(ExtendedAttributeArgList) => {|inner| ExtendedAttribute::ArgList(inner)} |
         weedle!(ExtendedAttributeNamedArgList) => {|inner| ExtendedAttribute::NamedArgList(inner)} |
+        weedle!(ExtendedAttributeIdentList) => {|inner| ExtendedAttribute::IdentList(inner)} |
         weedle!(ExtendedAttributeIdent) => {|inner| ExtendedAttribute::Ident(inner)} |
-        weedle!(ExtendedAttributeIdentList) => {|inner| ExtendedAttribute::IdentList(inner)}
+        weedle!(ExtendedAttributeNoArgs) => {|inner| ExtendedAttribute::NoArgs(inner)}
     ));
 }
 
