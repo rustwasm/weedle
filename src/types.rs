@@ -141,19 +141,6 @@ impl Parse for PromiseType {
     ));
 }
 
-/// Parses the return type which may be `void` or any given Type
-#[derive(Debug, PartialEq)]
-pub enum ReturnType {
-    Type(Type),
-    Void(term!(void)),
-}
-
-impl Parse for ReturnType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(Type) => {|inner| ReturnType::Type(inner)} |
-        weedle!(term!(void)) => {|inner| ReturnType::Void(inner)}
-    ));
-}
 /// Parses `/* unsigned */ short|long|long long`
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
@@ -288,7 +275,7 @@ impl Parse for StringType {
 }
 
 /// Parses a union of types
-pub type UnionType = Punctuated<UnionMemberType, term!(or)>;
+pub type UnionType = Braced<Punctuated<UnionMemberType, term!(or)>>;
 
 /// Parses one of the member of a union type
 #[derive(Debug, PartialEq)]
@@ -386,6 +373,20 @@ impl Parse for ConstType {
         weedle!(MayBeNull<term!(byte)>) => {|inner| ConstType::Byte(inner)} |
         weedle!(MayBeNull<term!(octet)>) => {|inner| ConstType::Octet(inner)} |
         weedle!(MayBeNull<Identifier>) => {|inner| ConstType::Identifier(inner)}
+    ));
+}
+
+/// Parses the return type which may be `void` or any given Type
+#[derive(Debug, PartialEq)]
+pub enum ReturnType {
+    Void(term!(void)),
+    Type(Type),
+}
+
+impl Parse for ReturnType {
+    named!(parse -> Self, alt_complete!(
+        weedle!(term!(void)) => {|inner| ReturnType::Void(inner)} |
+        weedle!(Type) => {|inner| ReturnType::Type(inner)}
     ));
 }
 
