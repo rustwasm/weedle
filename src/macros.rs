@@ -77,13 +77,13 @@ macro_rules! test {
             assert_eq!(parsed, $typ { $($field: $val),* });
         }
     };
-    ($name:ident { $raw:expr => $rem:expr; $typ:ty; $( $lhs:ident == $rhs:expr );* }) => {
+    ($name:ident { $raw:expr => $rem:expr; $typ:ty; $( $($lhs:tt).+ == $rhs:expr );* }) => {
         #[test]
         fn $name() {
-            let (rem, parsed) = <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap();
-            assert_eq!(rem, $crate::nom::types::CompleteStr($rem));
+            let (_rem, _parsed) = <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap();
+            assert_eq!(_rem, $crate::nom::types::CompleteStr($rem));
             $(
-                assert_eq!(parsed.$lhs, $rhs);
+                assert_eq!(_parsed.$($lhs).+, $rhs);
             )*
         }
     };

@@ -395,6 +395,5 @@ impl Parse for IncludesStatementDefinition {
     ));
 }
 
-
 /// Parses a non-empty enum value list
 pub type EnumValueList = PunctuatedNonEmpty<String, term!(,)>;

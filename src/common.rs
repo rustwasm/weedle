@@ -13,7 +13,7 @@ impl<T: Parse> Parse for Box<T> {
     ));
 }
 
-/// Parses `item1 item2 item3`
+/// Parses `item1 item2 item3...`
 impl<T: Parse> Parse for Vec<T> {
     named!(parse -> Self, many0!(weedle!(T)));
 }

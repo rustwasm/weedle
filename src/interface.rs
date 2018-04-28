@@ -311,9 +311,42 @@ mod test {
         readonly == Some(term!(readonly))
     });
 
-    test!(should_parse_attribute_interface_member { "readonly attribute unsigned long widths;" =>
+    test!(should_parse_attribute_interface_member { "readonly attribute unsigned long width;" =>
         "";
         AttributeInterfaceMember;
-        readonly == Some(term!(readonly))
+        readonly == Some(term!(readonly));
+        identifier.name == "width"
+    });
+
+    test!(should_parse_double_typed_iterable { "iterable<long, long>;" =>
+        "";
+        DoubleTypedIterable;
+        generics.body.0 == Type::Single(SingleType::Integer(MayBeNull {
+            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
+            q_mark: None
+        }));
+        generics.body.2 == Type::Single(SingleType::Integer(MayBeNull {
+            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
+            q_mark: None
+        }))
+    });
+
+    test!(should_parse_single_typed_iterable { "iterable<long>;" =>
+        "";
+        SingleTypedIterable;
+        generics.body == Type::Single(SingleType::Integer(MayBeNull {
+            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
+            q_mark: None
+        }))
+    });
+
+    test!(should_parse_operation_interface_member { "void readString(long a, long b);" =>
+        "";
+        OperationInterfaceMember;
+    });
+
+    test!(should_parse_const_member { "const long name = 5;" =>
+        "";
+        ConstMember;
     });
 }
