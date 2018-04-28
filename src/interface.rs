@@ -131,7 +131,7 @@ pub enum Special {
 }
 
 impl Parse for Special {
-    named!(parse -> Self, alt_complete!(
+    named!(parse -> Self, alt!(
         weedle!(term!(getter)) => {|inner| Special::Getter(inner)} |
         weedle!(term!(setter)) => {|inner| Special::Setter(inner)} |
         weedle!(term!(deleter)) => {|inner| Special::Deleter(inner)}
@@ -308,6 +308,12 @@ mod test {
     test!(should_parse_maplike_interface_member { "readonly maplike<long, short>;" =>
         "";
         MaplikeInterfaceMember;
+        readonly == Some(term!(readonly))
+    });
+
+    test!(should_parse_attribute_interface_member { "readonly attribute unsigned long widths;" =>
+        "";
+        AttributeInterfaceMember;
         readonly == Some(term!(readonly))
     });
 }

@@ -13,6 +13,7 @@ impl<T: Parse> Parse for Box<T> {
     ));
 }
 
+/// Parses `item1 item2 item3`
 impl<T: Parse> Parse for Vec<T> {
     named!(parse -> Self, many0!(weedle!(T)));
 }
@@ -34,6 +35,7 @@ impl<T: Parse, U: Parse, V: Parse> Parse for (T, U, V) {
     ));
 }
 
+/// Parses `{ body }`
 #[derive(Debug, PartialEq)]
 pub struct Parenthesized<T> {
     pub open_paren: term::OpenParen,
@@ -50,6 +52,7 @@ impl<T: Parse> Parse for Parenthesized<T> {
     ));
 }
 
+/// Parses `[ body ]`
 #[derive(Debug, PartialEq)]
 pub struct Bracketed<T> {
     pub open_bracket: term::OpenBracket,
@@ -66,6 +69,7 @@ impl<T: Parse> Parse for Bracketed<T> {
     ));
 }
 
+/// Parses `( body )`
 #[derive(Debug, PartialEq)]
 pub struct Braced<T> {
     pub open_brace: term::OpenBrace,
@@ -82,6 +86,7 @@ impl<T: Parse> Parse for Braced<T> {
     ));
 }
 
+/// Parses `< body >`
 #[derive(Debug, PartialEq)]
 pub struct Generics<T> {
     pub open_angle: term::LessThan,
@@ -98,6 +103,7 @@ impl<T: Parse> Parse for Generics<T> {
     ));
 }
 
+/// Parses `` or `item1, item2, item3,...`
 #[derive(Debug, PartialEq)]
 pub struct Punctuated<T, S> {
     pub list: Vec<T>,
@@ -111,6 +117,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
     ));
 }
 
+/// Parses `item1, item2, item3,...`
 #[derive(Debug, PartialEq)]
 pub struct PunctuatedNonEmpty<T, S> {
     pub list: Vec<T>,
@@ -134,7 +141,7 @@ pub struct Identifier {
 
 impl Parse for Identifier {
     named!(parse -> Self, do_parse!(
-        name: ws!(re_capture_static!(r"^(_?[A-Za-z][0-9A-Z_a-z-]*)")) >>
+        name: ws!(re_capture_static!(r"^(_?[A-Za-z][0-9A-Z_a-z]*)")) >>
         (Identifier { name: name[0].to_string() })
     ));
 }

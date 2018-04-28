@@ -158,15 +158,15 @@ impl Parse for ReturnType {
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
     Short(ShortType),
-    LongLong((term!(long), term!(long))),
-    Long(term!(long)),
+    LongLong(LongLongType),
+    Long(LongType),
 }
 
 impl Parse for IntegerType {
     named!(parse -> Self, alt!(
         weedle!(ShortType) => {|inner| IntegerType::Short(inner)} |
-        weedle!((term!(long), term!(long))) => {|inner| IntegerType::LongLong(inner)} |
-        weedle!(term!(long)) => {|inner| IntegerType::Long(inner)}
+        weedle!(LongLongType) => {|inner| IntegerType::LongLong(inner)} |
+        weedle!(LongType) => {|inner| IntegerType::Long(inner)}
     ));
 }
 
