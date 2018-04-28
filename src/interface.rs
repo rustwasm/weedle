@@ -122,7 +122,7 @@ impl Parse for OperationInterfaceMember {
     ));
 }
 
-/// Parses one of the special keyword `getter|setter|deleter`
+/// Parses one of the special keyword `/* [attributes] */ getter|setter|deleter`
 #[derive(Debug, PartialEq)]
 pub enum Special {
     Getter(term!(getter)),
@@ -138,7 +138,7 @@ impl Parse for Special {
     ));
 }
 
-/// Parses an iterable declaration `iterable<Type> | iterable<Type, Type> ;`
+/// Parses an iterable declaration `/* [attributes] */ iterable<Type> | iterable<Type, Type> ;`
 #[derive(Debug, PartialEq)]
 pub enum IterableInterfaceMember {
     Single(SingleTypedIterable),
@@ -152,7 +152,7 @@ impl Parse for IterableInterfaceMember {
     ));
 }
 
-/// Parses an iterable declaration `iterable<Type>;`
+/// Parses an iterable declaration `/* [attributes] */ iterable<Type>;`
 #[derive(Debug, PartialEq)]
 pub struct SingleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
@@ -171,12 +171,12 @@ impl Parse for SingleTypedIterable {
     ));
 }
 
-/// Parses an iterable declaration `iterable<Type, Type>;`
+/// Parses an iterable declaration `/* [attributes] */ iterable<Type, Type>;`
 #[derive(Debug, PartialEq)]
 pub struct DoubleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
     pub iterable: term!(iterable),
-    pub generics: Generics<(Type, Type)>,
+    pub generics: Generics<(Type, term!(,), Type)>,
     pub semi_colon: term!(;)
 }
 
@@ -184,19 +184,19 @@ impl Parse for DoubleTypedIterable {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         iterable: weedle!(term!(iterable)) >>
-        generics: weedle!(Generics<(Type, Type)>) >>
+        generics: weedle!(Generics<(Type, term!(,), Type)>) >>
         semi_colon: weedle!(term!(;)) >>
         (DoubleTypedIterable { attributes, iterable, generics, semi_colon })
     ));
 }
 
-/// Parses an maplike declaration `/* readonly */ maplike<Type, Type>;`
+/// Parses an maplike declaration `/* [attributes] */ /* readonly */ maplike<Type, Type>;`
 #[derive(Debug, PartialEq)]
 pub struct MaplikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: Option<term!(readonly)>,
     pub maplike: term!(maplike),
-    pub generics: Generics<(Type, Type)>,
+    pub generics: Generics<(Type, term!(,), Type)>,
     pub semi_colon: term!(;)
 }
 
@@ -205,13 +205,13 @@ impl Parse for MaplikeInterfaceMember {
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         maplike: weedle!(term!(maplike)) >>
-        generics: weedle!(Generics<(Type, Type)>) >>
+        generics: weedle!(Generics<(Type, term!(,), Type)>) >>
         semi_colon: weedle!(term!(;)) >>
         (MaplikeInterfaceMember { attributes, readonly, maplike, generics, semi_colon })
     ));
 }
 
-/// Parses an setlike declaration `/* readonly */ setlike<Type>;`
+/// Parses an setlike declaration `/* [attributes] */ /* readonly */ setlike<Type>;`
 #[derive(Debug, PartialEq)]
 pub struct SetlikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -275,4 +275,39 @@ impl Parse for StringifierMember {
         semi_colon: weedle!(term!(;)) >>
         (StringifierMember { stringifier, semi_colon })
     ));
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    test!(should_parse_stringifier_member { "stringifier;" =>
+        "";
+        StringifierMember {
+            stringifier => term!(stringifier),
+            semi_colon => term!(;)
+        }
+    });
+
+    test!(should_parse_stringifier_or_static { "static" =>
+        "";
+        StringifierOrStatic => StringifierOrStatic::Static(term!(static))
+    });
+
+    test!(should_parse_stringifier_or_inherit_or_static { "inherit" =>
+        "";
+        StringifierOrInheritOrStatic => StringifierOrInheritOrStatic::Inherit(term!(inherit))
+    });
+
+    test!(should_parse_setlike_interface_member { "readonly setlike<long>;" =>
+        "";
+        SetlikeInterfaceMember;
+        readonly == Some(term!(readonly))
+    });
+
+    test!(should_parse_maplike_interface_member { "readonly maplike<long, short>;" =>
+        "";
+        MaplikeInterfaceMember;
+        readonly == Some(term!(readonly))
+    });
 }

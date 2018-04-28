@@ -21,6 +21,8 @@ impl Parse for Argument {
 }
 
 /// Parses `/* [attributes] */ /* optional */ type identifier /* = default */`
+///
+/// Note: `= default` is only allowed if `optional` is present
 #[derive(Debug, PartialEq)]
 pub struct SingleArgument {
     pub attributes: Option<ExtendedAttributeList>,
@@ -36,17 +38,17 @@ impl Parse for SingleArgument {
         optional: weedle!(Option<term!(optional)>) >>
         type_: weedle!(Type) >>
         identifier: weedle!(Identifier) >>
-        default: weedle!(Option<Default>) >>
+        default: opt_flat!(cond_reduce!(optional.is_some(), weedle!(Option<Default>))) >>
         (SingleArgument { attributes, optional, type_, identifier, default })
     ));
 }
 
-/// Parses `/* [attributes] */ type/* ... */ identifier`
+/// Parses `/* [attributes] */ type... identifier`
 #[derive(Debug, PartialEq)]
 pub struct VariadicArgument {
     pub attributes: Option<ExtendedAttributeList>,
     pub type_: Type,
-    pub ellipsis: Option<term!(...)>,
+    pub ellipsis: term!(...),
     pub identifier: Identifier
 }
 
@@ -54,7 +56,7 @@ impl Parse for VariadicArgument {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         type_: weedle!(Type) >>
-        ellipsis: weedle!(Option<term!(...)>) >>
+        ellipsis: weedle!(term!(...)) >>
         identifier: weedle!(Identifier) >>
         (VariadicArgument { attributes, type_, ellipsis, identifier })
     ));
@@ -62,4 +64,42 @@ impl Parse for VariadicArgument {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
+    test!(should_parse_single_argument { "optional short a" =>
+        "";
+        SingleArgument {
+            attributes => None,
+            optional => Some(term!(optional)),
+            type_ => Type::Single(SingleType::Integer(MayBeNull {
+                type_: IntegerType::Short(ShortType {
+                    unsigned: None,
+                    short: term!(short)
+                }),
+                q_mark: None
+            })),
+            identifier => Identifier {
+                name: "a".to_string()
+            },
+            default => None
+        }
+    });
+
+    test!(should_parse_variadic_argument { "short... a" =>
+        "";
+        VariadicArgument {
+            attributes => None,
+            type_ => Type::Single(SingleType::Integer(MayBeNull {
+                type_: IntegerType::Short(ShortType {
+                    unsigned: None,
+                    short: term!(short)
+                }),
+                q_mark: None
+            })),
+            ellipsis => term!(...),
+            identifier => Identifier {
+                name: "a".to_string()
+            }
+        }
+    });
 }

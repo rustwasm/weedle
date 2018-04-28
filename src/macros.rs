@@ -36,6 +36,23 @@ macro_rules! re_capture_static (
   )
 );
 
+/// Return valid option as it is & convert `Error` to `None`
+#[macro_export]
+macro_rules! opt_flat(
+  ($i:expr, $submac:ident!( $($args:tt)* )) => (
+    {
+      use $crate::nom::Err;
+
+      let i_ = $i.clone();
+      match $submac!(i_, $($args)*) {
+        Ok((i,o))          => Ok((i, o)),
+        Err(Err::Error(_)) => Ok(($i, None)),
+        Err(e)             => Err(e),
+      }
+    }
+  );
+);
+
 #[cfg(test)]
 macro_rules! test {
     (err $name:ident { $raw:expr => $typ:ty }) => {
@@ -58,6 +75,16 @@ macro_rules! test {
             let (rem, parsed) = $typ::parse($crate::nom::types::CompleteStr($raw)).unwrap();
             assert_eq!(rem, $crate::nom::types::CompleteStr($rem));
             assert_eq!(parsed, $typ { $($field: $val),* });
+        }
+    };
+    ($name:ident { $raw:expr => $rem:expr; $typ:ty; $( $lhs:ident == $rhs:expr );* }) => {
+        #[test]
+        fn $name() {
+            let (rem, parsed) = <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap();
+            assert_eq!(rem, $crate::nom::types::CompleteStr($rem));
+            $(
+                assert_eq!(parsed.$lhs, $rhs);
+            )*
         }
     };
 }

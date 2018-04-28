@@ -388,3 +388,30 @@ impl Parse for ConstType {
         weedle!(MayBeNull<Identifier>) => {|inner| ConstType::Identifier(inner)}
     ));
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    test!(should_parse_may_be_null { "short" =>
+        "";
+        MayBeNull<IntegerType> => MayBeNull {
+            type_: IntegerType::Short(ShortType {
+                unsigned: None,
+                short: term!(short)
+            }),
+            q_mark: None
+        }
+    });
+
+    test!(should_parse_nullable { "short?" =>
+        "";
+        MayBeNull<IntegerType> => MayBeNull {
+            type_: IntegerType::Short(ShortType {
+                unsigned: None,
+                short: term!(short)
+            }),
+            q_mark: Some(term!(?))
+        }
+    });
+}

@@ -226,6 +226,16 @@ mod test {
         }
     });
 
+    test!(should_parse_generics_two { "<one, two>" =>
+        "";
+        Generics<(Identifier, term!(,), Identifier)>;
+        body == (Identifier {
+            name: "one".to_string()
+        }, term!(,), Identifier {
+            name: "two".to_string()
+        })
+    });
+
     test!(should_parse_comma_separated_values { "one, two, three" =>
         "";
         Punctuated<Identifier, term!(,)> => Punctuated {
