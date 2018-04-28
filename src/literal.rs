@@ -120,7 +120,6 @@ impl Parse for f64 {
 mod test {
     use Parse;
     use super::*;
-    use nom::types::CompleteStr;
     use term::*;
 
     test!(should_parse_other_lit { "&" =>

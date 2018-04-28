@@ -41,22 +41,22 @@ macro_rules! test {
     (err $name:ident { $raw:expr => $typ:ty }) => {
         #[test]
         fn $name() {
-            <$typ>::parse(CompleteStr($raw)).unwrap_err();
+            <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap_err();
         }
     };
     ($name:ident { $raw:expr => $rem:expr; $typ:ty => $val:expr }) => {
         #[test]
         fn $name() {
-            let (rem, parsed) = <$typ>::parse(CompleteStr($raw)).unwrap();
-            assert_eq!(rem, CompleteStr($rem));
+            let (rem, parsed) = <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap();
+            assert_eq!(rem, $crate::nom::types::CompleteStr($rem));
             assert_eq!(parsed, $val);
         }
     };
     ($name:ident { $raw:expr => $rem:expr; $typ:ident { $($field:ident => $val:expr),* } }) => {
         #[test]
         fn $name() {
-            let (rem, parsed) = $typ::parse(CompleteStr($raw)).unwrap();
-            assert_eq!(rem, CompleteStr($rem));
+            let (rem, parsed) = $typ::parse($crate::nom::types::CompleteStr($raw)).unwrap();
+            assert_eq!(rem, $crate::nom::types::CompleteStr($rem));
             assert_eq!(parsed, $typ { $($field: $val),* });
         }
     };

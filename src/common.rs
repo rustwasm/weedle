@@ -157,7 +157,6 @@ impl Parse for Default {
 #[cfg(test)]
 mod test {
     use super::*;
-    use nom::types::CompleteStr;
 
     test!(should_parse_optional_present { "one" =>
         "";

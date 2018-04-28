@@ -111,4 +111,135 @@ impl Parse for ExtendedAttributeNoArgs {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+    use types::*;
+
+    test!(should_parse_attribute_no_args { "Replaceable" =>
+        "";
+        ExtendedAttributeNoArgs {
+            identifier => Identifier {
+                name: "Replaceable".to_string()
+            }
+        }
+    });
+
+    test!(should_parse_attribute_arg_list { "Constructor(double x, double y)" =>
+        "";
+        ExtendedAttributeArgList {
+            identifier => Identifier {
+                name: "Constructor".to_string()
+            },
+            args => Braced {
+                open_brace: term!(OpenBrace),
+                body: Punctuated {
+                    list: vec![
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::FloatingPoint(MayBeNull {
+                                type_: FloatingPointType::Double(DoubleType {
+                                    unrestricted: None,
+                                    double: term!(double)
+                                }),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "x".to_string()
+                            },
+                            default: None
+                        }),
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::FloatingPoint(MayBeNull {
+                                type_: FloatingPointType::Double(DoubleType {
+                                    unrestricted: None,
+                                    double: term!(double)
+                                }),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "y".to_string()
+                            },
+                            default: None
+                        }),
+                    ],
+                    separator: term!(,)
+                },
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
+
+    test!(should_parse_attribute_ident { "PutForwards=name" =>
+        "";
+        ExtendedAttributeIdent {
+            lhs_identifier => Identifier {
+                name: "PutForwards".to_string()
+            },
+            assign => term!(=),
+            rhs_identifier => Identifier {
+                name: "name".to_string()
+            }
+        }
+    });
+
+    test!(should_parse_ident_list { "Exposed=(Window,Worker)" =>
+        "";
+        ExtendedAttributeIdentList {
+            identifier => Identifier {
+                name: "Exposed".to_string()
+            },
+            assign => term!(=),
+            list => Braced {
+                open_brace: term!(OpenBrace),
+                body: Punctuated {
+                    list: vec![
+                        Identifier {
+                            name: "Window".to_string()
+                        },
+                        Identifier {
+                            name: "Worker".to_string()
+                        }
+                    ],
+                    separator: term!(,)
+                },
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
+
+    test!(should_parse_named_arg_list { "NamedConstructor=Image(DOMString src)" =>
+        "";
+        ExtendedAttributeNamedArgList {
+            lhs_identifier => Identifier {
+                name: "NamedConstructor".to_string()
+            },
+            assign => term!(=),
+            rhs_identifier => Identifier {
+                name: "Image".to_string()
+            },
+            args => Braced {
+                open_brace: term!(OpenBrace),
+                body: Punctuated {
+                    list: vec![
+                        Argument::Single(SingleArgument {
+                            attributes: None,
+                            optional: None,
+                            type_: Type::Single(SingleType::DOMString(MayBeNull {
+                                type_: term!(DOMString),
+                                q_mark: None
+                            })),
+                            identifier: Identifier {
+                                name: "src".to_string()
+                            },
+                            default: None
+                        })
+                    ],
+                    separator: term!(,)
+                },
+                close_brace: term!(CloseBrace)
+            }
+        }
+    });
 }
