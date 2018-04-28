@@ -25,6 +25,15 @@ impl<T: Parse, U: Parse> Parse for (T, U) {
     ));
 }
 
+impl<T: Parse, U: Parse, V: Parse> Parse for (T, U, V) {
+    named!(parse-> Self, do_parse!(
+        f: weedle!(T) >>
+        s: weedle!(U) >>
+        t: weedle!(V) >>
+        ((f, s, t))
+    ));
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Parenthesized<T> {
     pub open_paren: term::OpenParen,
@@ -163,6 +172,21 @@ mod test {
     test!(should_parse_boxed { "one" =>
         "";
         Box<Identifier> => Box::new(Identifier { name: "one".to_string() })
+    });
+
+    test!(should_parse_vec { "one two three" =>
+        "";
+        Vec<Identifier> => vec![
+            Identifier {
+                name: "one".to_string()
+            },
+            Identifier {
+                name: "two".to_string()
+            },
+            Identifier {
+                name: "three".to_string()
+            }
+        ]
     });
 
     test!(should_parse_parenthesized { "{ one }" =>

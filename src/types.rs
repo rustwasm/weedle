@@ -1,227 +1,117 @@
 use Parse;
 use common::*;
-use attribute::*;
 use term;
 
-/// Parses attributed type
-///
-/// ### Grammar
-/// ```other
-/// TypeWithExtendedAttributes ::
-///     ExtendedAttributeList Type
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-TypeWithExtendedAttributes)
-#[derive(Debug, PartialEq)]
-pub struct TypeWithExtendedAttributes {
-    pub attributes: ExtendedAttributeList,
-    pub type_: Type,
-}
-
-impl Parse for TypeWithExtendedAttributes {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(ExtendedAttributeList) >>
-        type_: weedle!(Type) >>
-        (TypeWithExtendedAttributes { attributes, type_ })
-    ));
-}
-
-/// Parses any one of the buffer types
-///
-/// ### Grammar
-/// ```other
-/// BufferRelatedType ::
-///     ArrayBuffer
-///     DataView
-///     Int8Array
-///     Int16Array
-///     Int32Array
-///     Uint8Array
-///     Uint16Array
-///     Uint32Array
-///     Uint8ClampedArray
-///     Float32Array
-///     Float64Array
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-BufferRelatedType)
-#[derive(Debug, PartialEq)]
-pub enum BufferRelatedType {
-    ArrayBuffer(term!(ArrayBuffer)),
-    DataView(term!(DataView)),
-    Int8Array(term!(Int8Array)),
-    Int16Array(term!(Int16Array)),
-    Int32Array(term!(Int32Array)),
-    Uint8Array(term!(Uint8Array)),
-    Uint16Array(term!(Uint16Array)),
-    Uint32Array(term!(Uint32Array)),
-    Uint8ClampedArray(term!(Uint8ClampedArray)),
-    Float32Array(term!(Float32Array)),
-    Float64Array(term!(Float64Array)),
-}
-
-impl Parse for BufferRelatedType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(term!(ArrayBuffer)) => {|inner| BufferRelatedType::ArrayBuffer(inner)} |
-        weedle!(term!(DataView)) => {|inner| BufferRelatedType::DataView(inner)} |
-        weedle!(term!(Int8Array)) => {|inner| BufferRelatedType::Int8Array(inner)} |
-        weedle!(term!(Int16Array)) => {|inner| BufferRelatedType::Int16Array(inner)} |
-        weedle!(term!(Int32Array)) => {|inner| BufferRelatedType::Int32Array(inner)} |
-        weedle!(term!(Uint8Array)) => {|inner| BufferRelatedType::Uint8Array(inner)} |
-        weedle!(term!(Uint16Array)) => {|inner| BufferRelatedType::Uint16Array(inner)} |
-        weedle!(term!(Uint32Array)) => {|inner| BufferRelatedType::Uint32Array(inner)} |
-        weedle!(term!(Uint8ClampedArray)) => {|inner| BufferRelatedType::Uint8ClampedArray(inner)} |
-        weedle!(term!(Float32Array)) => {|inner| BufferRelatedType::Float32Array(inner)} |
-        weedle!(term!(Float64Array)) => {|inner| BufferRelatedType::Float64Array(inner)}
-    ));
-}
-
 /// Parses either single type or a union type
-///
-/// ### Grammar
-/// ```other
-/// Type ::
-///     SingleType
-///     UnionType Null
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Type)
 #[derive(Debug, PartialEq)]
 pub enum Type {
-    Single(Box<SingleType>),
-    UnionNull(Box<UnionNullType>),
+    Single(SingleType),
+    Union(MayBeNull<UnionType>),
 }
 
 impl Parse for Type {
     named!(parse -> Self, alt_complete!(
-        weedle!(Box<SingleType>) => {|inner| Type::Single(inner)} |
-        weedle!(Box<UnionNullType>) => {|inner| Type::UnionNull(inner)}
+        weedle!(SingleType) => {|inner| Type::Single(inner)} |
+        weedle!(MayBeNull<UnionType>) => {|inner| Type::Union(inner)}
     ));
 }
 
-#[derive(Debug, PartialEq)]
-pub struct UnionNullType {
-    pub type_: MayBeNull<UnionType>
-}
-
-impl Parse for UnionNullType {
-    named!(parse -> Self, do_parse!(
-        type_: weedle!(MayBeNull<UnionType>) >>
-        (UnionNullType { type_ })
-    ));
-}
-
-/// Parses `any` or non-`any` types
-///
-/// ### Grammar
-/// ```other
-/// SingleType ::
-///     NonAnyType
-///     any
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-SingleType)
+/// Parses one of the single types
 #[derive(Debug, PartialEq)]
 pub enum SingleType {
-    NonAny(NonAnyType),
     Any(term!(any)),
+    Promise(PromiseType),
+    Integer(MayBeNull<IntegerType>),
+    FloatingPoint(MayBeNull<FloatingPointType>),
+    Boolean(MayBeNull<term!(boolean)>),
+    Byte(MayBeNull<term!(byte)>),
+    Octet(MayBeNull<term!(octet)>),
+    ByteString(MayBeNull<term!(ByteString)>),
+    DOMString(MayBeNull<term!(DOMString)>),
+    USVString(MayBeNull<term!(USVString)>),
+    Sequence(MayBeNull<SequenceType>),
+    Object(MayBeNull<term!(object)>),
+    Symbol(MayBeNull<term!(symbol)>),
+    Error(MayBeNull<term!(Error)>),
+    ArrayBuffer(MayBeNull<term!(ArrayBuffer)>),
+    DataView(MayBeNull<term!(DataView)>),
+    Int8Array(MayBeNull<term!(Int8Array)>),
+    Int16Array(MayBeNull<term!(Int16Array)>),
+    Int32Array(MayBeNull<term!(Int32Array)>),
+    Uint8Array(MayBeNull<term!(Uint8Array)>),
+    Uint16Array(MayBeNull<term!(Uint16Array)>),
+    Uint32Array(MayBeNull<term!(Uint32Array)>),
+    Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
+    Float32Array(MayBeNull<term!(Float32Array)>),
+    Float64Array(MayBeNull<term!(Float64Array)>),
+    FrozenArrayType(MayBeNull<FrozenArrayType>),
+    RecordType(MayBeNull<RecordType>),
+    Identifier(MayBeNull<Identifier>),
 }
 
 impl Parse for SingleType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(NonAnyType) => {|inner| SingleType::NonAny(inner)} |
-        weedle!(term!(any)) => {|inner| SingleType::Any(inner)}
-    ));
-}
-
-/// Parses one of the various listed types
-///
-/// ### Grammar
-/// ```other
-/// NonAnyType ::
-///     PromiseType ε
-///     PrimitiveType Null
-///     StringType Null
-///     **identifier** Null
-///     sequence < TypeWithExtendedAttributes > Null
-///     object Null
-///     symbol Null
-///     Error Null
-///     BufferRelatedType Null
-///     FrozenArray < TypeWithExtendedAttributes > Null
-///     RecordType Null
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-NonAnyType)
-#[derive(Debug, PartialEq)]
-pub enum NonAnyType {
-    Promise(PromiseType),
-    MayBePrimitive(MayBeNull<PrimitiveType>),
-    MayBeString(MayBeNull<StringType>),
-    MayBeIdentifier(MayBeNull<Identifier>),
-    MayBeSequence(MayBeNull<SequenceType>),
-    MayBeObject(MayBeNull<term!(object)>),
-    MayBeSymbol(MayBeNull<term!(symbol)>),
-    MayBeError(MayBeNull<term!(Error)>),
-    MayBeBufferedRelated(MayBeNull<BufferRelatedType>),
-    MayBeFrozenArray(MayBeNull<FrozenArrayType>),
-    MayBeRecord(MayBeNull<RecordType>),
-}
-
-impl Parse for NonAnyType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(PromiseType) => {|inner| NonAnyType::Promise(inner)} |
-        weedle!(MayBeNull<PrimitiveType>) => {|inner| NonAnyType::MayBePrimitive(inner)} |
-        weedle!(MayBeNull<StringType>) => {|inner| NonAnyType::MayBeString(inner)} |
-        weedle!(MayBeNull<Identifier>) => {|inner| NonAnyType::MayBeIdentifier(inner)} |
-        weedle!(MayBeNull<SequenceType>) => {|inner| NonAnyType::MayBeSequence(inner)} |
-        weedle!(MayBeNull<term!(object)>) => {|inner| NonAnyType::MayBeObject(inner)} |
-        weedle!(MayBeNull<term!(symbol)>) => {|inner| NonAnyType::MayBeSymbol(inner)} |
-        weedle!(MayBeNull<term!(Error)>) => {|inner| NonAnyType::MayBeError(inner)} |
-        weedle!(MayBeNull<BufferRelatedType>) => {|inner| NonAnyType::MayBeBufferedRelated(inner)} |
-        weedle!(MayBeNull<FrozenArrayType>) => {|inner| NonAnyType::MayBeFrozenArray(inner)} |
-        weedle!(MayBeNull<RecordType>) => {|inner| NonAnyType::MayBeRecord(inner)}
+    named!(parse -> Self, alt!(
+        weedle!(term!(any)) => {|inner| SingleType::Any(inner)} |
+        weedle!(PromiseType) => {|inner| SingleType::Promise(inner)} |
+        weedle!(MayBeNull<IntegerType>) => {|inner| SingleType::Integer(inner)} |
+        weedle!(MayBeNull<FloatingPointType>) => {|inner| SingleType::FloatingPoint(inner)} |
+        weedle!(MayBeNull<term!(boolean)>) => {|inner| SingleType::Boolean(inner)} |
+        weedle!(MayBeNull<term!(byte)>) => {|inner| SingleType::Byte(inner)} |
+        weedle!(MayBeNull<term!(octet)>) => {|inner| SingleType::Octet(inner)} |
+        weedle!(MayBeNull<term!(ByteString)>) => {|inner| SingleType::ByteString(inner)} |
+        weedle!(MayBeNull<term!(DOMString)>) => {|inner| SingleType::DOMString(inner)} |
+        weedle!(MayBeNull<term!(USVString)>) => {|inner| SingleType::USVString(inner)} |
+        weedle!(MayBeNull<SequenceType>) => {|inner| SingleType::Sequence(inner)} |
+        weedle!(MayBeNull<term!(object)>) => {|inner| SingleType::Object(inner)} |
+        weedle!(MayBeNull<term!(symbol)>) => {|inner| SingleType::Symbol(inner)} |
+        weedle!(MayBeNull<term!(Error)>) => {|inner| SingleType::Error(inner)} |
+        weedle!(MayBeNull<term!(ArrayBuffer)>) => {|inner| SingleType::ArrayBuffer(inner)} |
+        weedle!(MayBeNull<term!(DataView)>) => {|inner| SingleType::DataView(inner)} |
+        weedle!(MayBeNull<term!(Int8Array)>) => {|inner| SingleType::Int8Array(inner)} |
+        weedle!(MayBeNull<term!(Int16Array)>) => {|inner| SingleType::Int16Array(inner)} |
+        weedle!(MayBeNull<term!(Int32Array)>) => {|inner| SingleType::Int32Array(inner)} |
+        weedle!(MayBeNull<term!(Uint8Array)>) => {|inner| SingleType::Uint8Array(inner)} |
+        weedle!(MayBeNull<term!(Uint16Array)>) => {|inner| SingleType::Uint16Array(inner)} |
+        weedle!(MayBeNull<term!(Uint32Array)>) => {|inner| SingleType::Uint32Array(inner)} |
+        weedle!(MayBeNull<term!(Uint8ClampedArray)>) => {|inner| SingleType::Uint8ClampedArray(inner)} |
+        weedle!(MayBeNull<term!(Float32Array)>) => {|inner| SingleType::Float32Array(inner)} |
+        weedle!(MayBeNull<term!(Float64Array)>) => {|inner| SingleType::Float64Array(inner)} |
+        weedle!(MayBeNull<FrozenArrayType>) => {|inner| SingleType::FrozenArrayType(inner)} |
+        weedle!(MayBeNull<RecordType>) => {|inner| SingleType::RecordType(inner)} |
+        weedle!(MayBeNull<Identifier>) => {|inner| SingleType::Identifier(inner)}
     ));
 }
 
 #[derive(Debug, PartialEq)]
 pub struct SequenceType {
     pub sequence: term!(sequence),
-    pub generics: Generics<TypeWithExtendedAttributes>,
+    pub generics: Generics<Box<Type>>,
 }
 
 impl Parse for SequenceType {
     named!(parse -> Self, do_parse!(
         sequence: weedle!(term!(sequence)) >>
-        generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
+        generics: weedle!(Generics<Box<Type>>) >>
         (SequenceType { sequence, generics })
     ));
 }
 
+/// Parses `FrozenArray<Type>`
 #[derive(Debug, PartialEq)]
 pub struct FrozenArrayType {
     pub frozen_array: term!(FrozenArray),
-    pub generics: Generics<TypeWithExtendedAttributes>,
+    pub generics: Generics<Box<Type>>,
 }
 
 impl Parse for FrozenArrayType {
     named!(parse -> Self, do_parse!(
         frozen_array: weedle!(term!(FrozenArray)) >>
-        generics: weedle!(Generics<TypeWithExtendedAttributes>) >>
+        generics: weedle!(Generics<Box<Type>>) >>
         (FrozenArrayType { frozen_array, generics })
     ));
 }
 
-/// Parses a nullable type. Ex: `object?`
-///
-/// ### Grammar
-/// ```other
-/// Null ::
-///     ?
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Null)
+/// Parses a nullable type. Ex: `object | object?`
 #[derive(Debug, PartialEq)]
 pub struct MayBeNull<T> {
     pub type_: T,
@@ -236,38 +126,22 @@ impl<T: Parse> Parse for MayBeNull<T> {
     ));
 }
 
-/// Parses a `Promise<T>` type
-///
-/// ### Grammar
-/// ```other
-/// PromiseType ::
-///    Promise < ReturnType >
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-PromiseType)
+/// Parses a `Promise<Type|void>` type
 #[derive(Debug, PartialEq)]
 pub struct PromiseType {
     pub promise: term!(Promise),
-    pub generics: Generics<ReturnType>,
+    pub generics: Generics<Box<ReturnType>>,
 }
 
 impl Parse for PromiseType {
     named!(parse -> Self, do_parse!(
         promise: weedle!(term!(Promise)) >>
-        generics: weedle!(Generics<ReturnType>) >>
+        generics: weedle!(Generics<Box<ReturnType>>) >>
         (PromiseType { promise, generics })
     ));
 }
 
 /// Parses the return type which may be `void` or any given Type
-/// ### Grammar
-/// ```other
-/// ReturnType ::
-///     Type
-///     void
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-ReturnType)
 #[derive(Debug, PartialEq)]
 pub enum ReturnType {
     Type(Type),
@@ -280,162 +154,124 @@ impl Parse for ReturnType {
         weedle!(term!(void)) => {|inner| ReturnType::Void(inner)}
     ));
 }
-
-/// Parses one of the primitive types
-///
-/// ### Grammar
-/// ```other
-/// PrimitiveType ::
-///     UnsignedIntegerType
-///     UnrestrictedFloatType
-///     boolean
-///     byte
-///     octet
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-PrimitiveType)
-#[derive(Debug, PartialEq)]
-pub enum PrimitiveType {
-    UnsignedIntegerType(UnsignedIntegerType),
-    UnrestrictedFloatType(UnrestrictedFloatType),
-    Boolean(term!(boolean)),
-    Byte(term!(byte)),
-    Octet(term!(octet)),
-}
-
-impl Parse for PrimitiveType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(UnsignedIntegerType) => {|inner| PrimitiveType::UnsignedIntegerType(inner)} |
-        weedle!(UnrestrictedFloatType) => {|inner| PrimitiveType::UnrestrictedFloatType(inner)} |
-        weedle!(term!(boolean)) => {|inner| PrimitiveType::Boolean(inner)} |
-        weedle!(term!(byte)) => {|inner| PrimitiveType::Byte(inner)} |
-        weedle!(term!(octet)) => {|inner| PrimitiveType::Octet(inner)}
-    ));
-}
-
-/// Parses either unsigned or signed integer type.
-///
-/// ### Grammar
-/// ```other
-/// UnsignedIntegerType ::
-///     unsigned IntegerType
-///     IntegerType
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnsignedIntegerType)
-#[derive(Debug, PartialEq)]
-pub struct UnsignedIntegerType {
-    pub unsigned: Option<term!(unsigned)>,
-    pub type_: IntegerType,
-}
-
-impl Parse for UnsignedIntegerType {
-    named!(parse -> Self, do_parse!(
-        unsigned: weedle!(Option<term!(unsigned)>) >>
-        type_: weedle!(IntegerType) >>
-        (UnsignedIntegerType { unsigned, type_ })
-    ));
-}
-
-/// Parses either long or short integer types
-///
-/// ### Grammar
-/// ```other
-/// IntegerType ::
-///     short
-///     long OptionalLong
-///
-/// OptionalLong ::
-///     long
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-IntegerType)
+/// Parses `/* unsigned */ short|long|long long`
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
-    Short(term!(short)),
-    Long(LongType),
+    Short(ShortType),
+    LongLong((term!(long), term!(long))),
+    Long(term!(long)),
 }
 
 impl Parse for IntegerType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(term!(short)) => {|inner| IntegerType::Short(inner)} |
-        weedle!(LongType) => {|inner| IntegerType::Long(inner)}
+    named!(parse -> Self, alt!(
+        weedle!(ShortType) => {|inner| IntegerType::Short(inner)} |
+        weedle!((term!(long), term!(long))) => {|inner| IntegerType::LongLong(inner)} |
+        weedle!(term!(long)) => {|inner| IntegerType::Long(inner)}
     ));
 }
 
+/// Parses `/* unsigned */ short`
+#[derive(Debug, PartialEq)]
+pub struct ShortType {
+    pub unsigned: Option<term!(unsigned)>,
+    pub short: term!(short)
+}
+
+impl Parse for ShortType {
+    named!(parse -> Self, do_parse!(
+        unsigned: weedle!(Option<term!(unsigned)>) >>
+        short: weedle!(term!(short)) >>
+        (ShortType { unsigned, short })
+    ));
+}
+
+/// Parses `/* unsigned */ long`
 #[derive(Debug, PartialEq)]
 pub struct LongType {
-    pub long: term!(long),
-    pub optional: Option<term!(long)>,
+    pub unsigned: Option<term!(unsigned)>,
+    pub long: term!(long)
 }
 
 impl Parse for LongType {
     named!(parse -> Self, do_parse!(
+        unsigned: weedle!(Option<term!(unsigned)>) >>
         long: weedle!(term!(long)) >>
-        optional: weedle!(Option<term!(long)>) >>
-        (LongType { long, optional })
+        (LongType { unsigned, long })
     ));
 }
 
-/// Parses either unrestricted or plain float type
-///
-/// ### Grammar
-/// ```other
-/// UnrestrictedFloatType ::
-///     unrestricted FloatType
-///     FloatType
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnrestrictedFloatType)
+/// Parses `/* unsigned */ long long`
 #[derive(Debug, PartialEq)]
-pub struct UnrestrictedFloatType {
-    pub unrestricted: Option<term!(unrestricted)>,
-    pub type_: FloatType,
+pub struct LongLongType {
+    pub unsigned: Option<term!(unsigned)>,
+    pub long_long: (term!(long), term!(long))
 }
 
-impl Parse for UnrestrictedFloatType {
+impl Parse for LongLongType {
     named!(parse -> Self, do_parse!(
-        unrestricted: weedle!(Option<term!(unrestricted)>) >>
-        type_: weedle!(FloatType) >>
-        (UnrestrictedFloatType { unrestricted, type_ })
+        unsigned: weedle!(Option<term!(unsigned)>) >>
+        long_long: weedle!((term!(long), term!(long))) >>
+        (LongLongType { unsigned, long_long })
     ));
 }
 
-/// Parses either `float` or `double`
-///
-/// ### Grammar
-/// ```other
-/// FloatType ::
-///     float
-///     double
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-FloatType)
+/// Parses `/* unrestricted */ float|double`
 #[derive(Debug, PartialEq)]
-pub enum FloatType {
-    Float(term!(float)),
-    Double(term!(double)),
+pub enum FloatingPointType {
+    Float(FloatType),
+    Double(DoubleType),
+}
+
+impl Parse for FloatingPointType {
+    named!(parse -> Self, alt!(
+        weedle!(FloatType) => {|inner| FloatingPointType::Float(inner)} |
+        weedle!(DoubleType) => {|inner| FloatingPointType::Double(inner)}
+    ));
+}
+
+#[derive(Debug, PartialEq)]
+pub struct FloatType {
+    pub unrestricted: Option<term!(unrestricted)>,
+    pub float: term!(float)
 }
 
 impl Parse for FloatType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(term!(float)) => {|inner| FloatType::Float(inner)} |
-        weedle!(term!(double)) => {|inner| FloatType::Double(inner)}
+    named!(parse -> Self, do_parse!(
+        unrestricted: weedle!(Option<term!(unrestricted)>) >>
+        float: weedle!(term!(float)) >>
+        (FloatType { unrestricted, float })
     ));
 }
 
-/// Parses one of the listed String types
-///
-/// ### Grammar
-/// ```other
-/// StringType ::
-///     ByteString
-///     DOMString
-///     USVString
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-StringType)
+#[derive(Debug, PartialEq)]
+pub struct DoubleType {
+    pub unrestricted: Option<term!(unrestricted)>,
+    pub double: term!(double)
+}
+
+impl Parse for DoubleType {
+    named!(parse -> Self, do_parse!(
+        unrestricted: weedle!(Option<term!(unrestricted)>) >>
+        double: weedle!(term!(double)) >>
+        (DoubleType { unrestricted, double })
+    ));
+}
+
+/// Parses `record<StringType, Type>`
+#[derive(Debug, PartialEq)]
+pub struct RecordType {
+    pub record: term!(record),
+    pub generics: Generics<(StringType, term!(,), Box<Type>)>,
+}
+
+impl Parse for RecordType {
+    named!(parse -> Self, do_parse!(
+        record: weedle!(term!(record)) >>
+        generics: weedle!(Generics<(StringType, term!(,), Box<Type>)>) >>
+        (RecordType { record, generics })
+    ));
+}
+
 #[derive(Debug, PartialEq)]
 pub enum StringType {
     Byte(term!(ByteString)),
@@ -444,170 +280,111 @@ pub enum StringType {
 }
 
 impl Parse for StringType {
-    named!(parse -> Self, alt_complete!(
+    named!(parse -> Self, alt!(
         weedle!(term!(ByteString)) => {|inner| StringType::Byte(inner)} |
         weedle!(term!(DOMString)) => {|inner| StringType::DOM(inner)} |
         weedle!(term!(USVString)) => {|inner| StringType::USV(inner)}
     ));
 }
 
-/// Parses a `record` type
-///
-/// ### Grammar
-/// ```other
-/// RecordType ::
-///     record < StringType , TypeWithExtendedAttributes >
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-RecordType)
-#[derive(Debug, PartialEq)]
-pub struct RecordType {
-    pub record: term!(record),
-    pub generics: Generics<RecordTypeGenerics>,
-}
-
-impl Parse for RecordType {
-    named!(parse -> Self, do_parse!(
-        record: weedle!(term!(record)) >>
-        generics: weedle!(Generics<RecordTypeGenerics>) >>
-        (RecordType { record, generics })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct RecordTypeGenerics {
-    pub string_type: StringType,
-    pub comma: term!(,),
-    pub type_: TypeWithExtendedAttributes,
-}
-
-impl Parse for RecordTypeGenerics {
-    named!(parse -> Self, do_parse!(
-        string_type: weedle!(StringType) >>
-        comma: weedle!(term!(,)) >>
-        type_: weedle!(TypeWithExtendedAttributes) >>
-        (RecordTypeGenerics { string_type, comma, type_ })
-    ));
-}
-
 /// Parses a union of types
-///
-/// ### Grammar
-/// ```other
-/// UnionType ::
-///     ( UnionMemberType or UnionMemberType UnionMemberTypes )
-/// UnionMemberTypes ::
-///     or UnionMemberType UnionMemberTypes
-///     ε
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnionType)
-#[derive(Debug, PartialEq)]
-pub struct UnionType {
-    pub punctuated: Punctuated<UnionMemberType, term!(or)>
-}
+pub type UnionType = Punctuated<UnionMemberType, term!(or)>;
 
-impl Parse for UnionType {
-    named!(parse -> Self, do_parse!(
-        punctuated: weedle!(Punctuated<UnionMemberType, term!(or)>) >>
-        (UnionType { punctuated })
-    ));
-}
-
-/// Parses one of the parts of a union type
-/// ### Grammar
-/// ```other
-/// UnionMemberType ::
-///     ExtendedAttributeList NonAnyType
-///     UnionType Null
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-UnionMemberType)
+/// Parses one of the member of a union type
 #[derive(Debug, PartialEq)]
 pub enum UnionMemberType {
-    Attributed(AttributedUnionMemberType),
-    Simple(SimpleUnionMemberType),
+    Single(UnionSingleType),
+    Union(MayBeNull<UnionType>),
 }
 
 impl Parse for UnionMemberType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(AttributedUnionMemberType) => {|inner| UnionMemberType::Attributed(inner)} |
-        weedle!(SimpleUnionMemberType) => {|inner| UnionMemberType::Simple(inner)}
+    named!(parse -> Self, alt!(
+        weedle!(UnionSingleType) => {|inner| UnionMemberType::Single(inner)} |
+        weedle!(MayBeNull<UnionType>) => {|inner| UnionMemberType::Union(inner)}
     ));
 }
 
 #[derive(Debug, PartialEq)]
-pub struct AttributedUnionMemberType {
-    pub attributes: ExtendedAttributeList,
-    pub type_: NonAnyType,
+pub enum UnionSingleType {
+    Promise(PromiseType),
+    Integer(MayBeNull<IntegerType>),
+    FloatingPoint(MayBeNull<FloatingPointType>),
+    Boolean(MayBeNull<term!(boolean)>),
+    Byte(MayBeNull<term!(byte)>),
+    Octet(MayBeNull<term!(octet)>),
+    ByteString(MayBeNull<term!(ByteString)>),
+    DOMString(MayBeNull<term!(DOMString)>),
+    USVString(MayBeNull<term!(USVString)>),
+    Sequence(MayBeNull<SequenceType>),
+    Object(MayBeNull<term!(object)>),
+    Symbol(MayBeNull<term!(symbol)>),
+    Error(MayBeNull<term!(Error)>),
+    ArrayBuffer(MayBeNull<term!(ArrayBuffer)>),
+    DataView(MayBeNull<term!(DataView)>),
+    Int8Array(MayBeNull<term!(Int8Array)>),
+    Int16Array(MayBeNull<term!(Int16Array)>),
+    Int32Array(MayBeNull<term!(Int32Array)>),
+    Uint8Array(MayBeNull<term!(Uint8Array)>),
+    Uint16Array(MayBeNull<term!(Uint16Array)>),
+    Uint32Array(MayBeNull<term!(Uint32Array)>),
+    Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
+    Float32Array(MayBeNull<term!(Float32Array)>),
+    Float64Array(MayBeNull<term!(Float64Array)>),
+    FrozenArrayType(MayBeNull<FrozenArrayType>),
+    RecordType(MayBeNull<RecordType>),
+    Identifier(MayBeNull<Identifier>),
 }
 
-impl Parse for AttributedUnionMemberType {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(ExtendedAttributeList) >>
-        type_: weedle!(NonAnyType) >>
-        (AttributedUnionMemberType { attributes, type_ })
-    ));
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SimpleUnionMemberType {
-    pub type_: MayBeNull<UnionType>
-}
-
-impl Parse for SimpleUnionMemberType {
-    named!(parse -> Self, do_parse!(
-        type_: weedle!(MayBeNull<UnionType>) >>
-        (SimpleUnionMemberType { type_ })
-    ));
-}
-
-/// Parses a typedef statement
-///
-/// ### Grammar
-/// ```other
-/// Typedef ::
-///     typedef TypeWithExtendedAttributes **identifier** ;
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#prod-Typedef)
-#[derive(Debug, PartialEq)]
-pub struct Typedef {
-    pub typedef: term!(typedef),
-    pub type_: TypeWithExtendedAttributes,
-    pub identifier: Identifier,
-    pub semi_colon: term!(;)
-}
-
-impl Parse for Typedef {
-    named!(parse -> Self, do_parse!(
-        typedef: weedle!(term!(typedef)) >>
-        type_: weedle!(TypeWithExtendedAttributes) >>
-        identifier: weedle!(Identifier) >>
-        semi_colon: weedle!(term!(;)) >>
-        (Typedef { typedef, type_, identifier, semi_colon })
+impl Parse for UnionSingleType {
+    named!(parse -> Self, alt!(
+        weedle!(PromiseType) => {|inner| UnionSingleType::Promise(inner)} |
+        weedle!(MayBeNull<IntegerType>) => {|inner| UnionSingleType::Integer(inner)} |
+        weedle!(MayBeNull<FloatingPointType>) => {|inner| UnionSingleType::FloatingPoint(inner)} |
+        weedle!(MayBeNull<term!(boolean)>) => {|inner| UnionSingleType::Boolean(inner)} |
+        weedle!(MayBeNull<term!(byte)>) => {|inner| UnionSingleType::Byte(inner)} |
+        weedle!(MayBeNull<term!(octet)>) => {|inner| UnionSingleType::Octet(inner)} |
+        weedle!(MayBeNull<term!(ByteString)>) => {|inner| UnionSingleType::ByteString(inner)} |
+        weedle!(MayBeNull<term!(DOMString)>) => {|inner| UnionSingleType::DOMString(inner)} |
+        weedle!(MayBeNull<term!(USVString)>) => {|inner| UnionSingleType::USVString(inner)} |
+        weedle!(MayBeNull<SequenceType>) => {|inner| UnionSingleType::Sequence(inner)} |
+        weedle!(MayBeNull<term!(object)>) => {|inner| UnionSingleType::Object(inner)} |
+        weedle!(MayBeNull<term!(symbol)>) => {|inner| UnionSingleType::Symbol(inner)} |
+        weedle!(MayBeNull<term!(Error)>) => {|inner| UnionSingleType::Error(inner)} |
+        weedle!(MayBeNull<term!(ArrayBuffer)>) => {|inner| UnionSingleType::ArrayBuffer(inner)} |
+        weedle!(MayBeNull<term!(DataView)>) => {|inner| UnionSingleType::DataView(inner)} |
+        weedle!(MayBeNull<term!(Int8Array)>) => {|inner| UnionSingleType::Int8Array(inner)} |
+        weedle!(MayBeNull<term!(Int16Array)>) => {|inner| UnionSingleType::Int16Array(inner)} |
+        weedle!(MayBeNull<term!(Int32Array)>) => {|inner| UnionSingleType::Int32Array(inner)} |
+        weedle!(MayBeNull<term!(Uint8Array)>) => {|inner| UnionSingleType::Uint8Array(inner)} |
+        weedle!(MayBeNull<term!(Uint16Array)>) => {|inner| UnionSingleType::Uint16Array(inner)} |
+        weedle!(MayBeNull<term!(Uint32Array)>) => {|inner| UnionSingleType::Uint32Array(inner)} |
+        weedle!(MayBeNull<term!(Uint8ClampedArray)>) => {|inner| UnionSingleType::Uint8ClampedArray(inner)} |
+        weedle!(MayBeNull<term!(Float32Array)>) => {|inner| UnionSingleType::Float32Array(inner)} |
+        weedle!(MayBeNull<term!(Float64Array)>) => {|inner| UnionSingleType::Float64Array(inner)} |
+        weedle!(MayBeNull<FrozenArrayType>) => {|inner| UnionSingleType::FrozenArrayType(inner)} |
+        weedle!(MayBeNull<RecordType>) => {|inner| UnionSingleType::RecordType(inner)} |
+        weedle!(MayBeNull<Identifier>) => {|inner| UnionSingleType::Identifier(inner)}
     ));
 }
 
 /// Parses a const type
-///
-/// ### Grammar
-/// ```other
-/// ConstType ::
-///    PrimitiveType Null
-///    **identifier** Null
-/// ```
-///
-/// [Link to WebIDL](https://heycam.github.io/webidl/#index-prod-ConstType)
 #[derive(Debug, PartialEq)]
 pub enum ConstType {
-    Primitive(MayBeNull<PrimitiveType>),
+    Integer(MayBeNull<IntegerType>),
+    FloatingPoint(MayBeNull<FloatingPointType>),
+    Boolean(MayBeNull<term!(boolean)>),
+    Byte(MayBeNull<term!(byte)>),
+    Octet(MayBeNull<term!(octet)>),
     Identifier(MayBeNull<Identifier>)
 }
 
 impl Parse for ConstType {
-    named!(parse -> Self, alt_complete!(
-        weedle!(MayBeNull<PrimitiveType>) => {|inner| ConstType::Primitive(inner)} |
+    named!(parse -> Self, alt!(
+        weedle!(MayBeNull<IntegerType>) => {|inner| ConstType::Integer(inner)} |
+        weedle!(MayBeNull<FloatingPointType>) => {|inner| ConstType::FloatingPoint(inner)} |
+        weedle!(MayBeNull<term!(boolean)>) => {|inner| ConstType::Boolean(inner)} |
+        weedle!(MayBeNull<term!(byte)>) => {|inner| ConstType::Byte(inner)} |
+        weedle!(MayBeNull<term!(octet)>) => {|inner| ConstType::Octet(inner)} |
         weedle!(MayBeNull<Identifier>) => {|inner| ConstType::Identifier(inner)}
     ));
 }
