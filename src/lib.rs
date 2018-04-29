@@ -397,3 +397,155 @@ impl Parse for IncludesStatementDefinition {
 
 /// Parses a non-empty enum value list
 pub type EnumValueList = PunctuatedNonEmpty<String, term!(,)>;
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    test!(should_parse_includes_statement { "first includes second;" =>
+        "";
+        IncludesStatementDefinition;
+        attributes.is_none();
+        lhs_identifier.name == "first";
+        rhs_identifier.name == "second";
+    });
+
+    test!(should_parse_typedef { "typedef short Short;" =>
+        "";
+        TypedefDefinition;
+        attributes.is_none();
+        identifier.name == "Short";
+    });
+
+    test!(should_parse_enum { r#"enum name { "first", "second" }; "# =>
+        "";
+        EnumDefinition;
+        attributes.is_none();
+        identifier.name == "name";
+        values.body.list.len() == 2;
+    });
+
+    test!(should_parse_dictionary { "dictionary A { long c; long g; };" =>
+        "";
+        DictionaryDefinition;
+        attributes.is_none();
+        identifier.name == "A";
+        inheritance.is_none();
+        members.body.len() == 2;
+    });
+
+    test!(should_parse_dictionary_inherited { "dictionary C : B { long e; long f; };" =>
+        "";
+        DictionaryDefinition;
+        attributes.is_none();
+        identifier.name == "C";
+        inheritance.is_some();
+        members.body.len() == 2;
+    });
+
+    test!(should_parse_partial_namespace { "
+        partial namespace VectorUtils {
+            readonly attribute Vector unit;
+            double dotProduct(Vector x, Vector y);
+            Vector crossProduct(Vector x, Vector y);
+        };
+    " =>
+        "";
+        PartialNamespaceDefinition;
+        attributes.is_none();
+        identifier.name == "VectorUtils";
+        members.body.len() == 3;
+    });
+
+    test!(should_parse_partial_dictionary { "partial dictionary C { long e; long f; };" =>
+        "";
+        PartialDictionaryDefinition;
+        attributes.is_none();
+        identifier.name == "C";
+        members.body.len() == 2;
+    });
+
+    test!(should_parse_partial_interface_mixin { "
+        partial interface mixin WindowSessionStorage {
+          readonly attribute Storage sessionStorage;
+        };
+    " =>
+        "";
+        PartialInterfaceMixinDefinition;
+        attributes.is_none();
+        identifier.name == "WindowSessionStorage";
+        members.body.len() == 1;
+    });
+
+    test!(should_parse_partial_interface { "
+        partial interface Window {
+          readonly attribute Storage sessionStorage;
+        };
+    " =>
+        "";
+        PartialInterfaceDefinition;
+        attributes.is_none();
+        identifier.name == "Window";
+        members.body.len() == 1;
+    });
+
+    test!(should_parse_namespace { "
+        namespace VectorUtils {
+          readonly attribute Vector unit;
+          double dotProduct(Vector x, Vector y);
+          Vector crossProduct(Vector x, Vector y);
+        };
+    " =>
+        "";
+        NamespaceDefinition;
+        attributes.is_none();
+        identifier.name == "VectorUtils";
+        members.body.len() == 3;
+    });
+
+    test!(should_parse_interface_mixin { "
+        interface mixin WindowSessionStorage {
+          readonly attribute Storage sessionStorage;
+        };
+    " =>
+        "";
+        InterfaceMixinDefinition;
+        attributes.is_none();
+        identifier.name == "WindowSessionStorage";
+        members.body.len() == 1;
+    });
+
+    test!(should_parse_interface { "
+        interface Window {
+          readonly attribute Storage sessionStorage;
+        };
+    " =>
+        "";
+        InterfaceDefinition;
+        attributes.is_none();
+        identifier.name == "Window";
+        members.body.len() == 1;
+    });
+
+    test!(should_parse_callback_interface {"
+        callback interface Options {
+          attribute DOMString? option1;
+          attribute DOMString? option2;
+          attribute long? option3;
+        };
+    " =>
+        "";
+        CallbackInterfaceDefinition;
+        attributes.is_none();
+        identifier.name == "Options";
+        members.body.len() == 3;
+    });
+
+    test!(should_parse_callback { "callback AsyncOperationCallback = void (DOMString status);" =>
+        "";
+        CallbackDefinition;
+        attributes.is_none();
+        identifier.name == "AsyncOperationCallback";
+        arguments.body.list.len() == 1;
+    });
+}
