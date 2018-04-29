@@ -24,6 +24,7 @@ impl Parse for NamespaceMember {
 /// Parses `/* [attributes] */ returntype /* identifier */( args );`
 #[derive(Debug, PartialEq)]
 pub struct OperationNamespaceMember {
+    pub attributes: Option<ExtendedAttributeList>,
     pub return_type: ReturnType,
     pub identifier: Option<Identifier>,
     pub args: Braced<ArgumentList>,
