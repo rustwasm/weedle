@@ -1,6 +1,6 @@
 [package]
 name = "weedle"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Sharad Chand <sharad.d.chand@gmail.com>"]
 description = "A WebIDL Parser"
 license = "MIT"
