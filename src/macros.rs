@@ -64,6 +64,10 @@ macro_rules! test {
         assert!($parsed.$($lhs).+());
         test!(@arg $parsed $($rest)*);
     };
+    (@arg $parsed:ident $($lhs:tt).+() == $rhs:expr; $($rest:tt)*) => {
+        assert_eq!($parsed.$($lhs).+(), $rhs);
+        test!(@arg $parsed $($rest)*);
+    };
     (err $name:ident { $raw:expr => $typ:ty }) => {
         #[test]
         fn $name() {
