@@ -91,3 +91,27 @@ macro_rules! test {
         }
     };
 }
+
+#[macro_export]
+macro_rules! test_variants {
+    ($struct_:ident { $( $variant:ident == $value:expr ),* $(,)* }) => {
+        #[allow(non_snake_case)]
+        mod $struct_ {
+            $(
+                mod $variant {
+                    use $crate::types::*;
+                    use $crate::nom::types::CompleteStr;
+                    #[test]
+                    fn should_parse() {
+                        let (rem, parsed) = $struct_::parse(CompleteStr($value)).unwrap();
+                        assert_eq!(rem, CompleteStr(""));
+                        match parsed {
+                            $struct_::$variant(_) => {},
+                            _ => { panic!("Failed to parse"); }
+                        }
+                    }
+                }
+            )*
+        }
+    };
+}
