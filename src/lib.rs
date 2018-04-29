@@ -576,8 +576,16 @@ mod test {
         arguments.body.list.len() == 1;
     });
 
-    test!(should_parse_with_comments { "
+    test!(should_parse_with_line_comments { "
         // This is a comment
+        callback AsyncOperationCallback = void (DOMString status);
+    " =>
+        "";
+        CallbackDefinition;
+    });
+
+    test!(should_parse_with_block_comments { "
+        /* This is a comment */
         callback AsyncOperationCallback = void (DOMString status);
     " =>
         "";
