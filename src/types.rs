@@ -82,6 +82,7 @@ impl Parse for SingleType {
     ));
 }
 
+/// Parses `sequence<Type>`
 #[derive(Debug, PartialEq)]
 pub struct SequenceType {
     pub sequence: term!(sequence),
@@ -396,13 +397,179 @@ mod test {
 
     test!(should_parse_may_be_null { "short" =>
         "";
-        MayBeNull<IntegerType>;
+        MayBeNull<::types::IntegerType>;
         q_mark.is_none();
     });
 
     test!(should_parse_nullable { "short?" =>
         "";
-        MayBeNull<IntegerType>;
+        MayBeNull<::types::IntegerType>;
         q_mark.is_some();
     });
+
+    test_variants!(
+        ReturnType {
+            Void == "void",
+            Type == "any",
+        }
+    );
+
+    test_variants!(
+        ConstType {
+            Integer == "short",
+            FloatingPoint == "float",
+            Boolean == "boolean",
+            Byte == "byte",
+            Octet == "octet",
+            Identifier == "name",
+        }
+    );
+
+    test_variants!(
+        UnionSingleType {
+            Promise == "Promise<long>",
+            Integer == "long",
+            FloatingPoint == "float",
+            Boolean == "boolean",
+            Byte == "byte",
+            Octet == "octet",
+            ByteString == "ByteString",
+            DOMString == "DOMString",
+            USVString == "USVString",
+            Sequence == "sequence<short>",
+            Object == "object",
+            Symbol == "symbol",
+            Error == "Error",
+            ArrayBuffer == "ArrayBuffer",
+            DataView == "DataView",
+            Int8Array == "Int8Array",
+            Int16Array == "Int16Array",
+            Int32Array == "Int32Array",
+            Uint8Array == "Uint8Array",
+            Uint16Array == "Uint16Array",
+            Uint32Array == "Uint32Array",
+            Uint8ClampedArray == "Uint8ClampedArray",
+            Float32Array == "Float32Array",
+            Float64Array == "Float64Array",
+            FrozenArrayType == "FrozenArray<short>",
+            RecordType == "record<DOMString, short>",
+            Identifier == "mango"
+        }
+    );
+
+    test_variants!(
+        UnionMemberType {
+            Single == "byte",
+            Union == "(byte or byte)"
+        }
+    );
+
+    test_variants!(
+        StringType {
+            DOM == "DOMString",
+            USV == "USVString",
+            Byte == "ByteString"
+        }
+    );
+
+    test!(should_parse_record_type { "record<DOMString, short>" =>
+        "";
+        RecordType;
+    });
+
+    test!(should_parse_double_type { "double" =>
+        "";
+        DoubleType;
+    });
+
+    test!(should_parse_float_type { "float" =>
+        "";
+        FloatType;
+    });
+
+    test_variants!(
+        FloatingPointType {
+            Float == "float",
+            Double == "double"
+        }
+    );
+
+    test!(should_parse_long_long_type { "long long" =>
+        "";
+        LongLongType;
+    });
+
+
+    test!(should_parse_long_type { "long" =>
+        "";
+        LongType;
+    });
+
+    test!(should_parse_short_type { "short" =>
+        "";
+        ShortType;
+    });
+
+    test_variants!(
+        IntegerType {
+            Short == "short",
+            Long == "long",
+            LongLong == "long long"
+        }
+    );
+
+    test!(should_parse_promise_type { "Promise<short>" =>
+        "";
+        PromiseType;
+    });
+
+    test!(should_parse_frozen_array_type { "FrozenArray<short>" =>
+        "";
+        FrozenArrayType;
+    });
+
+    test!(should_parse_sequence_type { "sequence<short>" =>
+        "";
+        SequenceType;
+    });
+
+    test_variants!(
+        SingleType {
+            Any == "any",
+            Promise == "Promise<short>",
+            Integer == "long",
+            FloatingPoint == "float",
+            Boolean == "boolean",
+            Byte == "byte",
+            Octet == "octet",
+            ByteString == "ByteString",
+            DOMString == "DOMString",
+            USVString == "USVString",
+            Sequence == "sequence<short>",
+            Object == "object",
+            Symbol == "symbol",
+            Error == "Error",
+            ArrayBuffer == "ArrayBuffer",
+            DataView == "DataView",
+            Int8Array == "Int8Array",
+            Int16Array == "Int16Array",
+            Int32Array == "Int32Array",
+            Uint8Array == "Uint8Array",
+            Uint16Array == "Uint16Array",
+            Uint32Array == "Uint32Array",
+            Uint8ClampedArray == "Uint8ClampedArray",
+            Float32Array == "Float32Array",
+            Float64Array == "Float64Array",
+            FrozenArrayType == "FrozenArray<short>",
+            RecordType == "record<DOMString, short>",
+            Identifier == "someName"
+        }
+    );
+
+    test_variants!(
+        Type {
+            Single == "short",
+            Union == "(short or float)"
+        }
+    );
 }
