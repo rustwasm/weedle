@@ -55,6 +55,15 @@ macro_rules! opt_flat(
 
 #[cfg(test)]
 macro_rules! test {
+    (@arg $parsed:ident) => {};
+    (@arg $parsed:ident $($lhs:tt).+ == $rhs:expr; $($rest:tt)*) => {
+        assert_eq!($parsed.$($lhs).+, $rhs);
+        test!(@arg $parsed $($rest)*);
+    };
+    (@arg $parsed:ident $($lhs:tt).+(); $($rest:tt)*) => {
+        assert!($parsed.$($lhs).+());
+        test!(@arg $parsed $($rest)*);
+    };
     (err $name:ident { $raw:expr => $typ:ty }) => {
         #[test]
         fn $name() {
@@ -77,14 +86,12 @@ macro_rules! test {
             assert_eq!(parsed, $typ { $($field: $val),* });
         }
     };
-    ($name:ident { $raw:expr => $rem:expr; $typ:ty; $( $($lhs:tt).+ == $rhs:expr );* }) => {
+    ($name:ident { $raw:expr => $rem:expr; $typ:ty; $($body:tt)* }) => {
         #[test]
         fn $name() {
             let (_rem, _parsed) = <$typ>::parse($crate::nom::types::CompleteStr($raw)).unwrap();
             assert_eq!(_rem, $crate::nom::types::CompleteStr($rem));
-            $(
-                assert_eq!(_parsed.$($lhs).+, $rhs);
-            )*
+            test!(@arg _parsed $($body)*);
         }
     };
 }

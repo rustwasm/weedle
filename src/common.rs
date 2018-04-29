@@ -240,7 +240,7 @@ mod test {
             name: "one".to_string()
         }, term!(,), Identifier {
             name: "two".to_string()
-        })
+        });
     });
 
     test!(should_parse_comma_separated_values { "one, two, three" =>
