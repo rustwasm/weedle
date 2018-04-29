@@ -7,6 +7,7 @@ license = "MIT"
 documentation = "https://docs.rs/weedle"
 homepage = "https://github.com/csharad/weedle"
 repository = "https://github.com/csharad/weedle"
+readme = "./README.md"
 
 [dependencies]
 nom = { version = "4.0.0-beta3", features = ["regexp_macros"] }

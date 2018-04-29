@@ -3,15 +3,24 @@
 Parses valid WebIDL definitions & produces a data structure starting from
 [`Definitions`](https://docs.rs/weedle/struct.Definitions.html).
 
-### Example
+### Basic Usage
 
+In Cargo.toml
+```
+[dependencies]
+weedle = "0.1.0"
+```
+
+Then, in `src/main.rs`
 ```rust
 extern crate weedle;
 
-let (_, parsed) = weedle::parse("
-    interface Window {
-        readonly attribute Storage sessionStorage;
-    };
-").unwrap();
-println!("{:?}", parsed);
+fn main() {
+    let (_, parsed) = weedle::parse("
+        interface Window {
+            readonly attribute Storage sessionStorage;
+        };
+    ").unwrap();
+    println!("{:?}", parsed);
+}
 ```
