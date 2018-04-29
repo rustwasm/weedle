@@ -11,7 +11,7 @@
 //! value without regard of whether they are keywords or not.
 //!
 //! This also means any inner `[attributes]` used in the grammar are omitted. Only preceding
-//! attributes to declarations are considered.
+//! attributes to declarations & arguments are considered.
 //!
 //! Also, the parser only allows stricter attributes defined in the grammar.
 
