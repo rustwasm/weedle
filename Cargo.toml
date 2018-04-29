@@ -2,6 +2,11 @@
 name = "weedle"
 version = "0.1.0"
 authors = ["Sharad Chand <sharad.d.chand@gmail.com>"]
+description = "A WebIDL Parser"
+license = "MIT"
+documentation = "https://docs.rs/weedle"
+homepage = "https://github.com/csharad/weedle"
+repository = "https://github.com/csharad/weedle"
 
 [dependencies]
 nom = { version = "4.0.0-beta3", features = ["regexp_macros"] }
