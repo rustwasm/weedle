@@ -3,6 +3,7 @@ use common::*;
 use argument::*;
 use interface::*;
 use types::*;
+use attribute::*;
 
 /// Parses the members declarations of a mixin
 pub type MixinMembers = Vec<MixinMember>;
@@ -25,9 +26,10 @@ impl Parse for MixinMember {
     ));
 }
 
-/// Parses `/* stringifier */ returntype /* identifier */ ( args );`
+/// Parses `/* [attributes] */ /* stringifier */ returntype /* identifier */ ( args );`
 #[derive(Debug, PartialEq)]
 pub struct OperationMixinMember {
+    pub attributes: Option<ExtendedAttributeList>,
     pub stringifier: Option<term!(stringifier)>,
     pub return_type: ReturnType,
     pub identifier: Option<Identifier>,
@@ -37,18 +39,20 @@ pub struct OperationMixinMember {
 
 impl Parse for OperationMixinMember {
     named!(parse -> Self, do_parse!(
+        attributes: weedle!(Option<ExtendedAttributeList>) >>
         stringifier: weedle!(Option<term!(stringifier)>) >>
         return_type: weedle!(ReturnType) >>
         identifier: weedle!(Option<Identifier>) >>
         args: weedle!(Braced<ArgumentList>) >>
         semi_colon: weedle!(term!(;)) >>
-        (OperationMixinMember { stringifier, return_type, identifier, args, semi_colon })
+        (OperationMixinMember { attributes, stringifier, return_type, identifier, args, semi_colon })
     ));
 }
 
-/// Parses `/* stringifier */ /* readonly */ attribute type identifier;`
+/// Parses `/* [attributes] */ /* stringifier */ /* readonly */ attribute type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeMixinMember {
+    pub attributes: Option<ExtendedAttributeList>,
     pub stringifier: Option<term!(stringifier)>,
     pub readonly: Option<term!(readonly)>,
     pub attribute: term!(attribute),
@@ -59,12 +63,35 @@ pub struct AttributeMixinMember {
 
 impl Parse for AttributeMixinMember {
     named!(parse -> Self, do_parse!(
+        attributes: weedle!(Option<ExtendedAttributeList>) >>
         stringifier: weedle!(Option<term!(stringifier)>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         attribute: weedle!(term!(attribute)) >>
         type_: weedle!(Type) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
-        (AttributeMixinMember { stringifier, readonly, attribute, type_, identifier, semi_colon })
+        (AttributeMixinMember { attributes, stringifier, readonly, attribute, type_, identifier, semi_colon })
     ));
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    test!(should_parse_attribute_mixin_member { "stringifier readonly attribute short name;" =>
+        "";
+        AttributeMixinMember;
+        attributes.is_none();
+        stringifier.is_some();
+        readonly.is_some();
+        identifier.name == "name";
+    });
+
+    test!(should_parse_operation_mixin_member { "short fnName(long a);" =>
+        "";
+        OperationMixinMember;
+        attributes.is_none();
+        stringifier.is_none();
+        identifier.is_some();
+    });
 }

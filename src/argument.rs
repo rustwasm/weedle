@@ -68,38 +68,17 @@ mod test {
 
     test!(should_parse_single_argument { "optional short a" =>
         "";
-        SingleArgument {
-            attributes => None,
-            optional => Some(term!(optional)),
-            type_ => Type::Single(SingleType::Integer(MayBeNull {
-                type_: IntegerType::Short(ShortType {
-                    unsigned: None,
-                    short: term!(short)
-                }),
-                q_mark: None
-            })),
-            identifier => Identifier {
-                name: "a".to_string()
-            },
-            default => None
-        }
+        SingleArgument;
+        attributes.is_none();
+        optional.is_some();
+        identifier.name == "a";
+        default.is_none();
     });
 
     test!(should_parse_variadic_argument { "short... a" =>
         "";
-        VariadicArgument {
-            attributes => None,
-            type_ => Type::Single(SingleType::Integer(MayBeNull {
-                type_: IntegerType::Short(ShortType {
-                    unsigned: None,
-                    short: term!(short)
-                }),
-                q_mark: None
-            })),
-            ellipsis => term!(...),
-            identifier => Identifier {
-                name: "a".to_string()
-            }
-        }
+        VariadicArgument;
+        attributes.is_none();
+        identifier.name == "a";
     });
 }

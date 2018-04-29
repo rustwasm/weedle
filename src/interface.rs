@@ -283,70 +283,66 @@ mod test {
 
     test!(should_parse_stringifier_member { "stringifier;" =>
         "";
-        StringifierMember {
-            stringifier => term!(stringifier),
-            semi_colon => term!(;)
-        }
+        StringifierMember;
     });
 
     test!(should_parse_stringifier_or_static { "static" =>
         "";
-        StringifierOrStatic => StringifierOrStatic::Static(term!(static))
+        StringifierOrStatic;
     });
 
     test!(should_parse_stringifier_or_inherit_or_static { "inherit" =>
         "";
-        StringifierOrInheritOrStatic => StringifierOrInheritOrStatic::Inherit(term!(inherit))
+        StringifierOrInheritOrStatic;
     });
 
     test!(should_parse_setlike_interface_member { "readonly setlike<long>;" =>
         "";
         SetlikeInterfaceMember;
-        readonly == Some(term!(readonly))
+        attributes.is_none();
+        readonly == Some(term!(readonly));
     });
 
     test!(should_parse_maplike_interface_member { "readonly maplike<long, short>;" =>
         "";
         MaplikeInterfaceMember;
-        readonly == Some(term!(readonly))
+        attributes.is_none();
+        readonly == Some(term!(readonly));
     });
 
     test!(should_parse_attribute_interface_member { "readonly attribute unsigned long width;" =>
         "";
         AttributeInterfaceMember;
+        attributes.is_none();
         readonly == Some(term!(readonly));
-        identifier.name == "width"
+        identifier.name == "width";
     });
 
     test!(should_parse_double_typed_iterable { "iterable<long, long>;" =>
         "";
         DoubleTypedIterable;
-        generics.body.0 == Type::Single(SingleType::Integer(MayBeNull {
-            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
-            q_mark: None
-        }));
-        generics.body.2 == Type::Single(SingleType::Integer(MayBeNull {
-            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
-            q_mark: None
-        }))
+        attributes.is_none();
     });
 
     test!(should_parse_single_typed_iterable { "iterable<long>;" =>
         "";
         SingleTypedIterable;
-        generics.body == Type::Single(SingleType::Integer(MayBeNull {
-            type_: IntegerType::Long(LongType { unsigned: None, long: term!(long) }),
-            q_mark: None
-        }))
+        attributes.is_none();
     });
 
     test!(should_parse_operation_interface_member { "void readString(long a, long b);" =>
         "";
         OperationInterfaceMember;
+        attributes.is_none();
+        modifier.is_none();
+        specials.is_empty();
+        identifier.is_some();
     });
 
     test!(should_parse_const_member { "const long name = 5;" =>
         "";
         ConstMember;
+        attributes.is_none();
+        identifier.name == "name";
     });
 }

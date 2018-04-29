@@ -167,98 +167,62 @@ mod test {
 
     test!(should_parse_optional_present { "one" =>
         "";
-        Option<Identifier> => Some(Identifier { name: "one".to_string() })
+        Option<Identifier>;
+        is_some();
     });
 
     test!(should_parse_optional_not_present { "" =>
         "";
-        Option<Identifier> => None
+        Option<Identifier>;
+        is_none();
     });
 
     test!(should_parse_boxed { "one" =>
         "";
-        Box<Identifier> => Box::new(Identifier { name: "one".to_string() })
+        Box<Identifier>;
     });
 
     test!(should_parse_vec { "one two three" =>
         "";
-        Vec<Identifier> => vec![
-            Identifier {
-                name: "one".to_string()
-            },
-            Identifier {
-                name: "two".to_string()
-            },
-            Identifier {
-                name: "three".to_string()
-            }
-        ]
+        Vec<Identifier>;
+        len() == 3;
     });
 
     test!(should_parse_parenthesized { "{ one }" =>
         "";
-        Parenthesized {
-            open_paren => term!(OpenParen),
-            body => Identifier { name: "one".to_string() },
-            close_paren => term!(CloseParen)
-        }
+        Parenthesized<Identifier>;
+        body.name == "one";
     });
 
     test!(should_parse_bracketed { "[ one ]" =>
         "";
-        Bracketed {
-            open_bracket => term!(OpenBracket),
-            body => Identifier { name: "one".to_string() },
-            close_bracket => term!(CloseBracket)
-        }
+        Bracketed<Identifier>;
+        body.name == "one";
     });
 
     test!(should_parse_braced { "( one )" =>
         "";
-        Braced {
-            open_brace => term!(OpenBrace),
-            body => Identifier { name: "one".to_string() },
-            close_brace => term!(CloseBrace)
-        }
+        Braced<Identifier>;
+        body.name == "one";
     });
 
     test!(should_parse_generics { "<one>" =>
         "";
-        Generics {
-            open_angle => term!(<),
-            body => Identifier {
-                name: "one".to_string()
-            },
-            close_angle => term!(>)
-        }
+        Generics<Identifier>;
+        body.name == "one";
     });
 
     test!(should_parse_generics_two { "<one, two>" =>
         "";
         Generics<(Identifier, term!(,), Identifier)>;
-        body == (Identifier {
-            name: "one".to_string()
-        }, term!(,), Identifier {
-            name: "two".to_string()
-        })
+        body.0.name == "one";
+        body.2.name == "two";
     });
 
     test!(should_parse_comma_separated_values { "one, two, three" =>
         "";
-        Punctuated<Identifier, term!(,)> => Punctuated {
-            list: vec![
-                Identifier {
-                    name: "one".to_string()
-                },
-                Identifier {
-                    name: "two".to_string()
-                },
-                Identifier {
-                    name: "three".to_string()
-                },
-            ],
-            separator: term!(,)
-        }
+        Punctuated<Identifier, term!(,)>;
+        list.len() == 3;
     });
 
     test!(err should_not_parse_comma_separated_values_empty { "" =>
@@ -267,43 +231,37 @@ mod test {
 
     test!(should_parse_identifier { "hello" =>
         "";
-        Identifier {
-            name => "hello".to_string()
-        }
+        Identifier;
+        name == "hello";
     });
 
     test!(should_parse_numbered_identifier { "hello5" =>
         "";
-        Identifier {
-            name => "hello5".to_string()
-        }
+        Identifier;
+        name == "hello5";
     });
 
     test!(should_parse_underscored_identifier { "_hello_" =>
         "";
-        Identifier {
-            name => "_hello_".to_string()
-        }
+        Identifier;
+        name == "_hello_";
     });
 
     test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>
         "";
-        Identifier {
-            name => "hello".to_string()
-        }
+        Identifier;
+        name == "hello";
     });
 
     test!(should_parse_identifier_preceeding_others { "hello  note" =>
         "note";
-        Identifier {
-            name => "hello".to_string()
-        }
+        Identifier;
+        name == "hello";
     });
 
     test!(should_parse_identifier_attached_to_symbol { "hello=" =>
         "=";
-        Identifier {
-            name => "hello".to_string()
-        }
+        Identifier;
+        name == "hello";
     });
 }
