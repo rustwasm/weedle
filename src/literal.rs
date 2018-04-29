@@ -124,9 +124,8 @@ mod test {
 
     test!(should_parse_other_lit { "&" =>
         "";
-        OtherLit {
-            value => "&".to_string()
-        }
+        OtherLit;
+        value == "&";
     });
 
     test!(should_parse_integer { "45" =>

@@ -92,8 +92,6 @@ mod test {
         OperationMixinMember;
         attributes.is_none();
         stringifier.is_none();
-        identifier == Some(Identifier {
-            name: "fnName".to_string()
-        });
+        identifier.is_some();
     });
 }

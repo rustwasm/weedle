@@ -396,23 +396,13 @@ mod test {
 
     test!(should_parse_may_be_null { "short" =>
         "";
-        MayBeNull<IntegerType> => MayBeNull {
-            type_: IntegerType::Short(ShortType {
-                unsigned: None,
-                short: term!(short)
-            }),
-            q_mark: None
-        }
+        MayBeNull<IntegerType>;
+        q_mark.is_none();
     });
 
     test!(should_parse_nullable { "short?" =>
         "";
-        MayBeNull<IntegerType> => MayBeNull {
-            type_: IntegerType::Short(ShortType {
-                unsigned: None,
-                short: term!(short)
-            }),
-            q_mark: Some(term!(?))
-        }
+        MayBeNull<IntegerType>;
+        q_mark.is_some();
     });
 }
