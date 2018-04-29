@@ -53,6 +53,8 @@ use types::*;
 use mixin::*;
 
 #[macro_use]
+mod whitespace;
+#[macro_use]
 mod macros;
 #[macro_use]
 pub mod term;
@@ -572,5 +574,13 @@ mod test {
         attributes.is_none();
         identifier.name == "AsyncOperationCallback";
         arguments.body.list.len() == 1;
+    });
+
+    test!(should_parse_with_comments { "
+        // This is a comment
+        callback AsyncOperationCallback = void (DOMString status);
+    " =>
+        "";
+        CallbackDefinition;
     });
 }
