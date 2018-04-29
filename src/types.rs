@@ -112,7 +112,9 @@ impl Parse for FrozenArrayType {
     ));
 }
 
-/// Parses a nullable type. Ex: `object | object?`
+/// Parses a nullable type. Ex: `object | object??`
+///
+/// `??` means an actual ? not an optional requirement
 #[derive(Debug, PartialEq)]
 pub struct MayBeNull<T> {
     pub type_: T,
@@ -142,7 +144,7 @@ impl Parse for PromiseType {
     ));
 }
 
-/// Parses `/* unsigned */ short|long|long long`
+/// Parses `unsigned? short|long|(long long)`
 #[derive(Debug, PartialEq)]
 pub enum IntegerType {
     Short(ShortType),
@@ -158,7 +160,7 @@ impl Parse for IntegerType {
     ));
 }
 
-/// Parses `/* unsigned */ short`
+/// Parses `unsigned? short`
 #[derive(Debug, PartialEq)]
 pub struct ShortType {
     pub unsigned: Option<term!(unsigned)>,
@@ -173,7 +175,7 @@ impl Parse for ShortType {
     ));
 }
 
-/// Parses `/* unsigned */ long`
+/// Parses `unsigned? long`
 #[derive(Debug, PartialEq)]
 pub struct LongType {
     pub unsigned: Option<term!(unsigned)>,
@@ -188,7 +190,7 @@ impl Parse for LongType {
     ));
 }
 
-/// Parses `/* unsigned */ long long`
+/// Parses `unsigned? long long`
 #[derive(Debug, PartialEq)]
 pub struct LongLongType {
     pub unsigned: Option<term!(unsigned)>,
@@ -203,7 +205,7 @@ impl Parse for LongLongType {
     ));
 }
 
-/// Parses `/* unrestricted */ float|double`
+/// Parses `unrestricted? float|double`
 #[derive(Debug, PartialEq)]
 pub enum FloatingPointType {
     Float(FloatType),
@@ -217,6 +219,7 @@ impl Parse for FloatingPointType {
     ));
 }
 
+/// Parses `unrestricted? float`
 #[derive(Debug, PartialEq)]
 pub struct FloatType {
     pub unrestricted: Option<term!(unrestricted)>,
@@ -231,6 +234,7 @@ impl Parse for FloatType {
     ));
 }
 
+/// Parses `unrestricted? double`
 #[derive(Debug, PartialEq)]
 pub struct DoubleType {
     pub unrestricted: Option<term!(unrestricted)>,
@@ -260,6 +264,7 @@ impl Parse for RecordType {
     ));
 }
 
+/// Parses one of the string types `ByteString|DOMString|USVString`
 #[derive(Debug, PartialEq)]
 pub enum StringType {
     Byte(term!(ByteString)),
@@ -292,6 +297,7 @@ impl Parse for UnionMemberType {
     ));
 }
 
+/// Parses one of the types
 #[derive(Debug, PartialEq)]
 pub enum UnionSingleType {
     Promise(PromiseType),

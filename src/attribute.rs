@@ -25,7 +25,9 @@ impl Parse for ExtendedAttribute {
     ));
 }
 
-/// Parses a named argument list. Ex: `NamedConstructor=Image(DOMString src)`
+/// Parses a named argument list. Ex: `NamedConstructor=Image((DOMString src))`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
@@ -44,7 +46,9 @@ impl Parse for ExtendedAttributeNamedArgList {
     ));
 }
 
-/// Parses an identifier list. Ex: `Exposed=(Window,Worker)`
+/// Parses an identifier list. Ex: `Exposed=((Window,Worker))`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeIdentList {
     pub identifier: Identifier,
@@ -81,7 +85,9 @@ impl Parse for ExtendedAttributeIdent {
     ));
 }
 
-/// Parses an argument list. Ex: `Constructor(double x, double y)`
+/// Parses an argument list. Ex: `Constructor((double x, double y))`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct ExtendedAttributeArgList {
     pub identifier: Identifier,

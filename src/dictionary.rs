@@ -6,7 +6,7 @@ use common::*;
 /// Parses dictionary members
 pub type DictionaryMembers = Vec<DictionaryMember>;
 
-/// Parses dictionary member `/* [attributes] */ /* required */ type identifier /* = default */;`
+/// Parses dictionary member `[attributes]? required? type identifier ( = default )?;`
 #[derive(Debug, PartialEq)]
 pub struct DictionaryMember {
     pub attributes: Option<ExtendedAttributeList>,

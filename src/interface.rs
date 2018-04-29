@@ -47,7 +47,7 @@ impl Parse for InterfaceMember {
     ));
 }
 
-/// Parses a const interface member `/* [attributes] */ const ConstType identifier = ConstValue;`
+/// Parses a const interface member `[attributes]? const type identifier = value;`
 #[derive(Debug, PartialEq)]
 pub struct ConstMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -72,7 +72,7 @@ impl Parse for ConstMember {
     ));
 }
 
-/// Parses `/* [attributes] */ /* stringifier|inherit|static */ /* readonly */ attribute type identifier;`
+/// Parses `[attributes]? (stringifier|inherit|static)? readonly? attribute type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -97,7 +97,9 @@ impl Parse for AttributeInterfaceMember {
     ));
 }
 
-/// Parses `/* [attributes] */ /* stringifier|static */ /* specials */ returntype /* identifier */ ( args );`
+/// Parses `[attributes]? (stringifier|static)? specials? returntype identifier? (( args ));`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct OperationInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -122,7 +124,7 @@ impl Parse for OperationInterfaceMember {
     ));
 }
 
-/// Parses one of the special keyword `/* [attributes] */ getter|setter|deleter`
+/// Parses one of the special keyword `getter|setter|deleter`
 #[derive(Debug, PartialEq)]
 pub enum Special {
     Getter(term!(getter)),
@@ -138,7 +140,7 @@ impl Parse for Special {
     ));
 }
 
-/// Parses an iterable declaration `/* [attributes] */ iterable<Type> | iterable<Type, Type> ;`
+/// Parses an iterable declaration `[attributes]? (iterable<type> | iterable<type, type>) ;`
 #[derive(Debug, PartialEq)]
 pub enum IterableInterfaceMember {
     Single(SingleTypedIterable),
@@ -152,7 +154,7 @@ impl Parse for IterableInterfaceMember {
     ));
 }
 
-/// Parses an iterable declaration `/* [attributes] */ iterable<Type>;`
+/// Parses an iterable declaration `[attributes]? iterable<type>;`
 #[derive(Debug, PartialEq)]
 pub struct SingleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
@@ -171,7 +173,7 @@ impl Parse for SingleTypedIterable {
     ));
 }
 
-/// Parses an iterable declaration `/* [attributes] */ iterable<Type, Type>;`
+/// Parses an iterable declaration `[attributes]? iterable<type, type>;`
 #[derive(Debug, PartialEq)]
 pub struct DoubleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
@@ -190,7 +192,7 @@ impl Parse for DoubleTypedIterable {
     ));
 }
 
-/// Parses an maplike declaration `/* [attributes] */ /* readonly */ maplike<Type, Type>;`
+/// Parses an maplike declaration `[attributes]? readonly? maplike<type, type>;`
 #[derive(Debug, PartialEq)]
 pub struct MaplikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -211,7 +213,7 @@ impl Parse for MaplikeInterfaceMember {
     ));
 }
 
-/// Parses an setlike declaration `/* [attributes] */ /* readonly */ setlike<Type>;`
+/// Parses an setlike declaration `[attributes]? readonly? setlike<type>;`
 #[derive(Debug, PartialEq)]
 pub struct SetlikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,

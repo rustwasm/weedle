@@ -103,7 +103,7 @@ impl<T: Parse> Parse for Generics<T> {
     ));
 }
 
-/// Parses `` or `item1, item2, item3,...`
+/// Parses `(item1, item2, item3,...)?`
 #[derive(Debug, PartialEq)]
 pub struct Punctuated<T, S> {
     pub list: Vec<T>,
@@ -117,7 +117,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
     ));
 }
 
-/// Parses `item1, item2, item3,...`
+/// Parses `item1, item2, item3, ...`
 #[derive(Debug, PartialEq)]
 pub struct PunctuatedNonEmpty<T, S> {
     pub list: Vec<T>,
@@ -131,7 +131,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<
     ));
 }
 
-/// Represents an **identifier**
+/// Represents an identifier
 ///
 /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
 #[derive(Debug, Eq, PartialEq)]

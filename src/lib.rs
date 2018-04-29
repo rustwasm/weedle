@@ -98,7 +98,7 @@ impl Parse for Definition {
     ));
 }
 
-/// Parses `/* [attributes] */ callback identifier = type ( /* arg1, arg2, ..., argN */ );`
+/// Parses `[attributes]? callback identifier = type ( (arg1, arg2, ..., argN)? );`
 #[derive(Debug, PartialEq)]
 pub struct CallbackDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -123,7 +123,7 @@ impl Parse for CallbackDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ callback interface identifier /* : inheritance */ { members };`
+/// Parses `[attributes]? callback interface identifier ( : inheritance )? { members };`
 #[derive(Debug, PartialEq)]
 pub struct CallbackInterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -148,7 +148,7 @@ impl Parse for CallbackInterfaceDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ interface identifier /* : inheritance */ { members };`
+/// Parses `[attributes]? interface identifier ( : inheritance )? { members };`
 #[derive(Debug, PartialEq)]
 pub struct InterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -171,7 +171,7 @@ impl Parse for InterfaceDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ interface mixin identifier { members };`
+/// Parses `[attributes]? interface mixin identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct InterfaceMixinDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -194,7 +194,7 @@ impl Parse for InterfaceMixinDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ namespace identifier { members };`
+/// Parses `[attributes]? namespace identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct NamespaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -215,7 +215,7 @@ impl Parse for NamespaceDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ partial interface identifier { members };`
+/// Parses `[attributes]? partial interface identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct PartialInterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -238,7 +238,7 @@ impl Parse for PartialInterfaceDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ partial interface mixin identifier { members };`
+/// Parses `[attributes]? partial interface mixin identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct PartialInterfaceMixinDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -263,7 +263,7 @@ impl Parse for PartialInterfaceMixinDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ partial dictionary identifier { members };`
+/// Parses `[attributes]? partial dictionary identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct PartialDictionaryDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -286,7 +286,7 @@ impl Parse for PartialDictionaryDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ partial namespace identifier { members };`
+/// Parses `[attributes]? partial namespace identifier { members };`
 #[derive(Debug, PartialEq)]
 pub struct PartialNamespaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -309,7 +309,7 @@ impl Parse for PartialNamespaceDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ dictionary identifier /* : inheritance */ { members };`
+/// Parses `[attributes]? dictionary identifier ( : inheritance )? { members };`
 #[derive(Debug, PartialEq)]
 pub struct DictionaryDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -332,7 +332,7 @@ impl Parse for DictionaryDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ enum identifier { values };`
+/// Parses `[attributes]? enum identifier { values };`
 #[derive(Debug, PartialEq)]
 pub struct EnumDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -353,7 +353,7 @@ impl Parse for EnumDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ typedef type identifier;`
+/// Parses `[attributes]? typedef type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct TypedefDefinition {
     pub attributes: Option<ExtendedAttributeList>,
@@ -374,7 +374,7 @@ impl Parse for TypedefDefinition {
     ));
 }
 
-/// Parses `/* [attributes] */ identifier includes identifier;`
+/// Parses `[attributes]? identifier includes identifier;`
 #[derive(Debug, PartialEq)]
 pub struct IncludesStatementDefinition {
     pub attributes: Option<ExtendedAttributeList>,

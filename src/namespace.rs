@@ -21,7 +21,9 @@ impl Parse for NamespaceMember {
     ));
 }
 
-/// Parses `/* [attributes] */ returntype /* identifier */( args );`
+/// Parses `[attributes]? returntype identifier? (( args ));`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct OperationNamespaceMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -42,7 +44,7 @@ impl Parse for OperationNamespaceMember {
     ));
 }
 
-/// Parses `/* [attribute] */ readonly attribute type identifier;`
+/// Parses `[attribute]? readonly attribute type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeNamespaceMember {
     pub attributes: Option<ExtendedAttributeList>,

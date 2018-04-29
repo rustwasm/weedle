@@ -20,7 +20,7 @@ impl Parse for Argument {
     ));
 }
 
-/// Parses `/* [attributes] */ /* optional */ type identifier /* = default */`
+/// Parses `[attributes]? optional? type identifier ( = default )?`
 ///
 /// Note: `= default` is only allowed if `optional` is present
 #[derive(Debug, PartialEq)]
@@ -43,7 +43,7 @@ impl Parse for SingleArgument {
     ));
 }
 
-/// Parses `/* [attributes] */ type... identifier`
+/// Parses `[attributes]? type... identifier`
 #[derive(Debug, PartialEq)]
 pub struct VariadicArgument {
     pub attributes: Option<ExtendedAttributeList>,

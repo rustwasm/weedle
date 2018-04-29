@@ -26,7 +26,9 @@ impl Parse for MixinMember {
     ));
 }
 
-/// Parses `/* [attributes] */ /* stringifier */ returntype /* identifier */ ( args );`
+/// Parses `[attributes]? stringifier? returntype identifier? (( args ));`
+///
+/// (( )) means ( ) chars
 #[derive(Debug, PartialEq)]
 pub struct OperationMixinMember {
     pub attributes: Option<ExtendedAttributeList>,
@@ -49,7 +51,7 @@ impl Parse for OperationMixinMember {
     ));
 }
 
-/// Parses `/* [attributes] */ /* stringifier */ /* readonly */ attribute type identifier;`
+/// Parses `[attributes]? stringifier? readonly? attribute type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeMixinMember {
     pub attributes: Option<ExtendedAttributeList>,
