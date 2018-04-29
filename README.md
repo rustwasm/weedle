@@ -5,7 +5,7 @@ Parses valid WebIDL definitions & produces a data structure starting from
 
 ### Example
 
-```
+```rust
 extern crate weedle;
 
 let (_, parsed) = weedle::parse("
