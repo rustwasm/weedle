@@ -73,3 +73,27 @@ impl Parse for AttributeMixinMember {
         (AttributeMixinMember { attributes, stringifier, readonly, attribute, type_, identifier, semi_colon })
     ));
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    test!(should_parse_attribute_mixin_member { "stringifier readonly attribute short name;" =>
+        "";
+        AttributeMixinMember;
+        attributes.is_none();
+        stringifier.is_some();
+        readonly.is_some();
+        identifier.name == "name";
+    });
+
+    test!(should_parse_operation_mixin_member { "short fnName(long a);" =>
+        "";
+        OperationMixinMember;
+        attributes.is_none();
+        stringifier.is_none();
+        identifier == Some(Identifier {
+            name: "fnName".to_string()
+        });
+    });
+}
