@@ -1,19 +1,40 @@
 //! Weedle - A WebIDL Parser
 //!
-//! Tries to follow the grammar given at [WebIDL](https://heycam.github.io/webidl) but is not
-//! one-to-one. Makes necessary assumptions as per the real world `idl` definitions.
+//! Parses valid WebIDL definitions & produces a data structure starting from
+//! [`Definitions`](struct.Definitions.html).
 //!
-//! For ex: `[attributes] attribute Type identifier` instead of
-//! `[attributes] attribute AttributedType AttributeName` where `AttributedType` is
-//! `[attribute] Type` and `AttributeName` is one of `required|identifier`.
-//! Using attributes within is redundant, Also the attribute names can either be
-//! `required|identifier` which is taken care of by `identifier` as it takes in any possible
-//! value without regard of whether they are keywords or not.
+//! ### Example
 //!
-//! This also means any inner `[attributes]` used in the grammar are omitted. Only preceding
-//! attributes to declarations & arguments are considered.
+//! ```
+//! extern crate weedle;
 //!
-//! Also, the parser only allows stricter attributes defined in the grammar.
+//! let (_, parsed) = weedle::parse("
+//!     interface Window {
+//!         readonly attribute Storage sessionStorage;
+//!     };
+//! ").unwrap();
+//! println!("{:?}", parsed);
+//! ```
+//!
+//! Note:
+//! This parser tries to follow the grammar given at [WebIDL](https://heycam.github.io/webidl)
+//! but is not one-to-one. Makes necessary assumptions as per the real world WebIDL definitions.
+//!
+//! First, the parser only allows stricter attributes defined in the grammar.
+//!
+//! Second, No inner `[attributes]` are allowed. For example the following is allowed:
+//!
+//! `[attributes] attribute Type identifier` instead of
+//!
+//! `[attributes] attribute AttributedType AttributeName`
+//!
+//! where `AttributedType` is `[attribute] Type` and `AttributeName` is one of
+//! `required|identifier`.
+//!
+//! Using attributes within declaration is redundant. Only preceding attributes to declarations &
+//! arguments are considered.
+//!
+//! Also `identifier` takes in any valid value regardless of whether it is keyword or not.
 
 #[macro_use]
 extern crate lazy_static;
@@ -44,6 +65,10 @@ pub mod interface;
 pub mod mixin;
 pub mod dictionary;
 pub mod namespace;
+
+pub fn parse(raw: &str) -> IResult<CompleteStr, Definitions> {
+    Definitions::parse(CompleteStr(raw))
+}
 
 pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
