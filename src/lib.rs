@@ -8,7 +8,7 @@
 //! ```
 //! extern crate weedle;
 //!
-//! let (_, parsed) = weedle::parse("
+//! let parsed = weedle::parse("
 //!     interface Window {
 //!         readonly attribute Storage sessionStorage;
 //!     };
@@ -51,6 +51,7 @@ use namespace::*;
 use nom::{IResult, types::CompleteStr};
 use types::*;
 use mixin::*;
+use nom::Err;
 
 #[macro_use]
 mod whitespace;
@@ -68,8 +69,9 @@ pub mod mixin;
 pub mod dictionary;
 pub mod namespace;
 
-pub fn parse(raw: &str) -> IResult<CompleteStr, Definitions> {
-    Definitions::parse(CompleteStr(raw))
+pub fn parse(raw: &str) -> Result<Definitions, Err<CompleteStr, u32>> {
+    let (_, parsed) = Definitions::parse(CompleteStr(raw))?;
+    Ok(parsed)
 }
 
 pub trait Parse: Sized {

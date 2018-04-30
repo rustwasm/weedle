@@ -16,7 +16,7 @@ Then, in `src/main.rs`
 extern crate weedle;
 
 fn main() {
-    let (_, parsed) = weedle::parse("
+    let parsed = weedle::parse("
         interface Window {
             readonly attribute Storage sessionStorage;
         };
