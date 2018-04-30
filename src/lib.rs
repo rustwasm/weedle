@@ -48,7 +48,7 @@ use common::*;
 use dictionary::*;
 use interface::*;
 use namespace::*;
-use nom::{IResult, types::CompleteStr};
+pub use nom::{IResult, types::CompleteStr};
 use types::*;
 use mixin::*;
 use nom::Err;
@@ -69,6 +69,21 @@ pub mod mixin;
 pub mod dictionary;
 pub mod namespace;
 
+/// A convenient parse function
+///
+/// ### Example
+///
+/// ```
+/// extern crate weedle;
+///
+/// let parsed = weedle::parse("
+///     interface Window {
+///         readonly attribute Storage sessionStorage;
+///     };
+/// ").unwrap();
+///
+/// println!("{:?}", parsed);
+/// ```
 pub fn parse(raw: &str) -> Result<Definitions, Err<CompleteStr, u32>> {
     let (_, parsed) = Definitions::parse(CompleteStr(raw))?;
     Ok(parsed)
@@ -78,7 +93,22 @@ pub trait Parse: Sized {
     fn parse(input: CompleteStr) -> IResult<CompleteStr, Self>;
 }
 
-/// Parses WebIDL definitions
+/// Parses WebIDL definitions. It is the root struct for a complete WebIDL definition.
+///
+/// ### Example
+/// ```
+/// use weedle::{Definitions, CompleteStr, Parse};
+///
+/// let (_, parsed) = Definitions::parse(CompleteStr("
+///     interface Window {
+///         readonly attribute Storage sessionStorage;
+///     };
+/// ")).unwrap();
+///
+/// println!("{:?}", parsed);
+/// ```
+///
+/// It is recommended to use [`parse`](fn.parse.html) instead.
 #[derive(Debug, PartialEq)]
 pub struct Definitions {
     pub definitions: Vec<Definition>
