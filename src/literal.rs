@@ -5,6 +5,18 @@ fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
     input[0]
 }
 
+fn parse_dec(input: CompleteStr) -> i64 {
+    i64::from_str_radix(&input, 10).unwrap()
+}
+
+fn parse_hex(input: CompleteStr) -> i64 {
+    i64::from_str_radix(&input[2..], 16).unwrap()
+}
+
+fn parse_oct(input: CompleteStr) -> i64 {
+    i64::from_str_radix(&input, 8).unwrap()
+}
+
 /// Represents other literal symbols
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
@@ -20,16 +32,62 @@ impl Parse for OtherLit {
     ));
 }
 
+// Parses `-?[1-9][0-9]*`
+struct DecI64(i64);
+
+impl Parse for DecI64 {
+    named!(parse -> Self, do_parse!(
+        num: map!(
+            map!(
+                ws!(re_capture_static!(r"^(-?[1-9][0-9]*)")),
+                select_first
+            ),
+            parse_dec
+        ) >>
+        (DecI64(num))
+    ));
+}
+
+// Parses `-?0[Xx][0-9A-Fa-f]+)`
+struct HexI64(i64);
+
+impl Parse for HexI64 {
+    named!(parse -> Self, do_parse!(
+        num: map!(
+            map!(
+                ws!(re_capture_static!(r"^(-?0[Xx][0-9A-Fa-f]+)")),
+                select_first
+            ),
+            parse_hex
+        ) >>
+        (HexI64(num))
+    ));
+}
+
+// Parses `-?0[0-7]*`
+struct OctI64(i64);
+
+impl Parse for OctI64 {
+    named!(parse -> Self, do_parse!(
+        num: map!(
+            map!(
+                ws!(re_capture_static!(r"^(-?0[0-7]*)")),
+                select_first
+            ),
+            parse_oct
+        ) >>
+        (OctI64(num))
+    ));
+}
+
 /// Represents an integer value
 ///
 /// Follows `/-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/`
 impl Parse for i64 {
-    named!(parse -> Self, flat_map!(
-        map!(
-            ws!(re_capture_static!(r"^(-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*))")),
-            select_first
-        ),
-        parse_to!(i64)
+    named!(parse -> Self, alt!(
+        weedle!(DecI64) => {|num: DecI64| num.0} |
+        weedle!(HexI64) => {|num: HexI64| num.0} |
+        weedle!(OctI64) => {|num: OctI64| num.0}
     ));
 }
 
@@ -146,6 +204,16 @@ mod test {
     test!(should_parse_neg_integer { "-435" =>
         "";
         i64 => -435
+    });
+
+    test!(should_parse_hex_number { "0X08" =>
+        "";
+        i64 => 8
+    });
+
+    test!(should_parse_hex_large_number { "0xA" =>
+        "";
+        i64 => 10
     });
 
     test!(should_parse_float { "45.434" =>

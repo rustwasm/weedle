@@ -133,7 +133,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<
 
 /// Represents an identifier
 ///
-/// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
+/// Follows `/_?[A-Za-z][0-9A-Z_a-z]*/`
 #[derive(Debug, Eq, PartialEq)]
 pub struct Identifier {
     pub name: String
