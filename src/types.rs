@@ -1,6 +1,7 @@
 use Parse;
 use common::*;
 use term;
+use attribute::*;
 
 /// Parses either single type or a union type
 #[derive(Debug, PartialEq)]
@@ -394,6 +395,21 @@ impl Parse for ReturnType {
     named!(parse -> Self, alt_complete!(
         weedle!(term!(void)) => {|inner| ReturnType::Void(inner)} |
         weedle!(Type) => {|inner| ReturnType::Type(inner)}
+    ));
+}
+
+/// Parses `[attributes]? type`
+#[derive(Debug, PartialEq)]
+pub struct AttributedType {
+    pub attributes: Option<ExtendedAttributeList>,
+    pub type_: Type
+}
+
+impl Parse for AttributedType {
+    named!(parse -> Self, do_parse!(
+        attributes: weedle!(Option<ExtendedAttributeList>) >>
+        type_: weedle!(Type) >>
+        (AttributedType { attributes, type_ })
     ));
 }
 
