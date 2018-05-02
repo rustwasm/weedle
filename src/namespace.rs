@@ -44,13 +44,13 @@ impl Parse for OperationNamespaceMember {
     ));
 }
 
-/// Parses `[attribute]? readonly attribute type identifier;`
+/// Parses `[attribute]? readonly attributetype type identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeNamespaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: term!(readonly),
     pub attribute: term!(attribute),
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
@@ -60,7 +60,7 @@ impl Parse for AttributeNamespaceMember {
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         readonly: weedle!(term!(readonly)) >>
         attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
         (AttributeNamespaceMember { attributes, readonly, attribute, type_, identifier, semi_colon })
