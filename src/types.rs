@@ -594,4 +594,10 @@ mod test {
             Union == "(short or float)"
         }
     );
+
+    test!(should_parse_attributed_type { "[Named] short" =>
+        "";
+        AttributedType;
+        attributes.is_some();
+    });
 }
