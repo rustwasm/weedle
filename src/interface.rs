@@ -72,14 +72,14 @@ impl Parse for ConstMember {
     ));
 }
 
-/// Parses `[attributes]? (stringifier|inherit|static)? readonly? attribute type identifier;`
+/// Parses `[attributes]? (stringifier|inherit|static)? readonly? attribute attributedtype identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub modifier: Option<StringifierOrInheritOrStatic>,
     pub readonly: Option<term!(readonly)>,
     pub attribute: term!(attribute),
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
@@ -90,7 +90,7 @@ impl Parse for AttributeInterfaceMember {
         modifier: weedle!(Option<StringifierOrInheritOrStatic>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
         (AttributeInterfaceMember { attributes, modifier, readonly, attribute, type_, identifier, semi_colon })
@@ -140,7 +140,7 @@ impl Parse for Special {
     ));
 }
 
-/// Parses an iterable declaration `[attributes]? (iterable<type> | iterable<type, type>) ;`
+/// Parses an iterable declaration `[attributes]? (iterable<attributedtype> | iterable<attributedtype, attributedtype>) ;`
 #[derive(Debug, PartialEq)]
 pub enum IterableInterfaceMember {
     Single(SingleTypedIterable),
@@ -154,12 +154,12 @@ impl Parse for IterableInterfaceMember {
     ));
 }
 
-/// Parses an iterable declaration `[attributes]? iterable<type>;`
+/// Parses an iterable declaration `[attributes]? iterable<attributedtype>;`
 #[derive(Debug, PartialEq)]
 pub struct SingleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
     pub iterable: term!(iterable),
-    pub generics: Generics<Type>,
+    pub generics: Generics<AttributedType>,
     pub semi_colon: term!(;)
 }
 
@@ -167,18 +167,18 @@ impl Parse for SingleTypedIterable {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         iterable: weedle!(term!(iterable)) >>
-        generics: weedle!(Generics<Type>) >>
+        generics: weedle!(Generics<AttributedType>) >>
         semi_colon: weedle!(term!(;)) >>
         (SingleTypedIterable { attributes, iterable, generics, semi_colon })
     ));
 }
 
-/// Parses an iterable declaration `[attributes]? iterable<type, type>;`
+/// Parses an iterable declaration `[attributes]? iterable<attributedtype, attributedtype>;`
 #[derive(Debug, PartialEq)]
 pub struct DoubleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
     pub iterable: term!(iterable),
-    pub generics: Generics<(Type, term!(,), Type)>,
+    pub generics: Generics<(AttributedType, term!(,), AttributedType)>,
     pub semi_colon: term!(;)
 }
 
@@ -186,19 +186,19 @@ impl Parse for DoubleTypedIterable {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         iterable: weedle!(term!(iterable)) >>
-        generics: weedle!(Generics<(Type, term!(,), Type)>) >>
+        generics: weedle!(Generics<(AttributedType, term!(,), AttributedType)>) >>
         semi_colon: weedle!(term!(;)) >>
         (DoubleTypedIterable { attributes, iterable, generics, semi_colon })
     ));
 }
 
-/// Parses an maplike declaration `[attributes]? readonly? maplike<type, type>;`
+/// Parses an maplike declaration `[attributes]? readonly? maplike<attributedtype, attributedtype>;`
 #[derive(Debug, PartialEq)]
 pub struct MaplikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: Option<term!(readonly)>,
     pub maplike: term!(maplike),
-    pub generics: Generics<(Type, term!(,), Type)>,
+    pub generics: Generics<(AttributedType, term!(,), AttributedType)>,
     pub semi_colon: term!(;)
 }
 
@@ -207,19 +207,19 @@ impl Parse for MaplikeInterfaceMember {
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         maplike: weedle!(term!(maplike)) >>
-        generics: weedle!(Generics<(Type, term!(,), Type)>) >>
+        generics: weedle!(Generics<(AttributedType, term!(,), AttributedType)>) >>
         semi_colon: weedle!(term!(;)) >>
         (MaplikeInterfaceMember { attributes, readonly, maplike, generics, semi_colon })
     ));
 }
 
-/// Parses an setlike declaration `[attributes]? readonly? setlike<type>;`
+/// Parses an setlike declaration `[attributes]? readonly? setlike<attributedtype>;`
 #[derive(Debug, PartialEq)]
 pub struct SetlikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: Option<term!(readonly)>,
     pub setlike: term!(setlike),
-    pub generics: Generics<Type>,
+    pub generics: Generics<AttributedType>,
     pub semi_colon: term!(;)
 }
 
@@ -228,7 +228,7 @@ impl Parse for SetlikeInterfaceMember {
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         setlike: weedle!(term!(setlike)) >>
-        generics: weedle!(Generics<Type>) >>
+        generics: weedle!(Generics<AttributedType>) >>
         semi_colon: weedle!(term!(;)) >>
         (SetlikeInterfaceMember { attributes, readonly, setlike, generics, semi_colon })
     ));

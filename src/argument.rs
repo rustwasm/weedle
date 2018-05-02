@@ -20,14 +20,14 @@ impl Parse for Argument {
     ));
 }
 
-/// Parses `[attributes]? optional? type identifier ( = default )?`
+/// Parses `[attributes]? optional? attributedtype identifier ( = default )?`
 ///
 /// Note: `= default` is only allowed if `optional` is present
 #[derive(Debug, PartialEq)]
 pub struct SingleArgument {
     pub attributes: Option<ExtendedAttributeList>,
     pub optional: Option<term!(optional)>,
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub default: Option<Default>
 }
@@ -36,7 +36,7 @@ impl Parse for SingleArgument {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         optional: weedle!(Option<term!(optional)>) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         default: opt_flat!(cond_reduce!(optional.is_some(), weedle!(Option<Default>))) >>
         (SingleArgument { attributes, optional, type_, identifier, default })

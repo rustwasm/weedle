@@ -17,24 +17,9 @@
 //! ```
 //!
 //! Note:
-//! This parser tries to follow the grammar given at [WebIDL](https://heycam.github.io/webidl)
-//! but is not one-to-one. Makes necessary assumptions as per the real world WebIDL definitions.
+//! This parser follows the grammar given at [WebIDL](https://heycam.github.io/webidl).
 //!
-//! First, the parser only allows stricter attributes defined in the grammar.
-//!
-//! Second, No inner `[attributes]` are allowed. For example the following is allowed:
-//!
-//! `[attributes] attribute Type identifier` instead of
-//!
-//! `[attributes] attribute AttributedType AttributeName`
-//!
-//! where `AttributedType` is `[attribute] Type` and `AttributeName` is one of
-//! `required|identifier`.
-//!
-//! Using attributes within declaration is redundant. Only preceding attributes to declarations &
-//! arguments are considered.
-//!
-//! Also `identifier` takes in any valid value regardless of whether it is keyword or not.
+//! If any flaws found when parsing string with a valid grammar, create an issue.
 
 #[macro_use]
 extern crate lazy_static;
@@ -412,12 +397,12 @@ impl Parse for EnumDefinition {
     ));
 }
 
-/// Parses `[attributes]? typedef type identifier;`
+/// Parses `[attributes]? typedef attributedtype identifier;`
 #[derive(Debug, PartialEq)]
 pub struct TypedefDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub typedef: term!(typedef),
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
@@ -426,7 +411,7 @@ impl Parse for TypedefDefinition {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         typedef: weedle!(term!(typedef)) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
         (TypedefDefinition { attributes, typedef, type_, identifier, semi_colon })
