@@ -412,12 +412,12 @@ impl Parse for EnumDefinition {
     ));
 }
 
-/// Parses `[attributes]? typedef type identifier;`
+/// Parses `[attributes]? typedef attributedtype identifier;`
 #[derive(Debug, PartialEq)]
 pub struct TypedefDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub typedef: term!(typedef),
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
@@ -426,7 +426,7 @@ impl Parse for TypedefDefinition {
     named!(parse -> Self, do_parse!(
         attributes: weedle!(Option<ExtendedAttributeList>) >>
         typedef: weedle!(term!(typedef)) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
         (TypedefDefinition { attributes, typedef, type_, identifier, semi_colon })
