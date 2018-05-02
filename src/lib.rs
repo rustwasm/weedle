@@ -608,4 +608,16 @@ mod test {
         "";
         CallbackDefinition;
     });
+
+    test!(should_parse_with_multiple_comments { "
+        // This is a comment
+        // This is a comment
+        // This is a comment
+
+        // This is a comment
+        callback AsyncOperationCallback = void (DOMString status);
+    " =>
+        "";
+        CallbackDefinition;
+    });
 }
