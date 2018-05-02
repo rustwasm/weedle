@@ -17,24 +17,9 @@
 //! ```
 //!
 //! Note:
-//! This parser tries to follow the grammar given at [WebIDL](https://heycam.github.io/webidl)
-//! but is not one-to-one. Makes necessary assumptions as per the real world WebIDL definitions.
+//! This parser follows the grammar given at [WebIDL](https://heycam.github.io/webidl).
 //!
-//! First, the parser only allows stricter attributes defined in the grammar.
-//!
-//! Second, No inner `[attributes]` are allowed. For example the following is allowed:
-//!
-//! `[attributes] attribute Type identifier` instead of
-//!
-//! `[attributes] attribute AttributedType AttributeName`
-//!
-//! where `AttributedType` is `[attribute] Type` and `AttributeName` is one of
-//! `required|identifier`.
-//!
-//! Using attributes within declaration is redundant. Only preceding attributes to declarations &
-//! arguments are considered.
-//!
-//! Also `identifier` takes in any valid value regardless of whether it is keyword or not.
+//! If any flaws found when parsing string with a valid grammar, create an issue.
 
 #[macro_use]
 extern crate lazy_static;
