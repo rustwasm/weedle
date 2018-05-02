@@ -36,7 +36,7 @@ macro_rules! re_capture_static (
   )
 );
 
-/// Return valid option as it is & convert `Error` to `None`
+// Return valid option as it is & convert `Error` to `None`
 #[macro_export]
 macro_rules! opt_flat(
   ($i:expr, $submac:ident!( $($args:tt)* )) => (
@@ -51,6 +51,23 @@ macro_rules! opt_flat(
       }
     }
   );
+);
+
+// Pass if condition is true else error out
+#[macro_export]
+macro_rules! err_if_not(
+    ($i:expr, $cond:expr) => (
+        {
+            use $crate::nom::{Convert,Err,ErrorKind};
+            let default_err = Err(Err::convert(Err::Error(error_position!($i, ErrorKind::CondReduce::<u32>))));
+
+            if $cond {
+                Ok(($i, ""))
+            } else {
+                default_err
+            }
+        }
+    );
 );
 
 #[cfg(test)]
