@@ -1,4 +1,4 @@
-macro_rules! generate_tokens {
+macro_rules! generate_terms {
     ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
         $(
             $(#[$attr])*
@@ -15,7 +15,28 @@ macro_rules! generate_tokens {
     };
 }
 
-generate_tokens! {
+macro_rules! generate_terms_for_names {
+    ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
+        $(
+            $(#[$attr])*
+            #[derive(Debug, Default, PartialEq, Eq)]
+            pub struct $typ;
+
+            impl $crate::Parse for $typ {
+                named!(parse -> Self, do_parse!(
+                    string: map!(
+                        ws!(re_capture_static!(r"^(-?[A-Za-z][0-9A-Za-z]*)")),
+                        ::literal::select_first
+                    ) >>
+                    err_if_not!(string.0 == $tok) >>
+                    ($typ)
+                ));
+            }
+        )*
+    };
+}
+
+generate_terms! {
     #[doc="Represents the terminal symbol `{`"]
     OpenParen => "{",
 
@@ -62,8 +83,10 @@ generate_tokens! {
     GreaterThan => ">",
 
     #[doc="Represents the terminal symbol `?`"]
-    QMark => "?",
+    QMark => "?"
+}
 
+generate_terms_for_names! {
     #[doc="Represents the terminal symbol `or`"]
     Or => "or",
 
@@ -239,7 +262,6 @@ generate_tokens! {
     Float64Array => "Float64Array",
 
     #[doc="Represents the terminal symbol `Promise`"]
-
     Promise => "Promise",
 
     #[doc="Represents the terminal symbol `Error`"]

@@ -1,7 +1,7 @@
 use Parse;
 use nom::types::CompleteStr;
 
-fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
+pub fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
     input[0]
 }
 
