@@ -1,7 +1,7 @@
-use Parse;
-use common::*;
-use term;
 use attribute::*;
+use common::*;
+use Parse;
+use term;
 
 /// Parses either single type or a union type
 #[derive(Debug, PartialEq)]
@@ -599,5 +599,11 @@ mod test {
         "";
         AttributedType;
         attributes.is_some();
+    });
+
+    test!(should_parse_type_as_identifier { "DOMStringMap" =>
+        // if type is not parsed as identifier, it is parsed as `DOMString` and 'Map' is left
+        "";
+        ::types::Type;
     });
 }
