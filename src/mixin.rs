@@ -51,14 +51,14 @@ impl Parse for OperationMixinMember {
     ));
 }
 
-/// Parses `[attributes]? stringifier? readonly? attribute type identifier;`
+/// Parses `[attributes]? stringifier? readonly? attribute attributedtype identifier;`
 #[derive(Debug, PartialEq)]
 pub struct AttributeMixinMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub stringifier: Option<term!(stringifier)>,
     pub readonly: Option<term!(readonly)>,
     pub attribute: term!(attribute),
-    pub type_: Type,
+    pub type_: AttributedType,
     pub identifier: Identifier,
     pub semi_colon: term!(;)
 }
@@ -69,7 +69,7 @@ impl Parse for AttributeMixinMember {
         stringifier: weedle!(Option<term!(stringifier)>) >>
         readonly: weedle!(Option<term!(readonly)>) >>
         attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(Type) >>
+        type_: weedle!(AttributedType) >>
         identifier: weedle!(Identifier) >>
         semi_colon: weedle!(term!(;)) >>
         (AttributeMixinMember { attributes, stringifier, readonly, attribute, type_, identifier, semi_colon })
