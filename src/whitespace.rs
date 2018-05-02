@@ -17,7 +17,7 @@ named!(comment<CompleteStr, CompleteStr>, alt!(
     line_comment
 ));
 
-named!(pub whitespace<CompleteStr, Option<CompleteStr>>, ws!(opt!(comment)));
+named!(pub whitespace<CompleteStr, Vec<CompleteStr>>, ws!(many0!(comment)));
 
 /// ws! also ignores line & block comments
 #[macro_export]
