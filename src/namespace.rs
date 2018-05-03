@@ -8,7 +8,7 @@ use attribute::*;
 pub type NamespaceMembers = Vec<NamespaceMember>;
 
 /// Parses namespace member declaration
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum NamespaceMember {
     Operation(OperationNamespaceMember),
     Attribute(AttributeNamespaceMember)
@@ -24,7 +24,7 @@ impl Parse for NamespaceMember {
 /// Parses `[attributes]? returntype identifier? (( args ));`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct OperationNamespaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub return_type: ReturnType,
@@ -45,7 +45,7 @@ impl Parse for OperationNamespaceMember {
 }
 
 /// Parses `[attribute]? readonly attributetype type identifier;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct AttributeNamespaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: term!(readonly),

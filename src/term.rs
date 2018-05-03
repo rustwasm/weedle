@@ -2,7 +2,7 @@ macro_rules! generate_terms {
     ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
         $(
             $(#[$attr])*
-            #[derive(Debug, Default, PartialEq, Eq)]
+            #[derive(Debug, Default, PartialEq, Clone)]
             pub struct $typ;
 
             impl $crate::Parse for $typ {
@@ -19,7 +19,7 @@ macro_rules! generate_terms_for_names {
     ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
         $(
             $(#[$attr])*
-            #[derive(Debug, Default, PartialEq, Eq)]
+            #[derive(Debug, Default, PartialEq, Clone)]
             pub struct $typ;
 
             impl $crate::Parse for $typ {

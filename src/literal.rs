@@ -20,7 +20,7 @@ fn parse_oct(input: CompleteStr) -> i64 {
 /// Represents other literal symbols
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct OtherLit {
     pub value: String
 }
@@ -106,7 +106,7 @@ impl Parse for String {
 }
 
 /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DefaultValue {
     Const(ConstValue),
     String(String),
@@ -133,7 +133,7 @@ impl Parse for EmptyArray {
 }
 
 /// Represents `true`, `false`, `34.23`, `null`, `56`, ...
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ConstValue {
     BooleanLiteral(bool),
     FloatLiteral(f64),

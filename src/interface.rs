@@ -6,7 +6,7 @@ use types::*;
 use attribute::*;
 
 /// Parses inheritance clause `: identifier`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Inheritance {
     pub colon: term!(:),
     pub identifier: Identifier,
@@ -24,7 +24,7 @@ impl Parse for Inheritance {
 pub type InterfaceMembers = Vec<InterfaceMember>;
 
 /// Parses one of the interface member variants
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum InterfaceMember {
     Const(ConstMember),
     Attribute(AttributeInterfaceMember),
@@ -48,7 +48,7 @@ impl Parse for InterfaceMember {
 }
 
 /// Parses a const interface member `[attributes]? const type identifier = value;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ConstMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub const_: term!(const),
@@ -73,7 +73,7 @@ impl Parse for ConstMember {
 }
 
 /// Parses `[attributes]? (stringifier|inherit|static)? readonly? attribute attributedtype identifier;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct AttributeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub modifier: Option<StringifierOrInheritOrStatic>,
@@ -100,7 +100,7 @@ impl Parse for AttributeInterfaceMember {
 /// Parses `[attributes]? (stringifier|static)? specials? returntype identifier? (( args ));`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct OperationInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub modifier: Option<StringifierOrStatic>,
@@ -125,7 +125,7 @@ impl Parse for OperationInterfaceMember {
 }
 
 /// Parses one of the special keyword `getter|setter|deleter`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Special {
     Getter(term!(getter)),
     Setter(term!(setter)),
@@ -141,7 +141,7 @@ impl Parse for Special {
 }
 
 /// Parses an iterable declaration `[attributes]? (iterable<attributedtype> | iterable<attributedtype, attributedtype>) ;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum IterableInterfaceMember {
     Single(SingleTypedIterable),
     Double(DoubleTypedIterable)
@@ -155,7 +155,7 @@ impl Parse for IterableInterfaceMember {
 }
 
 /// Parses an iterable declaration `[attributes]? iterable<attributedtype>;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SingleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
     pub iterable: term!(iterable),
@@ -174,7 +174,7 @@ impl Parse for SingleTypedIterable {
 }
 
 /// Parses an iterable declaration `[attributes]? iterable<attributedtype, attributedtype>;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DoubleTypedIterable {
     pub attributes: Option<ExtendedAttributeList>,
     pub iterable: term!(iterable),
@@ -193,7 +193,7 @@ impl Parse for DoubleTypedIterable {
 }
 
 /// Parses an maplike declaration `[attributes]? readonly? maplike<attributedtype, attributedtype>;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct MaplikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: Option<term!(readonly)>,
@@ -214,7 +214,7 @@ impl Parse for MaplikeInterfaceMember {
 }
 
 /// Parses an setlike declaration `[attributes]? readonly? setlike<attributedtype>;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SetlikeInterfaceMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub readonly: Option<term!(readonly)>,
@@ -235,7 +235,7 @@ impl Parse for SetlikeInterfaceMember {
 }
 
 /// Parses `stringifier|inherit|static`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum StringifierOrInheritOrStatic {
     Stringifier(term!(stringifier)),
     Inherit(term!(inherit)),
@@ -251,7 +251,7 @@ impl Parse for StringifierOrInheritOrStatic {
 }
 
 /// Parses `stringifier|static`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum StringifierOrStatic {
     Stringifier(term!(stringifier)),
     Static(term!(static))
@@ -265,7 +265,7 @@ impl Parse for StringifierOrStatic {
 }
 
 /// Parses `stringifier;`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct StringifierMember {
     pub stringifier: term!(stringifier),
     pub semi_colon: term!(;)
