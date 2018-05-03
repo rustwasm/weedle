@@ -11,5 +11,5 @@ readme = "./README.md"
 
 [dependencies]
 nom = { version = "4.0.0-beta3", features = ["regexp_macros"] }
-regex = "0.2.10"
+regex = "1.0.0"
 lazy_static = "1.0.0"
