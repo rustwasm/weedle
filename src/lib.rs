@@ -37,6 +37,7 @@ pub use nom::{IResult, types::CompleteStr};
 use types::*;
 use mixin::*;
 use nom::Err;
+use literal::*;
 
 #[macro_use]
 mod whitespace;
@@ -440,7 +441,7 @@ impl Parse for IncludesStatementDefinition {
 }
 
 /// Parses a non-empty enum value list
-pub type EnumValueList = PunctuatedNonEmpty<String, term!(,)>;
+pub type EnumValueList = PunctuatedNonEmpty<StringLit, term!(,)>;
 
 #[cfg(test)]
 mod test {

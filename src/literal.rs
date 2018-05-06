@@ -20,103 +20,96 @@ fn parse_oct(input: CompleteStr) -> i64 {
 /// Represents other literal symbols
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
-#[derive(Debug, PartialEq, Clone)]
-pub struct OtherLit {
-    pub value: String
-}
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct OtherLit(String);
 
 impl Parse for OtherLit {
     named!(parse -> Self, do_parse!(
         value: ws!(re_capture_static!(r"^([^\t\n\r 0-9A-Za-z])")) >>
-        (OtherLit { value: value[0].to_string() })
+        (OtherLit(value[0].to_string()))
     ));
 }
 
 // Parses `-?[1-9][0-9]*`
-struct DecI64(i64);
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct DecI64(String);
 
 impl Parse for DecI64 {
     named!(parse -> Self, do_parse!(
-        num: map!(
-            map!(
-                ws!(re_capture_static!(r"^(-?[1-9][0-9]*)")),
-                select_first
-            ),
-            parse_dec
-        ) >>
-        (DecI64(num))
+        num: ws!(re_capture_static!(r"^(-?[1-9][0-9]*)")) >>
+        (DecI64(num[0].to_string()))
     ));
 }
 
 // Parses `-?0[Xx][0-9A-Fa-f]+)`
-struct HexI64(i64);
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct HexI64(String);
 
 impl Parse for HexI64 {
     named!(parse -> Self, do_parse!(
-        num: map!(
-            map!(
-                ws!(re_capture_static!(r"^(-?0[Xx][0-9A-Fa-f]+)")),
-                select_first
-            ),
-            parse_hex
-        ) >>
-        (HexI64(num))
+        num: ws!(re_capture_static!(r"^(-?0[Xx][0-9A-Fa-f]+)")) >>
+        (HexI64(num[0].to_string()))
     ));
 }
 
 // Parses `-?0[0-7]*`
-struct OctI64(i64);
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct OctI64(String);
 
 impl Parse for OctI64 {
     named!(parse -> Self, do_parse!(
-        num: map!(
-            map!(
-                ws!(re_capture_static!(r"^(-?0[0-7]*)")),
-                select_first
-            ),
-            parse_oct
-        ) >>
-        (OctI64(num))
+        num: ws!(re_capture_static!(r"^(-?0[0-7]*)")) >>
+        (OctI64(num[0].to_string()))
     ));
 }
 
 /// Represents an integer value
 ///
 /// Follows `/-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/`
-impl Parse for i64 {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum IntegerLit {
+    Dec(DecI64),
+    Hex(HexI64),
+    Oct(OctI64)
+}
+
+impl Parse for IntegerLit {
     named!(parse -> Self, alt!(
-        weedle!(DecI64) => {|num: DecI64| num.0} |
-        weedle!(HexI64) => {|num: HexI64| num.0} |
-        weedle!(OctI64) => {|num: OctI64| num.0}
+        weedle!(DecI64) => {|num| IntegerLit::Dec(num)} |
+        weedle!(HexI64) => {|num| IntegerLit::Hex(num)} |
+        weedle!(OctI64) => {|num| IntegerLit::Oct(num)}
     ));
 }
 
 /// Represents a string value
 ///
 /// Follow `/"[^"]*"/`
-impl Parse for String {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct StringLit(String);
+
+impl Parse for StringLit {
     named!(parse -> Self, do_parse!(
         value: ws!(re_capture_static!(r#"^("[^"]*")"#)) >>
         ({
             let quoted = value[0];
             let unquoted = &quoted[1..quoted.len() - 1];
-            unquoted.to_string()
+            StringLit(unquoted.to_string())
         })
     ));
 }
 
 /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum DefaultValue {
     Const(ConstValue),
-    String(String),
+    String(StringLit),
     EmptyArray(EmptyArray),
 }
 
 impl Parse for DefaultValue {
     named!(parse -> Self, alt_complete!(
         weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
-        weedle!(String) => {|inner| DefaultValue::String(inner)} |
+        weedle!(StringLit) => {|inner| DefaultValue::String(inner)} |
         weedle!(EmptyArray) => {|inner| DefaultValue::EmptyArray(inner)}
     ));
 }
@@ -133,44 +126,52 @@ impl Parse for EmptyArray {
 }
 
 /// Represents `true`, `false`, `34.23`, `null`, `56`, ...
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum ConstValue {
-    BooleanLiteral(bool),
-    FloatLiteral(f64),
-    Integer(i64),
+    Boolean(BooleanLit),
+    Float(FloatLit),
+    Integer(IntegerLit),
     Null(term!(null)),
 }
 
 impl Parse for ConstValue {
     named!(parse -> Self, alt_complete!(
-        weedle!(bool) => {|inner| ConstValue::BooleanLiteral(inner)} |
-        weedle!(f64) => {|inner| ConstValue::FloatLiteral(inner)} |
-        weedle!(i64) => {|inner| ConstValue::Integer(inner)} |
+        weedle!(BooleanLit) => {|inner| ConstValue::Boolean(inner)} |
+        weedle!(FloatLit) => {|inner| ConstValue::Float(inner)} |
+        weedle!(IntegerLit) => {|inner| ConstValue::Integer(inner)} |
         weedle!(term!(null)) => {|inner| ConstValue::Null(inner)}
     ));
 }
 
 /// Represents either `true` or `false`
-impl Parse for bool {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct BooleanLit(bool);
+
+impl Parse for BooleanLit {
     named!(parse -> Self, alt_complete!(
-        weedle!(term!(true)) => {|_| true} |
-        weedle!(term!(false)) => {|_| false}
+        weedle!(term!(true)) => {|_| BooleanLit(true)} |
+        weedle!(term!(false)) => {|_| BooleanLit(false)}
     ));
 }
 
 /// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
 ///
 /// Follows `/-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/`
-impl Parse for f64 {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum FloatLit {
+    Value(String),
+    NegInfinity(term!(-Infinity)),
+    Infinity(term!(Infinity)),
+    NaN(term!(NaN))
+}
+
+impl Parse for FloatLit {
     named!(parse -> Self, alt_complete!(
-        flat_map!(map!(ws!(
-            re_capture_static!(r"^(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))")),
-            select_first
-        ),
-        parse_to!(f64)) => {|inner| inner} |
-        weedle!(term!(-Infinity)) => {|_| ::std::f64::NEG_INFINITY} |
-        weedle!(term!(Infinity)) => {|_| ::std::f64::INFINITY} |
-        weedle!(term!(NaN)) => {|_| ::std::f64::NAN}
+        ws!(re_capture_static!(r"^(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))"))
+            => {|inner: Vec<CompleteStr>| FloatLit::Value(inner[0].to_string())} |
+        weedle!(term!(-Infinity)) => {|inner| FloatLit::NegInfinity(inner)} |
+        weedle!(term!(Infinity)) => {|inner| FloatLit::Infinity(inner)} |
+        weedle!(term!(NaN)) => {|inner| FloatLit::NaN(inner)}
     ));
 }
 
