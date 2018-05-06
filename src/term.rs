@@ -1,3 +1,9 @@
+use nom::types::CompleteStr;
+
+fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
+    input[0]
+}
+
 macro_rules! generate_terms {
     ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
         $(
@@ -26,7 +32,7 @@ macro_rules! generate_terms_for_names {
                 named!(parse -> Self, do_parse!(
                     string: map!(
                         ws!(re_capture_static!(r"^(-?[A-Za-z][0-9A-Za-z]*)")),
-                        ::literal::select_first
+                        select_first
                     ) >>
                     err_if_not!(string.0 == $tok) >>
                     ($typ)
