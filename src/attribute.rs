@@ -6,7 +6,7 @@ use argument::*;
 pub type ExtendedAttributeList = Bracketed<Punctuated<ExtendedAttribute, term!(,)>>;
 
 /// Parses on of the forms of attribute
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum ExtendedAttribute {
     ArgList(ExtendedAttributeArgList),
     NamedArgList(ExtendedAttributeNamedArgList),
@@ -28,7 +28,7 @@ impl Parse for ExtendedAttribute {
 /// Parses a named argument list. Ex: `NamedConstructor=Image((DOMString src))`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ExtendedAttributeNamedArgList {
     pub lhs_identifier: Identifier,
     pub assign: term!(=),
@@ -49,7 +49,7 @@ impl Parse for ExtendedAttributeNamedArgList {
 /// Parses an identifier list. Ex: `Exposed=((Window,Worker))`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ExtendedAttributeIdentList {
     pub identifier: Identifier,
     pub assign: term!(=),
@@ -69,7 +69,7 @@ impl Parse for ExtendedAttributeIdentList {
 pub type IdentifierList = Punctuated<Identifier, term!(,)>;
 
 /// Parses an attribute with an identifier. Ex: `PutForwards=name`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ExtendedAttributeIdent {
     pub lhs_identifier: Identifier,
     pub assign: term!(=),
@@ -88,7 +88,7 @@ impl Parse for ExtendedAttributeIdent {
 /// Parses an argument list. Ex: `Constructor((double x, double y))`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ExtendedAttributeArgList {
     pub identifier: Identifier,
     pub args: Braced<ArgumentList>
@@ -103,7 +103,7 @@ impl Parse for ExtendedAttributeArgList {
 }
 
 /// Parses a plain attribute. Ex: `Replaceable`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ExtendedAttributeNoArgs {
     pub identifier: Identifier
 }

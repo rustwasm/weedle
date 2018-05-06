@@ -9,7 +9,7 @@ use attribute::*;
 pub type MixinMembers = Vec<MixinMember>;
 
 /// Parses one of the variants of a mixin member
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum MixinMember {
     Const(ConstMember),
     Operation(OperationMixinMember),
@@ -29,7 +29,7 @@ impl Parse for MixinMember {
 /// Parses `[attributes]? stringifier? returntype identifier? (( args ));`
 ///
 /// (( )) means ( ) chars
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct OperationMixinMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub stringifier: Option<term!(stringifier)>,
@@ -52,7 +52,7 @@ impl Parse for OperationMixinMember {
 }
 
 /// Parses `[attributes]? stringifier? readonly? attribute attributedtype identifier;`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct AttributeMixinMember {
     pub attributes: Option<ExtendedAttributeList>,
     pub stringifier: Option<term!(stringifier)>,
