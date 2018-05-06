@@ -15,6 +15,12 @@ impl Parse for OtherLit {
     ));
 }
 
+impl OtherLit {
+    pub fn value(&self) -> &str {
+        &self.0
+    }
+}
+
 // Parses `-?[1-9][0-9]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct DecI64(pub String);
