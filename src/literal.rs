@@ -21,7 +21,7 @@ fn parse_oct(input: CompleteStr) -> i64 {
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct OtherLit(String);
+pub struct OtherLit(pub String);
 
 impl Parse for OtherLit {
     named!(parse -> Self, do_parse!(
@@ -32,7 +32,7 @@ impl Parse for OtherLit {
 
 // Parses `-?[1-9][0-9]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct DecI64(String);
+pub struct DecI64(pub String);
 
 impl Parse for DecI64 {
     named!(parse -> Self, do_parse!(
@@ -43,7 +43,7 @@ impl Parse for DecI64 {
 
 // Parses `-?0[Xx][0-9A-Fa-f]+)`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct HexI64(String);
+pub struct HexI64(pub String);
 
 impl Parse for HexI64 {
     named!(parse -> Self, do_parse!(
@@ -54,7 +54,7 @@ impl Parse for HexI64 {
 
 // Parses `-?0[0-7]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct OctI64(String);
+pub struct OctI64(pub String);
 
 impl Parse for OctI64 {
     named!(parse -> Self, do_parse!(
@@ -85,7 +85,7 @@ impl Parse for IntegerLit {
 ///
 /// Follow `/"[^"]*"/`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct StringLit(String);
+pub struct StringLit(pub String);
 
 impl Parse for StringLit {
     named!(parse -> Self, do_parse!(
@@ -145,7 +145,7 @@ impl Parse for ConstValue {
 
 /// Represents either `true` or `false`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct BooleanLit(bool);
+pub struct BooleanLit(pub bool);
 
 impl Parse for BooleanLit {
     named!(parse -> Self, alt_complete!(
