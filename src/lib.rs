@@ -33,11 +33,10 @@ use common::*;
 use dictionary::*;
 use interface::*;
 use namespace::*;
-pub use nom::{IResult, types::CompleteStr};
 use types::*;
 use mixin::*;
-use nom::Err;
 use literal::*;
+pub use nom::{IResult, types::CompleteStr, Err};
 
 #[macro_use]
 mod whitespace;
