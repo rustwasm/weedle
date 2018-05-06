@@ -2,10 +2,6 @@ use Parse;
 use nom::types::CompleteStr;
 use std::str::FromStr;
 
-pub fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
-    input[0]
-}
-
 /// Represents other literal symbols
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
