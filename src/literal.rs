@@ -126,16 +126,22 @@ impl StringLit {
 /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum DefaultValue {
-    Const(ConstValue),
-    String(StringLit),
+    Null(term!(null)),
     EmptyArray(EmptyArrayLit),
+    String(StringLit),
+    Boolean(BooleanLit),
+    Float(FloatLit),
+    Integer(IntegerLit),
 }
 
 impl Parse for DefaultValue {
-    named!(parse -> Self, alt_complete!(
-        weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
+    named!(parse -> Self, alt!(
+        weedle!(term!(null)) => {|inner| DefaultValue::Null(inner)} |
+        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)} |
         weedle!(StringLit) => {|inner| DefaultValue::String(inner)} |
-        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
+        weedle!(BooleanLit) => {|inner| DefaultValue::Boolean(inner)} |
+        weedle!(FloatLit) => {|inner| DefaultValue::Float(inner)} |
+        weedle!(IntegerLit) => {|inner| DefaultValue::Integer(inner)}
     ));
 }
 
@@ -161,7 +167,7 @@ pub enum ConstValue {
 }
 
 impl Parse for ConstValue {
-    named!(parse -> Self, alt_complete!(
+    named!(parse -> Self, alt!(
         weedle!(BooleanLit) => {|inner| ConstValue::Boolean(inner)} |
         weedle!(FloatLit) => {|inner| ConstValue::Float(inner)} |
         weedle!(IntegerLit) => {|inner| ConstValue::Integer(inner)} |
@@ -174,7 +180,7 @@ impl Parse for ConstValue {
 pub struct BooleanLit(pub bool);
 
 impl Parse for BooleanLit {
-    named!(parse -> Self, alt_complete!(
+    named!(parse -> Self, alt!(
         weedle!(term!(true)) => {|_| BooleanLit(true)} |
         weedle!(term!(false)) => {|_| BooleanLit(false)}
     ));
@@ -198,7 +204,7 @@ pub enum FloatLit {
 }
 
 impl Parse for FloatLit {
-    named!(parse -> Self, alt_complete!(
+    named!(parse -> Self, alt!(
         ws!(re_capture_static!(r"^(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))"))
             => {|inner: Vec<CompleteStr>| FloatLit::Value(inner[0].to_string())} |
         weedle!(term!(-Infinity)) => {|inner| FloatLit::NegInfinity(inner)} |
