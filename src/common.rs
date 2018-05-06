@@ -36,7 +36,7 @@ impl<T: Parse, U: Parse, V: Parse> Parse for (T, U, V) {
 }
 
 /// Parses `{ body }`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Parenthesized<T> {
     pub open_paren: term::OpenParen,
     pub body: T,
@@ -53,7 +53,7 @@ impl<T: Parse> Parse for Parenthesized<T> {
 }
 
 /// Parses `[ body ]`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Bracketed<T> {
     pub open_bracket: term::OpenBracket,
     pub body: T,
@@ -70,7 +70,7 @@ impl<T: Parse> Parse for Bracketed<T> {
 }
 
 /// Parses `( body )`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Braced<T> {
     pub open_brace: term::OpenBrace,
     pub body: T,
@@ -87,7 +87,7 @@ impl<T: Parse> Parse for Braced<T> {
 }
 
 /// Parses `< body >`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Generics<T> {
     pub open_angle: term::LessThan,
     pub body: T,
@@ -104,7 +104,7 @@ impl<T: Parse> Parse for Generics<T> {
 }
 
 /// Parses `(item1, item2, item3,...)?`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Punctuated<T, S> {
     pub list: Vec<T>,
     pub separator: S,
@@ -118,7 +118,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for Punctuated<T, S> {
 }
 
 /// Parses `item1, item2, item3, ...`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PunctuatedNonEmpty<T, S> {
     pub list: Vec<T>,
     pub separator: S
@@ -134,7 +134,7 @@ impl<T: Parse, S: Parse + ::std::default::Default> Parse for PunctuatedNonEmpty<
 /// Represents an identifier
 ///
 /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Identifier {
     pub name: String
 }
@@ -147,7 +147,7 @@ impl Parse for Identifier {
 }
 
 /// Parses rhs of an assignment expression. Ex: `= 45`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Default {
     pub assign: term!(=),
     pub value: DefaultValue,

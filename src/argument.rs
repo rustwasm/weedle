@@ -7,7 +7,7 @@ use attribute::*;
 pub type ArgumentList = Punctuated<Argument, term!(,)>;
 
 /// Parses an argument. Ex: `double v1|double... v1s`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum Argument {
     Single(SingleArgument),
     Variadic(VariadicArgument)
@@ -23,7 +23,7 @@ impl Parse for Argument {
 /// Parses `[attributes]? optional? attributedtype identifier ( = default )?`
 ///
 /// Note: `= default` is only allowed if `optional` is present
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct SingleArgument {
     pub attributes: Option<ExtendedAttributeList>,
     pub optional: Option<term!(optional)>,
@@ -44,7 +44,7 @@ impl Parse for SingleArgument {
 }
 
 /// Parses `[attributes]? type... identifier`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct VariadicArgument {
     pub attributes: Option<ExtendedAttributeList>,
     pub type_: Type,

@@ -95,7 +95,7 @@ pub trait Parse: Sized {
 /// ```
 ///
 /// It is recommended to use [`parse`](fn.parse.html) instead.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Definitions {
     pub definitions: Vec<Definition>
 }
@@ -108,7 +108,7 @@ impl Parse for Definitions {
 }
 
 /// Parses a definition
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum Definition {
     Callback(CallbackDefinition),
     CallbackInterface(CallbackInterfaceDefinition),
@@ -144,7 +144,7 @@ impl Parse for Definition {
 }
 
 /// Parses `[attributes]? callback identifier = type ( (arg1, arg2, ..., argN)? );`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct CallbackDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub callback: term!(callback),
@@ -169,7 +169,7 @@ impl Parse for CallbackDefinition {
 }
 
 /// Parses `[attributes]? callback interface identifier ( : inheritance )? { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct CallbackInterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub callback: term!(callback),
@@ -194,7 +194,7 @@ impl Parse for CallbackInterfaceDefinition {
 }
 
 /// Parses `[attributes]? interface identifier ( : inheritance )? { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct InterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub interface: term!(interface),
@@ -217,7 +217,7 @@ impl Parse for InterfaceDefinition {
 }
 
 /// Parses `[attributes]? interface mixin identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct InterfaceMixinDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub interface: term!(interface),
@@ -240,7 +240,7 @@ impl Parse for InterfaceMixinDefinition {
 }
 
 /// Parses `[attributes]? namespace identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct NamespaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub namespace: term!(namespace),
@@ -261,7 +261,7 @@ impl Parse for NamespaceDefinition {
 }
 
 /// Parses `[attributes]? partial interface identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PartialInterfaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub partial: term!(partial),
@@ -284,7 +284,7 @@ impl Parse for PartialInterfaceDefinition {
 }
 
 /// Parses `[attributes]? partial interface mixin identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PartialInterfaceMixinDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub partial: term!(partial),
@@ -309,7 +309,7 @@ impl Parse for PartialInterfaceMixinDefinition {
 }
 
 /// Parses `[attributes]? partial dictionary identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PartialDictionaryDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub partial: term!(partial),
@@ -332,7 +332,7 @@ impl Parse for PartialDictionaryDefinition {
 }
 
 /// Parses `[attributes]? partial namespace identifier { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PartialNamespaceDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub partial: term!(partial),
@@ -355,7 +355,7 @@ impl Parse for PartialNamespaceDefinition {
 }
 
 /// Parses `[attributes]? dictionary identifier ( : inheritance )? { members };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct DictionaryDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub dictionary: term!(dictionary),
@@ -378,7 +378,7 @@ impl Parse for DictionaryDefinition {
 }
 
 /// Parses `[attributes]? enum identifier { values };`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct EnumDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub enum_: term!(enum),
@@ -399,7 +399,7 @@ impl Parse for EnumDefinition {
 }
 
 /// Parses `[attributes]? typedef attributedtype identifier;`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct TypedefDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub typedef: term!(typedef),
@@ -420,7 +420,7 @@ impl Parse for TypedefDefinition {
 }
 
 /// Parses `[attributes]? identifier includes identifier;`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct IncludesStatementDefinition {
     pub attributes: Option<ExtendedAttributeList>,
     pub lhs_identifier: Identifier,

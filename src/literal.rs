@@ -20,7 +20,7 @@ fn parse_oct(input: CompleteStr) -> i64 {
 /// Represents other literal symbols
 ///
 /// Follows `/[^\t\n\r 0-9A-Za-z]/`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct OtherLit(String);
 
 impl Parse for OtherLit {
@@ -31,7 +31,7 @@ impl Parse for OtherLit {
 }
 
 // Parses `-?[1-9][0-9]*`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct DecI64(String);
 
 impl Parse for DecI64 {
@@ -42,7 +42,7 @@ impl Parse for DecI64 {
 }
 
 // Parses `-?0[Xx][0-9A-Fa-f]+)`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct HexI64(String);
 
 impl Parse for HexI64 {
@@ -53,7 +53,7 @@ impl Parse for HexI64 {
 }
 
 // Parses `-?0[0-7]*`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct OctI64(String);
 
 impl Parse for OctI64 {
@@ -66,7 +66,7 @@ impl Parse for OctI64 {
 /// Represents an integer value
 ///
 /// Follows `/-?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)/`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum IntegerLit {
     Dec(DecI64),
     Hex(HexI64),
@@ -84,7 +84,7 @@ impl Parse for IntegerLit {
 /// Represents a string value
 ///
 /// Follow `/"[^"]*"/`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct StringLit(String);
 
 impl Parse for StringLit {
@@ -99,7 +99,7 @@ impl Parse for StringLit {
 }
 
 /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum DefaultValue {
     Const(ConstValue),
     String(StringLit),
@@ -126,7 +126,7 @@ impl Parse for EmptyArray {
 }
 
 /// Represents `true`, `false`, `34.23`, `null`, `56`, ...
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum ConstValue {
     Boolean(BooleanLit),
     Float(FloatLit),
@@ -144,7 +144,7 @@ impl Parse for ConstValue {
 }
 
 /// Represents either `true` or `false`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct BooleanLit(bool);
 
 impl Parse for BooleanLit {
@@ -157,7 +157,7 @@ impl Parse for BooleanLit {
 /// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
 ///
 /// Follows `/-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/`
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum FloatLit {
     Value(String),
     NegInfinity(term!(-Infinity)),

@@ -4,7 +4,7 @@ use Parse;
 use term;
 
 /// Parses either single type or a union type
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum Type {
     Single(SingleType),
     Union(MayBeNull<UnionType>),
@@ -18,7 +18,7 @@ impl Parse for Type {
 }
 
 /// Parses one of the single types
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum SingleType {
     Any(term!(any)),
     Promise(PromiseType),
@@ -84,7 +84,7 @@ impl Parse for SingleType {
 }
 
 /// Parses `sequence<Type>`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct SequenceType {
     pub sequence: term!(sequence),
     pub generics: Generics<Box<Type>>,
@@ -99,7 +99,7 @@ impl Parse for SequenceType {
 }
 
 /// Parses `FrozenArray<Type>`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct FrozenArrayType {
     pub frozen_array: term!(FrozenArray),
     pub generics: Generics<Box<Type>>,
@@ -116,7 +116,7 @@ impl Parse for FrozenArrayType {
 /// Parses a nullable type. Ex: `object | object??`
 ///
 /// `??` means an actual ? not an optional requirement
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct MayBeNull<T> {
     pub type_: T,
     pub q_mark: Option<term::QMark>,
@@ -131,7 +131,7 @@ impl<T: Parse> Parse for MayBeNull<T> {
 }
 
 /// Parses a `Promise<Type|void>` type
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct PromiseType {
     pub promise: term!(Promise),
     pub generics: Generics<Box<ReturnType>>,
@@ -146,7 +146,7 @@ impl Parse for PromiseType {
 }
 
 /// Parses `unsigned? short|long|(long long)`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum IntegerType {
     Short(ShortType),
     LongLong(LongLongType),
@@ -162,7 +162,7 @@ impl Parse for IntegerType {
 }
 
 /// Parses `unsigned? short`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct ShortType {
     pub unsigned: Option<term!(unsigned)>,
     pub short: term!(short)
@@ -177,7 +177,7 @@ impl Parse for ShortType {
 }
 
 /// Parses `unsigned? long`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct LongType {
     pub unsigned: Option<term!(unsigned)>,
     pub long: term!(long)
@@ -192,7 +192,7 @@ impl Parse for LongType {
 }
 
 /// Parses `unsigned? long long`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct LongLongType {
     pub unsigned: Option<term!(unsigned)>,
     pub long_long: (term!(long), term!(long))
@@ -207,7 +207,7 @@ impl Parse for LongLongType {
 }
 
 /// Parses `unrestricted? float|double`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum FloatingPointType {
     Float(FloatType),
     Double(DoubleType),
@@ -221,7 +221,7 @@ impl Parse for FloatingPointType {
 }
 
 /// Parses `unrestricted? float`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct FloatType {
     pub unrestricted: Option<term!(unrestricted)>,
     pub float: term!(float)
@@ -236,7 +236,7 @@ impl Parse for FloatType {
 }
 
 /// Parses `unrestricted? double`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct DoubleType {
     pub unrestricted: Option<term!(unrestricted)>,
     pub double: term!(double)
@@ -251,7 +251,7 @@ impl Parse for DoubleType {
 }
 
 /// Parses `record<StringType, Type>`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct RecordType {
     pub record: term!(record),
     pub generics: Generics<(StringType, term!(,), Box<Type>)>,
@@ -266,7 +266,7 @@ impl Parse for RecordType {
 }
 
 /// Parses one of the string types `ByteString|DOMString|USVString`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum StringType {
     Byte(term!(ByteString)),
     DOM(term!(DOMString)),
@@ -285,7 +285,7 @@ impl Parse for StringType {
 pub type UnionType = Braced<Punctuated<UnionMemberType, term!(or)>>;
 
 /// Parses one of the member of a union type
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum UnionMemberType {
     Single(UnionSingleType),
     Union(MayBeNull<UnionType>),
@@ -299,7 +299,7 @@ impl Parse for UnionMemberType {
 }
 
 /// Parses one of the types
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum UnionSingleType {
     Promise(PromiseType),
     Integer(MayBeNull<IntegerType>),
@@ -363,7 +363,7 @@ impl Parse for UnionSingleType {
 }
 
 /// Parses a const type
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum ConstType {
     Integer(MayBeNull<IntegerType>),
     FloatingPoint(MayBeNull<FloatingPointType>),
@@ -385,7 +385,7 @@ impl Parse for ConstType {
 }
 
 /// Parses the return type which may be `void` or any given Type
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub enum ReturnType {
     Void(term!(void)),
     Type(Type),
@@ -399,7 +399,7 @@ impl Parse for ReturnType {
 }
 
 /// Parses `[attributes]? type`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct AttributedType {
     pub attributes: Option<ExtendedAttributeList>,
     pub type_: Type
