@@ -1,20 +1,9 @@
 use Parse;
 use nom::types::CompleteStr;
+use std::str::FromStr;
 
 pub fn select_first(input: Vec<CompleteStr>) -> CompleteStr {
     input[0]
-}
-
-fn parse_dec(input: CompleteStr) -> i64 {
-    i64::from_str_radix(&input, 10).unwrap()
-}
-
-fn parse_hex(input: CompleteStr) -> i64 {
-    i64::from_str_radix(&input[2..], 16).unwrap()
-}
-
-fn parse_oct(input: CompleteStr) -> i64 {
-    i64::from_str_radix(&input, 8).unwrap()
 }
 
 /// Represents other literal symbols
@@ -41,6 +30,12 @@ impl Parse for DecI64 {
     ));
 }
 
+impl DecI64 {
+    pub fn value(&self) -> i64 {
+        i64::from_str_radix(&self.0, 10).unwrap()
+    }
+}
+
 // Parses `-?0[Xx][0-9A-Fa-f]+)`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct HexI64(pub String);
@@ -52,6 +47,12 @@ impl Parse for HexI64 {
     ));
 }
 
+impl HexI64 {
+    pub fn value(&self) -> i64 {
+        i64::from_str_radix(&self.0[2..], 16).unwrap()
+    }
+}
+
 // Parses `-?0[0-7]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct OctI64(pub String);
@@ -61,6 +62,12 @@ impl Parse for OctI64 {
         num: ws!(re_capture_static!(r"^(-?0[0-7]*)")) >>
         (OctI64(num[0].to_string()))
     ));
+}
+
+impl OctI64 {
+    pub fn value(&self) -> i64 {
+        i64::from_str_radix(&self.0, 8).unwrap()
+    }
 }
 
 /// Represents an integer value
@@ -81,6 +88,16 @@ impl Parse for IntegerLit {
     ));
 }
 
+impl IntegerLit {
+    pub fn value(&self) -> i64 {
+        match *self {
+            IntegerLit::Dec(ref dec) => dec.value(),
+            IntegerLit::Hex(ref hex) => hex.value(),
+            IntegerLit::Oct(ref oct) => oct.value()
+        }
+    }
+}
+
 /// Represents a string value
 ///
 /// Follow `/"[^"]*"/`
@@ -96,6 +113,12 @@ impl Parse for StringLit {
             StringLit(unquoted.to_string())
         })
     ));
+}
+
+impl StringLit {
+    pub fn value(&self) -> &str {
+        &self.0
+    }
 }
 
 /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
@@ -154,6 +177,12 @@ impl Parse for BooleanLit {
     ));
 }
 
+impl BooleanLit {
+    pub fn value(&self) -> bool {
+        self.0
+    }
+}
+
 /// Represents a floating point value, `NaN`, `Infinity`, '+Infinity`
 ///
 /// Follows `/-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)/`
@@ -173,6 +202,17 @@ impl Parse for FloatLit {
         weedle!(term!(Infinity)) => {|inner| FloatLit::Infinity(inner)} |
         weedle!(term!(NaN)) => {|inner| FloatLit::NaN(inner)}
     ));
+}
+
+impl FloatLit {
+    pub fn value(&self) -> f64 {
+        match *self {
+            FloatLit::Value(ref value) => f64::from_str(&value).unwrap(),
+            FloatLit::NegInfinity(_) => ::std::f64::NEG_INFINITY,
+            FloatLit::Infinity(_) => ::std::f64::INFINITY,
+            FloatLit::NaN(_) => ::std::f64::NAN
+        }
+    }
 }
 
 #[cfg(test)]
