@@ -122,25 +122,26 @@ impl StringLit {
 pub enum DefaultValue {
     Const(ConstValue),
     String(StringLit),
-    EmptyArray(EmptyArray),
+    EmptyArray(EmptyArrayLit),
 }
 
 impl Parse for DefaultValue {
     named!(parse -> Self, alt_complete!(
         weedle!(ConstValue) => {|inner| DefaultValue::Const(inner)} |
         weedle!(StringLit) => {|inner| DefaultValue::String(inner)} |
-        weedle!(EmptyArray) => {|inner| DefaultValue::EmptyArray(inner)}
+        weedle!(EmptyArrayLit) => {|inner| DefaultValue::EmptyArray(inner)}
     ));
 }
 
 /// Represents `[ ]`
-pub type EmptyArray = [(); 0];
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
+pub struct EmptyArrayLit(pub [(); 0]);
 
-impl Parse for EmptyArray {
+impl Parse for EmptyArrayLit {
     named!(parse -> Self, do_parse!(
         weedle!(term!(OpenBracket)) >>
         weedle!(term!(CloseBracket)) >>
-        ([])
+        (EmptyArrayLit([]))
     ));
 }
 
@@ -315,7 +316,7 @@ mod test {
 
     test!(should_parse_empty_array { "[]" =>
         "";
-        EmptyArray => []
+        EmptyArrayLit => EmptyArrayLit([])
     });
 
     test!(should_parse_bool { "true" =>
