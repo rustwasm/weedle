@@ -21,7 +21,7 @@ impl OtherLit {
     }
 }
 
-// Parses `-?[1-9][0-9]*`
+/// Parses `-?[1-9][0-9]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct DecI64(pub String);
 
@@ -38,7 +38,7 @@ impl DecI64 {
     }
 }
 
-// Parses `-?0[Xx][0-9A-Fa-f]+)`
+/// Parses `-?0[Xx][0-9A-Fa-f]+)`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct HexI64(pub String);
 
@@ -55,7 +55,7 @@ impl HexI64 {
     }
 }
 
-// Parses `-?0[0-7]*`
+/// Parses `-?0[0-7]*`
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct OctI64(pub String);
 
