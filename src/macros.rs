@@ -30,22 +30,6 @@ macro_rules! opt_flat(
   );
 );
 
-// Pass if condition is true else error out
-#[macro_export]
-macro_rules! err_if_not(
-    ($i:expr, $cond:expr) => (
-        {
-            use $crate::nom::{Convert,Err,ErrorKind};
-            let default_err = Err(Err::convert(Err::Error(error_position!($i, ErrorKind::CondReduce::<u32>))));
-
-            if $cond {
-                Ok(($i, ""))
-            } else {
-                default_err
-            }
-        }
-    );
-);
 
 #[cfg(test)]
 macro_rules! test {
