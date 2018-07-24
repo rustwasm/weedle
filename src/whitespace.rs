@@ -1,42 +1,34 @@
-use nom::types::CompleteStr;
+use {CompleteStr, IResult};
 
-named!(block_comment<CompleteStr, CompleteStr>, delimited!(
-    tag!("/*"),
-    take_until!("*/"),
-    tag!("*/")
-));
-
-named!(line_comment<CompleteStr, CompleteStr>, delimited!(
-    tag!("//"),
-    take_until!("\n"),
-    tag!("\n")
-));
-
-named!(comment<CompleteStr, CompleteStr>, alt!(
-    block_comment |
-    line_comment
-));
-
-named!(pub whitespace<CompleteStr, Vec<CompleteStr>>, ws!(many0!(comment)));
+pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
+    re_find_static!(
+        input,
+        r"^(?x:
+            [\t\n\r\x20]     # normal whitespace
+            |
+            //.*             # line comment
+            |
+            /\*(?:.|\n)*?\*/ # block comment
+        )*"
+    )
+}
 
 /// ws! also ignores line & block comments
-#[macro_export]
-macro_rules! ws {
-    ($i:expr, $($args:tt)*) => (
-        {
-            use $crate::whitespace::whitespace;
-            use $crate::nom::Convert;
-            use $crate::nom::Err;
+macro_rules! ws (
+    ($i:expr, $($args:tt)*) => ({
+        use $crate::whitespace::sp;
+        use $crate::nom::Convert;
+        use $crate::nom::Err;
+        use $crate::nom::lib::std::result::Result::*;
 
-            match sep!($i, whitespace, $($args)*) {
-                Err(e) => Err(e),
-                Ok((i1,o)) => {
-                    match (whitespace)(i1) {
-                        Err(e) => Err(Err::convert(e)),
-                        Ok((i2,_))    => Ok((i2, o))
-                    }
+        match sep!($i, sp, $($args)*) {
+            Err(e) => Err(e),
+            Ok((i1, o)) => {
+                match (sp)(i1) {
+                    Err(e) => Err(Err::convert(e)),
+                    Ok((i2, _)) => Ok((i2, o))
                 }
             }
         }
-      )
-}
+    });
+);
