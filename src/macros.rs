@@ -6,30 +6,411 @@ macro_rules! named {
     };
 }
 
-#[macro_export]
 macro_rules! weedle {
     ($i:expr, $t:ty) => {
         <$t as $crate::Parse>::parse($i)
     };
 }
 
-// Return valid option as it is & convert `Error` to `None`
-#[macro_export]
-macro_rules! opt_flat(
-  ($i:expr, $submac:ident!( $($args:tt)* )) => (
-    {
-      use $crate::nom::Err;
+macro_rules! ast_types {
+    (@extract_type struct $name:ident $($rest:tt)*) => ($name);
+    (@extract_type enum $name:ident $($rest:tt)*) => ($name);
 
-      let i_ = $i.clone();
-      match $submac!(i_, $($args)*) {
-        Ok((i,o))          => Ok((i, o)),
-        Err(Err::Error(_)) => Ok(($i, None)),
-        Err(e)             => Err(e),
-      }
+    () => ();
+    (
+        $(#[$attr:meta])*
+        struct $name:ident($($generics:tt)+) where [$($bounds:tt)+] {
+            $($fields:tt)*
+        }
+        $($rest:tt)*
+    ) => {
+        __ast_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            [$($generics)+]
+            [$($bounds)+]
+            { $($fields)* }
+        }
+        ast_types!($($rest)*);
+    };
+    (
+        $(#[$attr:meta])*
+        struct $name:ident {
+            $($fields:tt)*
+        }
+        $($rest:tt)*
+    ) => {
+        __ast_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            [ ]
+            [ ]
+            { $($fields)* }
+        }
+        ast_types!($($rest)*);
+    };
+    (
+        $(#[$attr:meta])*
+        struct $name:ident (
+            $($fields:tt)*
+        )
+        $($rest:tt)*
+    ) => {
+        __ast_tuple_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            ( $($fields)* )
+        }
+        ast_types!($($rest)*);
+    };
+
+    (
+        $(#[$attr:meta])*
+        enum $name:ident {
+            $($variants:tt)*
+        }
+        $($rest:tt)*
+    ) => {
+        __ast_enum! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            { $($variants)* }
+        }
+        ast_types!($($rest)*);
     }
-  );
-);
+}
 
+macro_rules! __ast_tuple_struct {
+    (@launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        ( $inner:ty = $submac:ident!( $($args:tt)* ), )
+    ) => (
+        $(#[$attr])*
+        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        pub struct $name(pub $inner);
+
+        impl $crate::Parse for $name {
+            named!(
+                parse -> Self,
+                do_parse!(inner: $submac!( $($args)* ) >> ($name(inner)))
+            );
+        }
+    );
+    (@launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        ( $inner:ty, )
+    ) => (
+        __ast_tuple_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            ( $inner = weedle!($inner), )
+        }
+    );
+}
+
+macro_rules! __ast_struct {
+    (@build_struct_decl
+        {
+            $(#[$attr:meta])*
+            $name:ident
+            [ $($generics:tt)* ]
+            $($field:ident : $type:ty)*
+        }
+        { }
+    ) => {
+        $(#[$attr])*
+        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        pub struct $name<$($generics)*> {
+            $(pub $field : $type,)*
+        }
+    };
+    (@build_struct_decl
+        { $($prev:tt)* }
+        { $field:ident : $type:ty, $($rest:tt)* }
+    ) => (
+        __ast_struct! {
+            @build_struct_decl
+            { $($prev)* $field : $type }
+            { $($rest)* }
+        }
+    );
+    (@build_struct_decl
+        { $($prev:tt)* }
+        { $field:ident : $type:ty = $submac:ident!( $($args:tt)* ), $($rest:tt)* }
+    ) => (
+        __ast_struct! {
+            @build_struct_decl
+            { $($prev)* $field : $type }
+            { $($rest)* }
+        }
+    );
+    (@build_struct_decl
+        { $($prev:tt)* }
+        { $field:ident : $type:ty = marker, $($rest:tt)* }
+    ) => (
+        __ast_struct! {
+            @build_struct_decl
+            { $($prev)* $field : $type }
+            { $($rest)* }
+        }
+    );
+
+    (@build_parser
+        { $i:expr, $($field:ident)* }
+        { }
+    ) => ({
+        use $crate::nom::lib::std::result::Result::Ok;
+        Ok(($i, Self { $($field,)* }))
+    });
+    (@build_parser
+        { $i:expr, $($prev:tt)* }
+        { $field:ident : $type:ty = $submac:ident!( $($args:tt)* ), $($rest:tt)* }
+    ) => ({
+        use $crate::nom::lib::std::result::Result::*;
+
+        match $submac!($i, $($args)*) {
+            Err(e) => Err(e),
+            Ok((i, $field)) => {
+                __ast_struct! {
+                    @build_parser
+                    { i, $($prev)* $field }
+                    { $($rest)* }
+                }
+            },
+        }
+    });
+    (@build_parser
+        { $($prev:tt)* }
+        { $field:ident : $type:ty = marker, $($rest:tt)* }
+    ) => ({
+        let $field = $crate::std::default::Default::default();
+
+        __ast_struct! {
+            @build_parser
+            { $($prev)* $field }
+            { $($rest)* }
+        }
+    });
+    (@build_parser
+        { $($prev:tt)* }
+        { $field:ident : $type:ty, $($rest:tt)* }
+    ) => (
+        __ast_struct! {
+            @build_parser
+            { $($prev)* }
+            { $field : $type = weedle!($type), $($rest)* }
+        }
+    );
+
+    (
+        @launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        [ ]
+        [ ]
+        { $($fields:tt)* }
+    ) => {
+        __ast_struct! {
+            @build_struct_decl
+            {
+                $(#[$attr])*
+                $name
+                [ ]
+            }
+            { $($fields)* }
+        }
+
+        impl $crate::Parse for $name {
+            fn parse(input: $crate::CompleteStr) -> $crate::IResult<$crate::CompleteStr, Self> {
+                __ast_struct! {
+                    @build_parser
+                    { input, }
+                    { $($fields)* }
+                }
+            }
+        }
+    };
+    (
+        @launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        [$($generics:tt)+]
+        [$($bounds:tt)+]
+        { $($fields:tt)* }
+    ) => {
+        __ast_struct! {
+            @build_struct_decl
+            {
+                $(#[$attr])*
+                $name
+                [$($generics)+]
+            }
+            { $($fields)* }
+        }
+
+        impl<$($generics)+> $crate::Parse for $name<$($generics)*> where $($bounds)+ {
+            fn parse(input: $crate::CompleteStr) -> $crate::IResult<$crate::CompleteStr, Self> {
+                __ast_struct! {
+                    @build_parser
+                    { input, }
+                    { $($fields)* }
+                }
+            }
+        }
+    };
+}
+
+macro_rules! __ast_enum {
+    (@build_enum_decl
+        { $(#[$attr:meta])* $name:ident $($variant:ident($member:ty))* }
+        { }
+    ) => (
+        $(#[$attr])*
+        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        pub enum $name {
+            $(
+                $variant($member),
+            )*
+        }
+    );
+    (@build_enum_decl
+        { $($prev:tt)* }
+        { $variant:ident($member:ty), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_enum_decl
+            { $($prev)* $variant($member) }
+            { $($rest)* }
+        }
+    );
+    (@build_enum_decl
+        { $($prev:tt)* }
+        { $(#[$attr:meta])* $variant:ident( $($member:tt)* ), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_enum_decl
+            { $($prev)* $variant(ast_types! { @extract_type $($member)* }) }
+            { $($rest)* }
+        }
+    );
+
+    (@build_sub_types { }) => ();
+    (@build_sub_types
+        { $variant:ident($member:ty), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_sub_types
+            { $($rest)* }
+        }
+    );
+    (@build_sub_types
+        { $(#[$attr:meta])* $variant:ident( $($member:tt)* ), $($rest:tt)* }
+    ) => (
+        ast_types! {
+            $(#[$attr])*
+            $($member)*
+        }
+        __ast_enum! {
+            @build_sub_types
+            { $($rest)* }
+        }
+    );
+
+
+    (@build_conversions $name:ident { }) => ();
+    (@build_conversions
+        $name:ident
+        { $variant:ident($member:ty), $($rest:tt)* }
+    ) => (
+        impl From<$member> for $name {
+            fn from(x: $member) -> Self {
+                $name::$variant(x)
+            }
+        }
+        __ast_enum! {
+            @build_conversions
+            $name
+            { $($rest)* }
+        }
+    );
+    (@build_conversions
+        $name:ident
+        { $(#[$attr:meta])* $variant:ident( $($member:tt)* ), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_conversions
+            $name
+            { $variant(ast_types! { @extract_type $($member)* }), $($rest)* }
+        }
+    );
+
+    (@build_parse
+        { $name:ident $($member:ty)* }
+        { }
+    ) => (
+        impl $crate::Parse for $name {
+            named!(parse -> Self, alt!(
+                $(weedle!($member) => {From::from})|*
+            ));
+        }
+    );
+    (@build_parse
+        { $($prev:tt)* }
+        { $variant:ident($member:ty), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_parse
+            { $($prev)* $member }
+            { $($rest)* }
+        }
+    );
+    (@build_parse
+        { $($prev:tt)* }
+        { $(#[$attr:meta])* $variant:ident( $($member:tt)* ), $($rest:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_parse
+            { $($prev)* ast_types! { @extract_type $($member)* } }
+            { $($rest)* }
+        }
+    );
+
+    (@launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        { $($variants:tt)* }
+    ) => (
+        __ast_enum! {
+            @build_enum_decl
+            { $(#[$attr])* $name }
+            { $($variants)* }
+        }
+
+        __ast_enum! {
+            @build_sub_types
+            { $($variants)* }
+        }
+
+        __ast_enum! {
+            @build_conversions
+            $name
+            { $($variants)* }
+        }
+
+        __ast_enum! {
+            @build_parse
+            { $name }
+            { $($variants)* }
+        }
+    );
+}
 
 #[cfg(test)]
 macro_rules! test {
@@ -70,7 +451,7 @@ macro_rules! test {
     };
 }
 
-#[macro_export]
+#[cfg(test)]
 macro_rules! test_variants {
     ($struct_:ident { $( $variant:ident == $value:expr ),* $(,)* }) => {
         #[allow(non_snake_case)]

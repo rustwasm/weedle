@@ -15,7 +15,7 @@ pub fn should_parse_dom_webidl() {
     let content = read_file("./tests/defs/dom.webidl");
     let parsed = weedle::parse(&content).unwrap();
 
-    assert_eq!(parsed.definitions.len(), 62);
+    assert_eq!(parsed.len(), 62);
 }
 
 #[test]
@@ -23,5 +23,5 @@ fn should_parse_html_webidl() {
     let content = read_file("./tests/defs/html.webidl");
     let parsed = weedle::parse(&content).unwrap();
 
-    assert_eq!(parsed.definitions.len(), 325);
+    assert_eq!(parsed.len(), 325);
 }
