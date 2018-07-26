@@ -12,35 +12,40 @@ ast_types! {
         /// Parses one of the single types
         Single(enum SingleType<'a> {
             Any(term!(any)),
-            Promise(PromiseType<'a>),
-            Integer(MayBeNull<IntegerType>),
-            FloatingPoint(MayBeNull<FloatingPointType>),
-            Boolean(MayBeNull<term!(boolean)>),
-            Byte(MayBeNull<term!(byte)>),
-            Octet(MayBeNull<term!(octet)>),
-            ByteString(MayBeNull<term!(ByteString)>),
-            DOMString(MayBeNull<term!(DOMString)>),
-            USVString(MayBeNull<term!(USVString)>),
-            Sequence(MayBeNull<SequenceType<'a>>),
-            Object(MayBeNull<term!(object)>),
-            Symbol(MayBeNull<term!(symbol)>),
-            Error(MayBeNull<term!(Error)>),
-            ArrayBuffer(MayBeNull<term!(ArrayBuffer)>),
-            DataView(MayBeNull<term!(DataView)>),
-            Int8Array(MayBeNull<term!(Int8Array)>),
-            Int16Array(MayBeNull<term!(Int16Array)>),
-            Int32Array(MayBeNull<term!(Int32Array)>),
-            Uint8Array(MayBeNull<term!(Uint8Array)>),
-            Uint16Array(MayBeNull<term!(Uint16Array)>),
-            Uint32Array(MayBeNull<term!(Uint32Array)>),
-            Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
-            Float32Array(MayBeNull<term!(Float32Array)>),
-            Float64Array(MayBeNull<term!(Float64Array)>),
-            FrozenArrayType(MayBeNull<FrozenArrayType<'a>>),
-            RecordType(MayBeNull<RecordType<'a>>),
-            Identifier(MayBeNull<Identifier<'a>>),
+            NonAny(NonAnyType<'a>),
         }),
         Union(MayBeNull<UnionType<'a>>),
+    }
+
+    // Parses any single non-any type
+    enum NonAnyType<'a> {
+        Promise(PromiseType<'a>),
+        Integer(MayBeNull<IntegerType>),
+        FloatingPoint(MayBeNull<FloatingPointType>),
+        Boolean(MayBeNull<term!(boolean)>),
+        Byte(MayBeNull<term!(byte)>),
+        Octet(MayBeNull<term!(octet)>),
+        ByteString(MayBeNull<term!(ByteString)>),
+        DOMString(MayBeNull<term!(DOMString)>),
+        USVString(MayBeNull<term!(USVString)>),
+        Sequence(MayBeNull<SequenceType<'a>>),
+        Object(MayBeNull<term!(object)>),
+        Symbol(MayBeNull<term!(symbol)>),
+        Error(MayBeNull<term!(Error)>),
+        ArrayBuffer(MayBeNull<term!(ArrayBuffer)>),
+        DataView(MayBeNull<term!(DataView)>),
+        Int8Array(MayBeNull<term!(Int8Array)>),
+        Int16Array(MayBeNull<term!(Int16Array)>),
+        Int32Array(MayBeNull<term!(Int32Array)>),
+        Uint8Array(MayBeNull<term!(Uint8Array)>),
+        Uint16Array(MayBeNull<term!(Uint16Array)>),
+        Uint32Array(MayBeNull<term!(Uint32Array)>),
+        Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
+        Float32Array(MayBeNull<term!(Float32Array)>),
+        Float64Array(MayBeNull<term!(Float64Array)>),
+        FrozenArrayType(MayBeNull<FrozenArrayType<'a>>),
+        RecordType(MayBeNull<RecordType<'a>>),
+        Identifier(MayBeNull<Identifier<'a>>),
     }
 
     /// Parses `sequence<Type>`
@@ -126,36 +131,7 @@ ast_types! {
 
     /// Parses one of the member of a union type
     enum UnionMemberType<'a> {
-        /// Parses one of the types
-        Single(enum UnionSingleType<'a> {
-            Promise(PromiseType<'a>),
-            Integer(MayBeNull<IntegerType>),
-            FloatingPoint(MayBeNull<FloatingPointType>),
-            Boolean(MayBeNull<term!(boolean)>),
-            Byte(MayBeNull<term!(byte)>),
-            Octet(MayBeNull<term!(octet)>),
-            ByteString(MayBeNull<term!(ByteString)>),
-            DOMString(MayBeNull<term!(DOMString)>),
-            USVString(MayBeNull<term!(USVString)>),
-            Sequence(MayBeNull<SequenceType<'a>>),
-            Object(MayBeNull<term!(object)>),
-            Symbol(MayBeNull<term!(symbol)>),
-            Error(MayBeNull<term!(Error)>),
-            ArrayBuffer(MayBeNull<term!(ArrayBuffer)>),
-            DataView(MayBeNull<term!(DataView)>),
-            Int8Array(MayBeNull<term!(Int8Array)>),
-            Int16Array(MayBeNull<term!(Int16Array)>),
-            Int32Array(MayBeNull<term!(Int32Array)>),
-            Uint8Array(MayBeNull<term!(Uint8Array)>),
-            Uint16Array(MayBeNull<term!(Uint16Array)>),
-            Uint32Array(MayBeNull<term!(Uint32Array)>),
-            Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
-            Float32Array(MayBeNull<term!(Float32Array)>),
-            Float64Array(MayBeNull<term!(Float64Array)>),
-            FrozenArrayType(MayBeNull<FrozenArrayType<'a>>),
-            RecordType(MayBeNull<RecordType<'a>>),
-            Identifier(MayBeNull<Identifier<'a>>),
-        }),
+        Single(NonAnyType<'a>),
         Union(MayBeNull<UnionType<'a>>),
     }
 
@@ -217,7 +193,7 @@ mod test {
     );
 
     test_variants!(
-        UnionSingleType {
+        NonAnyType {
             Promise == "Promise<long>",
             Integer == "long",
             FloatingPoint == "float",
@@ -326,33 +302,7 @@ mod test {
     test_variants!(
         SingleType {
             Any == "any",
-            Promise == "Promise<short>",
-            Integer == "long",
-            FloatingPoint == "float",
-            Boolean == "boolean",
-            Byte == "byte",
-            Octet == "octet",
-            ByteString == "ByteString",
-            DOMString == "DOMString",
-            USVString == "USVString",
-            Sequence == "sequence<short>",
-            Object == "object",
-            Symbol == "symbol",
-            Error == "Error",
-            ArrayBuffer == "ArrayBuffer",
-            DataView == "DataView",
-            Int8Array == "Int8Array",
-            Int16Array == "Int16Array",
-            Int32Array == "Int32Array",
-            Uint8Array == "Uint8Array",
-            Uint16Array == "Uint16Array",
-            Uint32Array == "Uint32Array",
-            Uint8ClampedArray == "Uint8ClampedArray",
-            Float32Array == "Float32Array",
-            Float64Array == "Float64Array",
-            FrozenArrayType == "FrozenArray<short>",
-            RecordType == "record<DOMString, short>",
-            Identifier == "someName"
+            NonAny == "Promise<short>",
         }
     );
 
