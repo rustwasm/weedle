@@ -1,81 +1,46 @@
-use common::*;
-use argument::*;
-use types::*;
-use Parse;
-use attribute::*;
+use argument::ArgumentList;
+use attribute::ExtendedAttributeList;
+use common::{Braced, Identifier};
+use types::{AttributedType, ReturnType};
 
 /// Parses namespace members declaration
-pub type NamespaceMembers = Vec<NamespaceMember>;
+pub type NamespaceMembers<'a> = Vec<NamespaceMember<'a>>;
 
-/// Parses namespace member declaration
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub enum NamespaceMember {
-    Operation(OperationNamespaceMember),
-    Attribute(AttributeNamespaceMember)
-}
-
-impl Parse for NamespaceMember {
-    named!(parse -> Self, alt!(
-        weedle!(OperationNamespaceMember) => {|inner| NamespaceMember::Operation(inner)} |
-        weedle!(AttributeNamespaceMember) => {|inner| NamespaceMember::Attribute(inner)}
-    ));
-}
-
-/// Parses `[attributes]? returntype identifier? (( args ));`
-///
-/// (( )) means ( ) chars
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct OperationNamespaceMember {
-    pub attributes: Option<ExtendedAttributeList>,
-    pub return_type: ReturnType,
-    pub identifier: Option<Identifier>,
-    pub args: Braced<ArgumentList>,
-    pub semi_colon: term!(;)
-}
-
-impl Parse for OperationNamespaceMember {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(Option<ExtendedAttributeList>) >>
-        return_type: weedle!(ReturnType) >>
-        identifier: weedle!(Option<Identifier>) >>
-        args: weedle!(Braced<ArgumentList>) >>
-        semi_colon: weedle!(term!(;)) >>
-        (OperationNamespaceMember { attributes, return_type, identifier, args, semi_colon })
-    ));
-}
-
-/// Parses `[attribute]? readonly attributetype type identifier;`
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
-pub struct AttributeNamespaceMember {
-    pub attributes: Option<ExtendedAttributeList>,
-    pub readonly: term!(readonly),
-    pub attribute: term!(attribute),
-    pub type_: AttributedType,
-    pub identifier: Identifier,
-    pub semi_colon: term!(;)
-}
-
-impl Parse for AttributeNamespaceMember {
-    named!(parse -> Self, do_parse!(
-        attributes: weedle!(Option<ExtendedAttributeList>) >>
-        readonly: weedle!(term!(readonly)) >>
-        attribute: weedle!(term!(attribute)) >>
-        type_: weedle!(AttributedType) >>
-        identifier: weedle!(Identifier) >>
-        semi_colon: weedle!(term!(;)) >>
-        (AttributeNamespaceMember { attributes, readonly, attribute, type_, identifier, semi_colon })
-    ));
+ast_types! {
+    /// Parses namespace member declaration
+    enum NamespaceMember<'a> {
+        /// Parses `[attributes]? returntype identifier? (( args ));`
+        ///
+        /// (( )) means ( ) chars
+        Operation(struct OperationNamespaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            return_type: ReturnType<'a>,
+            identifier: Option<Identifier<'a>>,
+            args: Braced<ArgumentList<'a>>,
+            semi_colon: term!(;),
+        }),
+        /// Parses `[attribute]? readonly attributetype type identifier;`
+        Attribute(struct AttributeNamespaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            readonly: term!(readonly),
+            attribute: term!(attribute),
+            type_: AttributedType<'a>,
+            identifier: Identifier<'a>,
+            semi_colon: term!(;),
+        }),
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use Parse;
 
     test!(should_parse_attribute_namespace_member { "readonly attribute short name;" =>
         "";
         AttributeNamespaceMember;
         attributes.is_none();
-        identifier.name == "name";
+        identifier.0 == "name";
     });
 
     test!(should_parse_operation_namespace_member { "short (long a, long b);" =>
