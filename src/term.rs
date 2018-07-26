@@ -5,8 +5,8 @@ macro_rules! generate_terms {
             #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
             pub struct $typ;
 
-            impl $crate::Parse for $typ {
-                named!(parse -> Self, do_parse!(
+            impl<'a> $crate::Parse<'a> for $typ {
+                parser!(do_parse!(
                     ws!(tag!($tok)) >>
                     ($typ)
                 ));
@@ -42,8 +42,8 @@ macro_rules! generate_terms_for_names {
             #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
             pub struct $typ;
 
-            impl $crate::Parse for $typ {
-                named!(parse -> Self, do_parse!(
+            impl<'a> $crate::Parse<'a> for $typ {
+                parser!(do_parse!(
                     ws!(ident_tag!($tok)) >>
                     ($typ)
                 ));

@@ -5,82 +5,84 @@ use literal::ConstValue;
 use types::{AttributedType, ConstType, ReturnType};
 
 /// Parses interface members
-pub type InterfaceMembers = Vec<InterfaceMember>;
+pub type InterfaceMembers<'a> = Vec<InterfaceMember<'a>>;
 
 ast_types! {
     /// Parses inheritance clause `: identifier`
-    struct Inheritance {
+    #[derive(Copy)]
+    struct Inheritance<'a> {
         colon: term!(:),
-        identifier: Identifier,
+        identifier: Identifier<'a>,
     }
 
     /// Parses one of the interface member variants
-    enum InterfaceMember {
+    enum InterfaceMember<'a> {
         /// Parses a const interface member `[attributes]? const type identifier = value;`
-        Const(struct ConstMember {
-            attributes: Option<ExtendedAttributeList>,
+        Const(struct ConstMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             const_: term!(const),
-            const_type: ConstType,
-            identifier: Identifier,
+            const_type: ConstType<'a>,
+            identifier: Identifier<'a>,
             assign: term!(=),
-            const_value: ConstValue,
+            const_value: ConstValue<'a>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? (stringifier|inherit|static)? readonly? attribute attributedtype identifier;`
-        Attribute(struct AttributeInterfaceMember {
-            attributes: Option<ExtendedAttributeList>,
+        Attribute(struct AttributeInterfaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             modifier: Option<StringifierOrInheritOrStatic>,
             readonly: Option<term!(readonly)>,
             attribute: term!(attribute),
-            type_: AttributedType,
-            identifier: Identifier,
+            type_: AttributedType<'a>,
+            identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? (stringifier|static)? specials? returntype identifier? (( args ));`
         ///
         /// (( )) means ( ) chars
-        Operation(struct OperationInterfaceMember {
-            attributes: Option<ExtendedAttributeList>,
+        Operation(struct OperationInterfaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             modifier: Option<StringifierOrStatic>,
             specials: Vec<Special>,
-            return_type: ReturnType,
-            identifier: Option<Identifier>,
-            args: Braced<ArgumentList>,
+            return_type: ReturnType<'a>,
+            identifier: Option<Identifier<'a>>,
+            args: Braced<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses an iterable declaration `[attributes]? (iterable<attributedtype> | iterable<attributedtype, attributedtype>) ;`
-        Iterable(enum IterableInterfaceMember {
+        Iterable(enum IterableInterfaceMember<'a> {
             /// Parses an iterable declaration `[attributes]? iterable<attributedtype>;`
-            Single(struct SingleTypedIterable {
-                attributes: Option<ExtendedAttributeList>,
+            Single(struct SingleTypedIterable<'a> {
+                attributes: Option<ExtendedAttributeList<'a>>,
                 iterable: term!(iterable),
-                generics: Generics<AttributedType>,
+                generics: Generics<AttributedType<'a>>,
                 semi_colon: term!(;),
             }),
             /// Parses an iterable declaration `[attributes]? iterable<attributedtype, attributedtype>;`
-            Double(struct DoubleTypedIterable {
-                attributes: Option<ExtendedAttributeList>,
+            Double(struct DoubleTypedIterable<'a> {
+                attributes: Option<ExtendedAttributeList<'a>>,
                 iterable: term!(iterable),
-                generics: Generics<(AttributedType, term!(,), AttributedType)>,
+                generics: Generics<(AttributedType<'a>, term!(,), AttributedType<'a>)>,
                 semi_colon: term!(;),
             }),
         }),
         /// Parses an maplike declaration `[attributes]? readonly? maplike<attributedtype, attributedtype>;`
-        Maplike(struct MaplikeInterfaceMember {
-            attributes: Option<ExtendedAttributeList>,
+        Maplike(struct MaplikeInterfaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             readonly: Option<term!(readonly)>,
             maplike: term!(maplike),
-            generics: Generics<(AttributedType, term!(,), AttributedType)>,
+            generics: Generics<(AttributedType<'a>, term!(,), AttributedType<'a>)>,
             semi_colon: term!(;),
         }),
-        Setlike(struct SetlikeInterfaceMember {
-            attributes: Option<ExtendedAttributeList>,
+        Setlike(struct SetlikeInterfaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             readonly: Option<term!(readonly)>,
             setlike: term!(setlike),
-            generics: Generics<AttributedType>,
+            generics: Generics<AttributedType<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `stringifier;`
+        #[derive(Copy, Default)]
         Stringifier(struct StringifierMember {
             stringifier: term!(stringifier),
             semi_colon: term!(;),
@@ -88,6 +90,7 @@ ast_types! {
     }
 
     /// Parses one of the special keyword `getter|setter|deleter`
+    #[derive(Copy)]
     enum Special {
         Getter(term!(getter)),
         Setter(term!(setter)),
@@ -95,6 +98,7 @@ ast_types! {
     }
 
     /// Parses `stringifier|inherit|static`
+    #[derive(Copy)]
     enum StringifierOrInheritOrStatic {
         Stringifier(term!(stringifier)),
         Inherit(term!(inherit)),
@@ -102,6 +106,7 @@ ast_types! {
     }
 
     /// Parses `stringifier|static`
+    #[derive(Copy)]
     enum StringifierOrStatic {
         Stringifier(term!(stringifier)),
         Static(term!(static)),

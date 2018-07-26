@@ -3,27 +3,30 @@ use common::{Default, Identifier, Punctuated};
 use types::{AttributedType, Type};
 
 /// Parses a list of argument. Ex: `double v1, double v2, double v3, optional double alpha`
-pub type ArgumentList = Punctuated<Argument, term!(,)>;
+pub type ArgumentList<'a> = Punctuated<Argument<'a>, term!(,)>;
 
 ast_types! {
     /// Parses an argument. Ex: `double v1|double... v1s`
-    enum Argument {
+    enum Argument<'a> {
         /// Parses `[attributes]? optional? attributedtype identifier ( = default )?`
         ///
         /// Note: `= default` is only allowed if `optional` is present
-        Single(struct SingleArgument {
-            attributes: Option<ExtendedAttributeList>,
+        Single(struct SingleArgument<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             optional: Option<term!(optional)>,
-            type_: AttributedType,
-            identifier: Identifier,
-            default: Option<Default> = map!(cond!(optional.is_some(), weedle!(Option<Default>)), |default| default.unwrap_or(None)),
+            type_: AttributedType<'a>,
+            identifier: Identifier<'a>,
+            default: Option<Default<'a>> = map!(
+                cond!(optional.is_some(), weedle!(Option<Default<'a>>)),
+                |default| default.unwrap_or(None)
+            ),
         }),
         /// Parses `[attributes]? type... identifier`
-        Variadic(struct VariadicArgument {
-            attributes: Option<ExtendedAttributeList>,
-            type_: Type,
+        Variadic(struct VariadicArgument<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            type_: Type<'a>,
             ellipsis: term!(...),
-            identifier: Identifier,
+            identifier: Identifier<'a>,
         }),
     }
 }
@@ -67,7 +70,7 @@ mod test {
         identifier.0 == "a";
         default == Some(Default {
             assign: term!(=),
-            value: DefaultValue::Integer(IntegerLit::Dec(DecLit("5".to_string()))),
+            value: DefaultValue::Integer(IntegerLit::Dec(DecLit("5"))),
         });
     });
 }

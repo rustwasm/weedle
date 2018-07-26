@@ -4,28 +4,28 @@ use common::{Braced, Identifier};
 use types::{AttributedType, ReturnType};
 
 /// Parses namespace members declaration
-pub type NamespaceMembers = Vec<NamespaceMember>;
+pub type NamespaceMembers<'a> = Vec<NamespaceMember<'a>>;
 
 ast_types! {
     /// Parses namespace member declaration
-    enum NamespaceMember {
+    enum NamespaceMember<'a> {
         /// Parses `[attributes]? returntype identifier? (( args ));`
         ///
         /// (( )) means ( ) chars
-        Operation(struct OperationNamespaceMember {
-            attributes: Option<ExtendedAttributeList>,
-            return_type: ReturnType,
-            identifier: Option<Identifier>,
-            args: Braced<ArgumentList>,
+        Operation(struct OperationNamespaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            return_type: ReturnType<'a>,
+            identifier: Option<Identifier<'a>>,
+            args: Braced<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attribute]? readonly attributetype type identifier;`
-        Attribute(struct AttributeNamespaceMember {
-            attributes: Option<ExtendedAttributeList>,
+        Attribute(struct AttributeNamespaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             readonly: term!(readonly),
             attribute: term!(attribute),
-            type_: AttributedType,
-            identifier: Identifier,
+            type_: AttributedType<'a>,
+            identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
     }

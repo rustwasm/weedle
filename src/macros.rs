@@ -1,6 +1,6 @@
-macro_rules! named {
-    ($name:ident -> $o:ty, $submac:ident!( $($args:tt)* )) => {
-        fn $name(input: $crate::nom::types::CompleteStr) -> $crate::nom::IResult<$crate::nom::types::CompleteStr, $o> {
+macro_rules! parser {
+    ($submac:ident!( $($args:tt)* )) => {
+        fn parse(input: $crate::CompleteStr<'a>) -> $crate::IResult<$crate::CompleteStr<'a>, Self> {
             $submac!(input, $($args)*)
         }
     };
@@ -8,22 +8,41 @@ macro_rules! named {
 
 macro_rules! weedle {
     ($i:expr, $t:ty) => {
-        <$t as $crate::Parse>::parse($i)
+        <$t as $crate::Parse<'a>>::parse($i)
     };
 }
 
 macro_rules! ast_types {
+    (@extract_type struct $name:ident<'a> $($rest:tt)*) => ($name<'a>);
     (@extract_type struct $name:ident $($rest:tt)*) => ($name);
+    (@extract_type enum $name:ident<'a> $($rest:tt)*) => ($name<'a>);
     (@extract_type enum $name:ident $($rest:tt)*) => ($name);
 
     () => ();
     (
         $(#[$attr:meta])*
-        struct $name:ident($($generics:tt)+) where [$($bounds:tt)+] {
+        struct $name:ident<'a> {
             $($fields:tt)*
         }
         $($rest:tt)*
-    ) => {
+    ) => (
+        __ast_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            [ 'a ]
+            [ ]
+            { $($fields)* }
+        }
+        ast_types!($($rest)*);
+    );
+    (
+        $(#[$attr:meta])*
+        struct $name:ident<$($generics:ident),+> where [$($bounds:tt)+] {
+            $($fields:tt)*
+        }
+        $($rest:tt)*
+    ) => (
         __ast_struct! {
             @launch_pad
             $(#[$attr])*
@@ -33,14 +52,14 @@ macro_rules! ast_types {
             { $($fields)* }
         }
         ast_types!($($rest)*);
-    };
+    );
     (
         $(#[$attr:meta])*
         struct $name:ident {
             $($fields:tt)*
         }
         $($rest:tt)*
-    ) => {
+    ) => (
         __ast_struct! {
             @launch_pad
             $(#[$attr])*
@@ -50,66 +69,108 @@ macro_rules! ast_types {
             { $($fields)* }
         }
         ast_types!($($rest)*);
-    };
+    );
+
+    (
+        $(#[$attr:meta])*
+        struct $name:ident<'a> (
+            $($fields:tt)*
+        )
+        $($rest:tt)*
+    ) => (
+        __ast_tuple_struct! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            [ 'a ]
+            ( $($fields)* )
+        }
+        ast_types!($($rest)*);
+    );
     (
         $(#[$attr:meta])*
         struct $name:ident (
             $($fields:tt)*
         )
         $($rest:tt)*
-    ) => {
+    ) => (
         __ast_tuple_struct! {
             @launch_pad
             $(#[$attr])*
             $name
+            [ ]
             ( $($fields)* )
         }
         ast_types!($($rest)*);
-    };
+    );
 
+    (
+        $(#[$attr:meta])*
+        enum $name:ident<'a> {
+            $($variants:tt)*
+        }
+        $($rest:tt)*
+    ) => (
+        __ast_enum! {
+            @launch_pad
+            $(#[$attr])*
+            $name
+            [ 'a ]
+            { $($variants)* }
+        }
+        ast_types!($($rest)*);
+    );
     (
         $(#[$attr:meta])*
         enum $name:ident {
             $($variants:tt)*
         }
         $($rest:tt)*
-    ) => {
+    ) => (
         __ast_enum! {
             @launch_pad
             $(#[$attr])*
             $name
+            [ ]
             { $($variants)* }
         }
         ast_types!($($rest)*);
-    }
+    );
 }
 
 macro_rules! __ast_tuple_struct {
     (@launch_pad
         $(#[$attr:meta])*
         $name:ident
+        [ $($maybe_a:tt)* ]
         ( $inner:ty = $submac:ident!( $($args:tt)* ), )
     ) => (
         $(#[$attr])*
         #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        pub struct $name(pub $inner);
+        pub struct $name<$($maybe_a)*>(pub $inner);
 
-        impl $crate::Parse for $name {
-            named!(
-                parse -> Self,
-                do_parse!(inner: $submac!( $($args)* ) >> ($name(inner)))
-            );
+        impl<'a> $crate::Parse<'a> for $name<$($maybe_a)*> {
+            fn parse(input: $crate::CompleteStr<'a>) -> $crate::IResult<$crate::CompleteStr<'a>, Self> {
+                use $crate::nom::lib::std::result::Result::*;
+
+                match $submac!(input, $($args)*) {
+                    Err(e) => Err(e),
+                    Ok((i, inner)) => Ok((i, $name(inner))),
+                }
+            }
         }
     );
     (@launch_pad
         $(#[$attr:meta])*
         $name:ident
+        [ $($maybe_a:tt)* ]
         ( $inner:ty, )
     ) => (
         __ast_tuple_struct! {
             @launch_pad
             $(#[$attr])*
             $name
+            [ $($maybe_a)* ]
             ( $inner = weedle!($inner), )
         }
     );
@@ -227,8 +288,8 @@ macro_rules! __ast_struct {
             { $($fields)* }
         }
 
-        impl $crate::Parse for $name {
-            fn parse(input: $crate::CompleteStr) -> $crate::IResult<$crate::CompleteStr, Self> {
+        impl<'a> $crate::Parse<'a> for $name {
+            fn parse(input: $crate::CompleteStr<'a>) -> $crate::IResult<$crate::CompleteStr<'a>, Self> {
                 __ast_struct! {
                     @build_parser
                     { input, }
@@ -241,7 +302,35 @@ macro_rules! __ast_struct {
         @launch_pad
         $(#[$attr:meta])*
         $name:ident
-        [$($generics:tt)+]
+        [ 'a ]
+        [ ]
+        { $($fields:tt)* }
+    ) => {
+        __ast_struct! {
+            @build_struct_decl
+            {
+                $(#[$attr])*
+                $name
+                [ 'a ]
+            }
+            { $($fields)* }
+        }
+
+        impl<'a> $crate::Parse<'a> for $name<'a> {
+            fn parse(input: $crate::CompleteStr<'a>) -> $crate::IResult<$crate::CompleteStr<'a>, Self> {
+                __ast_struct! {
+                    @build_parser
+                    { input, }
+                    { $($fields)* }
+                }
+            }
+        }
+    };
+    (
+        @launch_pad
+        $(#[$attr:meta])*
+        $name:ident
+        [$($generics:ident)+]
         [$($bounds:tt)+]
         { $($fields:tt)* }
     ) => {
@@ -250,13 +339,13 @@ macro_rules! __ast_struct {
             {
                 $(#[$attr])*
                 $name
-                [$($generics)+]
+                [$($generics),+]
             }
             { $($fields)* }
         }
 
-        impl<$($generics)+> $crate::Parse for $name<$($generics)*> where $($bounds)+ {
-            fn parse(input: $crate::CompleteStr) -> $crate::IResult<$crate::CompleteStr, Self> {
+        impl<'a, $($generics),+> $crate::Parse<'a> for $name<$($generics),+> where $($bounds)+ {
+            fn parse(input: $crate::CompleteStr<'a>) -> $crate::IResult<$crate::CompleteStr<'a>, Self> {
                 __ast_struct! {
                     @build_parser
                     { input, }
@@ -269,15 +358,18 @@ macro_rules! __ast_struct {
 
 macro_rules! __ast_enum {
     (@build_enum_decl
-        { $(#[$attr:meta])* $name:ident $($variant:ident($member:ty))* }
+        {
+            $(#[$attr:meta])*
+            $name:ident
+            [ $($maybe_a:tt)* ]
+            $($variant:ident($member:ty))*
+        }
         { }
     ) => (
         $(#[$attr])*
         #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-        pub enum $name {
-            $(
-                $variant($member),
-            )*
+        pub enum $name<$($maybe_a)*> {
+            $($variant($member),)*
         }
     );
     (@build_enum_decl
@@ -324,12 +416,13 @@ macro_rules! __ast_enum {
     );
 
 
-    (@build_conversions $name:ident { }) => ();
+    (@build_conversions $name:ident [ $($maybe_a:tt)* ] { }) => ();
     (@build_conversions
         $name:ident
+        [ $($maybe_a:tt)* ]
         { $variant:ident($member:ty), $($rest:tt)* }
     ) => (
-        impl From<$member> for $name {
+        impl<$($maybe_a)*> From<$member> for $name<$($maybe_a)*> {
             fn from(x: $member) -> Self {
                 $name::$variant(x)
             }
@@ -337,26 +430,29 @@ macro_rules! __ast_enum {
         __ast_enum! {
             @build_conversions
             $name
+            [ $($maybe_a)* ]
             { $($rest)* }
         }
     );
     (@build_conversions
         $name:ident
+        [ $($maybe_a:tt)* ]
         { $(#[$attr:meta])* $variant:ident( $($member:tt)* ), $($rest:tt)* }
     ) => (
         __ast_enum! {
             @build_conversions
             $name
+            [ $($maybe_a)* ]
             { $variant(ast_types! { @extract_type $($member)* }), $($rest)* }
         }
     );
 
     (@build_parse
-        { $name:ident $($member:ty)* }
+        { $name:ident [ $($maybe_a:tt)* ] $($member:ty)* }
         { }
     ) => (
-        impl $crate::Parse for $name {
-            named!(parse -> Self, alt!(
+        impl<'a> $crate::Parse<'a> for $name<$($maybe_a)*> {
+            parser!(alt!(
                 $(weedle!($member) => {From::from})|*
             ));
         }
@@ -385,11 +481,12 @@ macro_rules! __ast_enum {
     (@launch_pad
         $(#[$attr:meta])*
         $name:ident
+        [ $($maybe_a:tt)* ]
         { $($variants:tt)* }
     ) => (
         __ast_enum! {
             @build_enum_decl
-            { $(#[$attr])* $name }
+            { $(#[$attr])* $name [ $($maybe_a)* ] }
             { $($variants)* }
         }
 
@@ -401,12 +498,13 @@ macro_rules! __ast_enum {
         __ast_enum! {
             @build_conversions
             $name
+            [ $($maybe_a)* ]
             { $($variants)* }
         }
 
         __ast_enum! {
             @build_parse
-            { $name }
+            { $name [ $($maybe_a)* ] }
             { $($variants)* }
         }
     );

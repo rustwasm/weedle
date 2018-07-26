@@ -5,31 +5,31 @@ use interface::{ConstMember, StringifierMember};
 use types::{AttributedType, ReturnType};
 
 /// Parses the members declarations of a mixin
-pub type MixinMembers = Vec<MixinMember>;
+pub type MixinMembers<'a> = Vec<MixinMember<'a>>;
 
 ast_types! {
     /// Parses one of the variants of a mixin member
-    enum MixinMember {
-        Const(ConstMember),
+    enum MixinMember<'a> {
+        Const(ConstMember<'a>),
         /// Parses `[attributes]? stringifier? returntype identifier? (( args ));`
         ///
         /// (( )) means ( ) chars
-        Operation(struct OperationMixinMember {
-            attributes: Option<ExtendedAttributeList>,
+        Operation(struct OperationMixinMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             stringifier: Option<term!(stringifier)>,
-            return_type: ReturnType,
-            identifier: Option<Identifier>,
-            args: Braced<ArgumentList>,
+            return_type: ReturnType<'a>,
+            identifier: Option<Identifier<'a>>,
+            args: Braced<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? stringifier? readonly? attribute attributedtype identifier;`
-        Attribute(struct AttributeMixinMember {
-            attributes: Option<ExtendedAttributeList>,
+        Attribute(struct AttributeMixinMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             stringifier: Option<term!(stringifier)>,
             readonly: Option<term!(readonly)>,
             attribute: term!(attribute),
-            type_: AttributedType,
-            identifier: Identifier,
+            type_: AttributedType<'a>,
+            identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
         Stringifier(StringifierMember),

@@ -2,76 +2,70 @@ use literal::DefaultValue;
 use term;
 use Parse;
 
-impl<T: Parse> Parse for Option<T> {
-    named!(parse -> Self, opt!(weedle!(T)));
+impl<'a, T: Parse<'a>> Parse<'a> for Option<T> {
+    parser!(opt!(weedle!(T)));
 }
 
-impl<T: Parse> Parse for Box<T> {
-    named!(parse -> Self, do_parse!(
-        inner: weedle!(T) >>
-        (Box::new(inner))
-    ));
+impl<'a, T: Parse<'a>> Parse<'a> for Box<T> {
+    parser!(do_parse!(inner: weedle!(T) >> (Box::new(inner))));
 }
 
 /// Parses `item1 item2 item3...`
-impl<T: Parse> Parse for Vec<T> {
-    named!(parse -> Self, many0!(weedle!(T)));
+impl<'a, T: Parse<'a>> Parse<'a> for Vec<T> {
+    parser!(many0!(weedle!(T)));
 }
 
-impl<T: Parse, U: Parse> Parse for (T, U) {
-    named!(parse-> Self, do_parse!(
-        f: weedle!(T) >>
-        s: weedle!(U) >>
-        ((f, s))
-    ));
+impl<'a, T: Parse<'a>, U: Parse<'a>> Parse<'a> for (T, U) {
+    parser!(do_parse!(t: weedle!(T) >> u: weedle!(U) >> ((t, u))));
 }
 
-impl<T: Parse, U: Parse, V: Parse> Parse for (T, U, V) {
-    named!(parse-> Self, do_parse!(
-        f: weedle!(T) >>
-        s: weedle!(U) >>
-        t: weedle!(V) >>
-        ((f, s, t))
+impl<'a, T: Parse<'a>, U: Parse<'a>, V: Parse<'a>> Parse<'a> for (T, U, V) {
+    parser!(do_parse!(
+        t: weedle!(T) >> u: weedle!(U) >> v: weedle!(V) >> ((t, u, v))
     ));
 }
 
 ast_types! {
     /// Parses `{ body }`
-    struct Parenthesized(T) where [T: Parse] {
+    #[derive(Copy, Default)]
+    struct Parenthesized<T> where [T: Parse<'a>] {
         open_paren: term::OpenParen,
         body: T,
         close_paren: term::CloseParen,
     }
 
     /// Parses `[ body ]`
-    struct Bracketed(T) where [T: Parse] {
+    #[derive(Copy, Default)]
+    struct Bracketed<T> where [T: Parse<'a>] {
         open_bracket: term::OpenBracket,
         body: T,
         close_bracket: term::CloseBracket,
     }
 
     /// Parses `( body )`
-    struct Braced(T) where [T: Parse] {
+    #[derive(Copy, Default)]
+    struct Braced<T> where [T: Parse<'a>] {
         open_brace: term::OpenBrace,
         body: T,
         close_brace: term::CloseBrace,
     }
 
     /// Parses `< body >`
-    struct Generics(T) where [T: Parse] {
+    #[derive(Copy, Default)]
+    struct Generics<T> where [T: Parse<'a>] {
         open_angle: term::LessThan,
         body: T,
         close_angle: term::GreaterThan,
     }
 
     /// Parses `(item1, item2, item3,...)?`
-    struct Punctuated(T, S) where [T: Parse, S: Parse + ::std::default::Default] {
+    struct Punctuated<T, S> where [T: Parse<'a>, S: Parse<'a> + ::std::default::Default] {
         list: Vec<T> = separated_list!(weedle!(S), weedle!(T)),
         separator: S = marker,
     }
 
     /// Parses `item1, item2, item3, ...`
-    struct PunctuatedNonEmpty(T, S) where [T: Parse, S: Parse + ::std::default::Default] {
+    struct PunctuatedNonEmpty<T, S> where [T: Parse<'a>, S: Parse<'a> + ::std::default::Default] {
         list: Vec<T> = separated_nonempty_list!(weedle!(S), weedle!(T)),
         separator: S = marker,
     }
@@ -79,17 +73,19 @@ ast_types! {
     /// Represents an identifier
     ///
     /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
-    struct Identifier(
-        String = map!(
+    #[derive(Copy)]
+    struct Identifier<'a>(
+        &'a str = map!(
             ws!(re_find_static!(r"^_?[A-Za-z][0-9A-Z_a-z-]*")),
-            |inner| inner.to_string()
+            |inner| inner.0
         ),
     )
 
     /// Parses rhs of an assignment expression. Ex: `= 45`
-    struct Default {
+    #[derive(Copy)]
+    struct Default<'a> {
         assign: term!(=),
-        value: DefaultValue,
+        value: DefaultValue<'a>,
     }
 }
 
@@ -149,7 +145,7 @@ mod test {
         Generics<(Identifier, term!(,), Identifier)> =>
             Generics {
                 open_angle: term!(<),
-                body: (Identifier("one".to_string()), term!(,), Identifier("two".to_string())),
+                body: (Identifier("one"), term!(,), Identifier("two")),
                 close_angle: term!(>),
             }
     });
