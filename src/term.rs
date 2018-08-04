@@ -291,6 +291,9 @@ generate_terms_for_names! {
 
     /// Represents the terminal symbol `implements`
     Implements => "implements",
+
+    /// Represents the terminal symbol `legacycaller`
+    LegacyCaller => "legacycaller",
 }
 
 #[macro_export]
@@ -532,6 +535,9 @@ macro_rules! term {
     (implements) => {
         $crate::term::Implements
     };
+    (legacycaller) => {
+        $crate::term::LegacyCaller
+    };
 }
 
 #[cfg(test)]
@@ -661,5 +667,6 @@ mod test {
         promise, Promise, "Promise";
         error, Error, "Error";
         implements, Implements, "Implements";
+        legacycaller, LegacyCaller, "LegacyCaller";
     ];
 }
