@@ -666,7 +666,7 @@ mod test {
         float64array, Float64Array, "Float64Array";
         promise, Promise, "Promise";
         error, Error, "Error";
-        implements, Implements, "Implements";
-        legacycaller, LegacyCaller, "LegacyCaller";
+        implements, Implements, "implements";
+        legacycaller, LegacyCaller, "legacycaller";
     ];
 }

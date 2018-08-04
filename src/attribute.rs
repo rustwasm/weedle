@@ -79,7 +79,7 @@ mod test {
         "";
         ExtendedAttributeIdent;
         lhs_identifier.0 == "PutForwards";
-        rhs_identifier.0 == "name";
+        rhs == IdentifierOrString::Identifier(Identifier("name"));
     });
 
     test!(should_parse_ident_list { "Exposed=(Window,Worker)" =>
