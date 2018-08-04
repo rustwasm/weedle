@@ -1,5 +1,6 @@
 use argument::ArgumentList;
 use common::{Braced, Bracketed, Identifier, Punctuated};
+use literal::StringLit;
 
 /// Parses a list of attributes. Ex: `[ attribute1, attribute2 ]`
 pub type ExtendedAttributeList<'a> = Bracketed<Punctuated<ExtendedAttribute<'a>, term!(,)>>;
@@ -40,13 +41,20 @@ ast_types! {
         Ident(struct ExtendedAttributeIdent<'a> {
             lhs_identifier: Identifier<'a>,
             assign: term!(=),
-            rhs_identifier: Identifier<'a>,
+            rhs: IdentifierOrString<'a>,
         }),
         /// Parses a plain attribute. Ex: `Replaceable`
         #[derive(Copy)]
         NoArgs(struct ExtendedAttributeNoArgs<'a>(
             Identifier<'a>,
         )),
+    }
+
+    /// Parses `stringifier|static`
+    #[derive(Copy)]
+    enum IdentifierOrString<'a> {
+        Identifier(Identifier<'a>),
+        String(StringLit<'a>),
     }
 }
 
