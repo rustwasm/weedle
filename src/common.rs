@@ -78,9 +78,11 @@ ast_types! {
     /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
     #[derive(Copy)]
     struct Identifier<'a>(
+        // See https://heycam.github.io/webidl/#idl-names for why the leading
+        // underscore is trimmed
         &'a str = map!(
             ws!(re_find_static!(r"^_?[A-Za-z][0-9A-Z_a-z-]*")),
-            |inner| inner.0
+            |inner| inner.0.trim_left_matches("_")
         ),
     )
 
