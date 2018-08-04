@@ -180,7 +180,7 @@ mod test {
     test!(should_parse_underscored_identifier { "_hello_" =>
         "";
         Identifier;
-        0 == "_hello_";
+        0 == "hello_";
     });
 
     test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>
