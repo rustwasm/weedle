@@ -82,8 +82,9 @@ ast_types! {
             semi_colon: term!(;),
         }),
         /// Parses `stringifier;`
-        #[derive(Copy, Default)]
-        Stringifier(struct StringifierMember {
+        #[derive(Default)]
+        Stringifier(struct StringifierMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
             stringifier: term!(stringifier),
             semi_colon: term!(;),
         }),
