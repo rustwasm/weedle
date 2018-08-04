@@ -222,6 +222,14 @@ ast_types! {
             rhs_identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
+        /// Parses `[attributes]? identifier implements identifier;`
+        Implements(struct ImplementsDefinition<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            lhs_identifier: Identifier<'a>,
+            includes: term!(implements),
+            rhs_identifier: Identifier<'a>,
+            semi_colon: term!(;),
+        }),
     }
 }
 
