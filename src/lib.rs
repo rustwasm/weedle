@@ -25,10 +25,7 @@
 #![recursion_limit = "128"]
 
 #[macro_use]
-extern crate lazy_static;
-#[macro_use]
 extern crate nom;
-extern crate regex;
 
 use argument::ArgumentList;
 use attribute::ExtendedAttributeList;

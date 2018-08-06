@@ -98,7 +98,47 @@ ast_types! {
         #[derive(Copy)]
         Value(struct FloatValueLit<'a>(
             &'a str = map!(
-                ws!(re_find_static!(r"^-?(?:(?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)(?:[Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)")),
+                ws!(recognize!(do_parse!(
+                    opt!(char!('-')) >>
+                    alt!(
+                        do_parse!(
+                            // (?:[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)
+                            alt!(
+                                do_parse!(
+                                    take_while1!(|c: char| c.is_ascii_digit()) >>
+                                    char!('.') >>
+                                    take_while!(|c: char| c.is_ascii_digit()) >>
+                                    (())
+                                )
+                                |
+                                do_parse!(
+                                    take_while!(|c: char| c.is_ascii_digit()) >>
+                                    char!('.') >>
+                                    take_while1!(|c: char| c.is_ascii_digit()) >>
+                                    (())
+                                )
+                            ) >>
+                            // (?:[Ee][+-]?[0-9]+)?
+                            opt!(do_parse!(
+                                alt!(char!('e') | char!('E')) >>
+                                opt!(alt!(char!('+') | char!('-'))) >>
+                                take_while1!(|c: char| c.is_ascii_digit()) >>
+                                (())
+                            )) >>
+                            (())
+                        )
+                        |
+                        // [0-9]+[Ee][+-]?[0-9]+
+                        do_parse!(
+                            take_while1!(|c: char| c.is_ascii_digit()) >>
+                            alt!(char!('e') | char!('E')) >>
+                            opt!(alt!(char!('+') | char!('-'))) >>
+                            take_while1!(|c: char| c.is_ascii_digit()) >>
+                            (())
+                        )
+                    ) >>
+                    (())
+                ))),
                 |inner| inner.0
             ),
         )),
