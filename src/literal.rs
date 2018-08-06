@@ -33,10 +33,12 @@ ast_types! {
     /// Follow `/"[^"]*"/`
     #[derive(Copy)]
     struct StringLit<'a>(
-        &'a str = map!(
-            ws!(re_find_static!(r#"^"[^"]*""#)),
-            |quoted| &quoted[1..quoted.len()-1]
-        ),
+        &'a str = ws!(do_parse!(
+            char!('"') >>
+            s: take_while!(|c| c != '"') >>
+            char!('"') >>
+            (s.0)
+        )),
     )
 
     /// Represents a default literal value. Ex: `34|34.23|"value"|[ ]|true|false|null`
