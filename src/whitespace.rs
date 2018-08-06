@@ -1,15 +1,25 @@
 use {CompleteStr, IResult};
 
 pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
-    re_find_static!(
+    recognize!(
         input,
-        r"^(?x:
-            [\t\n\r\x20]     # normal whitespace
-            |
-            //.*             # line comment
-            |
-            /\*(?:.|\n)*?\*/ # block comment
-        )*"
+        many0!(
+            alt!(
+                do_parse!(tag!("//") >> take_until!("\n") >> char!('\n') >> (()))
+                |
+                map!(
+                    take_while1!(|c| c == '\t' || c == '\n' || c == '\r' || c == ' '),
+                    |_| ()
+                )
+                |
+                do_parse!(
+                    tag!("/*") >>
+                    take_until!("*/") >>
+                    tag!("*/") >>
+                    (())
+                )
+            )
+        )
     )
 }
 
