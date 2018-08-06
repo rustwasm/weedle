@@ -80,10 +80,15 @@ ast_types! {
     struct Identifier<'a>(
         // See https://heycam.github.io/webidl/#idl-names for why the leading
         // underscore is trimmed
-        &'a str = map!(
-            ws!(re_find_static!(r"^_?[A-Za-z][0-9A-Z_a-z-]*")),
-            |inner| inner.0.trim_left_matches("_")
-        ),
+        &'a str = ws!(do_parse!(
+            opt!(char!('_')) >>
+            id: recognize!(do_parse!(
+                take_while1!(|c: char| c.is_ascii_alphabetic()) >>
+                take_while!(|c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-') >>
+                (())
+            )) >>
+            (id.0)
+        )),
     )
 
     /// Parses rhs of an assignment expression. Ex: `= 45`
