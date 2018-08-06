@@ -6,7 +6,12 @@ ast_types! {
         #[derive(Copy)]
         Dec(struct DecLit<'a>(
             &'a str = map!(
-                ws!(re_find_static!(r"^-?[1-9][0-9]*")),
+                ws!(recognize!(do_parse!(
+                    opt!(char!('-')) >>
+                    one_of!("123456789") >>
+                    take_while!(|c: char| c.is_ascii_digit()) >>
+                    (())
+                ))),
                 |inner| inner.0
             ),
         )),
@@ -14,7 +19,13 @@ ast_types! {
         #[derive(Copy)]
         Hex(struct HexLit<'a>(
             &'a str = map!(
-                ws!(re_find_static!(r"^-?0[Xx][0-9A-Fa-f]+")),
+                ws!(recognize!(do_parse!(
+                    opt!(char!('-')) >>
+                    char!('0') >>
+                    alt!(char!('x') | char!('X')) >>
+                    take_while!(|c: char| c.is_ascii_hexdigit()) >>
+                    (())
+                ))),
                 |inner| inner.0
             ),
         )),
@@ -22,7 +33,12 @@ ast_types! {
         #[derive(Copy)]
         Oct(struct OctLit<'a>(
             &'a str = map!(
-                ws!(re_find_static!(r"^-?0[0-7]*")),
+                ws!(recognize!(do_parse!(
+                    opt!(char!('-')) >>
+                    char!('0') >>
+                    take_while!(|c| '0' <= c && c <= '7') >>
+                    (())
+                ))),
                 |inner| inner.0
             ),
         )),
