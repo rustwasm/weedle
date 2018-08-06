@@ -32,7 +32,7 @@ ast_types! {
             identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
-        Stringifier(StringifierMember),
+        Stringifier(StringifierMember<'a>),
     }
 }
 

@@ -66,7 +66,10 @@ ast_types! {
 
     /// Parses `item1, item2, item3, ...`
     struct PunctuatedNonEmpty<T, S> where [T: Parse<'a>, S: Parse<'a> + ::std::default::Default] {
-        list: Vec<T> = separated_nonempty_list!(weedle!(S), weedle!(T)),
+        list: Vec<T> = terminated!(
+            separated_nonempty_list!(weedle!(S), weedle!(T)),
+            opt!(weedle!(S))
+        ),
         separator: S = marker,
     }
 
@@ -75,9 +78,11 @@ ast_types! {
     /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
     #[derive(Copy)]
     struct Identifier<'a>(
+        // See https://heycam.github.io/webidl/#idl-names for why the leading
+        // underscore is trimmed
         &'a str = map!(
             ws!(re_find_static!(r"^_?[A-Za-z][0-9A-Z_a-z-]*")),
-            |inner| inner.0
+            |inner| inner.0.trim_left_matches("_")
         ),
     )
 
@@ -175,7 +180,7 @@ mod test {
     test!(should_parse_underscored_identifier { "_hello_" =>
         "";
         Identifier;
-        0 == "_hello_";
+        0 == "hello_";
     });
 
     test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>

@@ -38,7 +38,7 @@ use interface::{Inheritance, InterfaceMembers};
 use literal::StringLit;
 use mixin::MixinMembers;
 use namespace::NamespaceMembers;
-pub use nom::{types::CompleteStr, Err, IResult};
+pub use nom::{types::CompleteStr, Err, Context, IResult};
 use types::{AttributedType, ReturnType};
 
 #[macro_use]
@@ -73,8 +73,12 @@ pub mod types;
 /// println!("{:?}", parsed);
 /// ```
 pub fn parse<'a>(raw: &'a str) -> Result<Definitions<'a>, Err<CompleteStr<'a>, u32>> {
-    let (_, parsed) = Definitions::parse(CompleteStr(raw))?;
-    Ok(parsed)
+    let (remaining, parsed) = Definitions::parse(CompleteStr(raw))?;
+    if remaining.len() > 0 {
+        Result::Err(Err::Failure(nom::Context::Code(remaining, nom::ErrorKind::Custom(0))))
+    } else {
+        Ok(parsed)
+    }
 }
 
 pub trait Parse<'a>: Sized {
@@ -215,6 +219,14 @@ ast_types! {
             attributes: Option<ExtendedAttributeList<'a>>,
             lhs_identifier: Identifier<'a>,
             includes: term!(includes),
+            rhs_identifier: Identifier<'a>,
+            semi_colon: term!(;),
+        }),
+        /// Parses `[attributes]? identifier implements identifier;`
+        Implements(struct ImplementsDefinition<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            lhs_identifier: Identifier<'a>,
+            includes: term!(implements),
             rhs_identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),

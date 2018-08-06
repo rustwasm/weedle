@@ -36,7 +36,7 @@ macro_rules! ident_tag (
 );
 
 macro_rules! generate_terms_for_names {
-    ($( $(#[$attr:meta])* $typ:ident => $tok:expr ),*) => {
+    ($( $(#[$attr:meta])* $typ:ident => $tok:expr,)*) => {
         $(
             $(#[$attr])*
             #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -287,7 +287,13 @@ generate_terms_for_names! {
     ReadOnly => "readonly",
 
     /// Represents the terminal symbol `mixin`
-    Mixin => "mixin"
+    Mixin => "mixin",
+
+    /// Represents the terminal symbol `implements`
+    Implements => "implements",
+
+    /// Represents the terminal symbol `legacycaller`
+    LegacyCaller => "legacycaller",
 }
 
 #[macro_export]
@@ -526,12 +532,18 @@ macro_rules! term {
     (mixin) => {
         $crate::term::Mixin
     };
+    (implements) => {
+        $crate::term::Implements
+    };
+    (legacycaller) => {
+        $crate::term::LegacyCaller
+    };
 }
 
 #[cfg(test)]
 mod test {
     macro_rules! generate_tests {
-        ($($m:ident, $typ:ident, $string:expr);*) => {
+        ($($m:ident, $typ:ident, $string:expr;)*) => {
             $(
                 mod $m {
                     use super::super::$typ;
@@ -653,6 +665,8 @@ mod test {
         float32array, Float32Array, "Float32Array";
         float64array, Float64Array, "Float64Array";
         promise, Promise, "Promise";
-        error, Error, "Error"
+        error, Error, "Error";
+        implements, Implements, "implements";
+        legacycaller, LegacyCaller, "legacycaller";
     ];
 }
