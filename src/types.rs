@@ -43,6 +43,8 @@ ast_types! {
         Uint8ClampedArray(MayBeNull<term!(Uint8ClampedArray)>),
         Float32Array(MayBeNull<term!(Float32Array)>),
         Float64Array(MayBeNull<term!(Float64Array)>),
+        ArrayBufferView(MayBeNull<term!(ArrayBufferView)>),
+        BufferSource(MayBeNull<term!(BufferSource)>),
         FrozenArrayType(MayBeNull<FrozenArrayType<'a>>),
         RecordType(MayBeNull<RecordType<'a>>),
         Identifier(MayBeNull<Identifier<'a>>),
@@ -218,6 +220,8 @@ mod test {
             Uint8ClampedArray == "Uint8ClampedArray",
             Float32Array == "Float32Array",
             Float64Array == "Float64Array",
+            ArrayBufferView == "ArrayBufferView",
+            BufferSource == "BufferSource",
             FrozenArrayType == "FrozenArray<short>",
             RecordType == "record<DOMString, short>",
             Identifier == "mango"

@@ -277,6 +277,12 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `Float64Array`
     Float64Array => "Float64Array",
 
+    /// Represents the terminal symbol `ArrayBufferView`
+    ArrayBufferView => "ArrayBufferView",
+
+    /// Represents the terminal symbol `BufferSource
+    BufferSource => "BufferSource",
+
     /// Represents the terminal symbol `Promise`
     Promise => "Promise",
 
@@ -519,6 +525,12 @@ macro_rules! term {
     };
     (Float64Array) => {
         $crate::term::Float64Array
+    };
+    (ArrayBufferView) => {
+        $crate::term::ArrayBufferView
+    };
+    (BufferSource) => {
+        $crate::term::BufferSource
     };
     (Promise) => {
         $crate::term::Promise
