@@ -37,13 +37,13 @@ ast_types! {
             identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
-        /// Parses `[attributes]? (stringifier|static)? specials? returntype identifier? (( args ));`
+        /// Parses `[attributes]? (stringifier|static)? special? returntype identifier? (( args ));`
         ///
         /// (( )) means ( ) chars
         Operation(struct OperationInterfaceMember<'a> {
             attributes: Option<ExtendedAttributeList<'a>>,
             modifier: Option<StringifierOrStatic>,
-            specials: Vec<Special>,
+            special: Option<Special>,
             return_type: ReturnType<'a>,
             identifier: Option<Identifier<'a>>,
             args: Braced<ArgumentList<'a>>,
@@ -174,7 +174,7 @@ mod test {
         OperationInterfaceMember;
         attributes.is_none();
         modifier.is_none();
-        specials.is_empty();
+        special.is_none();
         identifier.is_some();
     });
 
