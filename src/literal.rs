@@ -261,7 +261,7 @@ mod test {
     });
 
     test!(should_parse_string_with_multiline_comment { r#"  "/*"  "*/"  "# =>
-        "";
+        r#""*/"  "#;
         StringLit => StringLit("/*")
     });
 
