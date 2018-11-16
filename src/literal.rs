@@ -249,6 +249,22 @@ mod test {
         StringLit => StringLit("this is first")
     });
 
+    test!(should_parse_string_with_spaces { r#"  "  this is a string  "  "# =>
+        "";
+        StringLit => StringLit("  this is a string  ")
+    });
+
+    test!(should_parse_string_with_comment { r#"  "// this is still a string"
+     "# =>
+        "";
+        StringLit => StringLit("// this is still a string")
+    });
+
+    test!(should_parse_string_with_multiline_comment { r#"  "/*"  "*/"  "# =>
+        "";
+        StringLit => StringLit("/*")
+    });
+
     test!(should_parse_null { "null" =>
         "";
         Null => Null
