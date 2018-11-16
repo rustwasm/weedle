@@ -27,18 +27,12 @@ pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
 macro_rules! ws (
     ($i:expr, $($args:tt)*) => ({
         use $crate::whitespace::sp;
-        use $crate::nom::Convert;
-        use $crate::nom::Err;
-        use $crate::nom::lib::std::result::Result::*;
 
-        match sep!($i, sp, $($args)*) {
-            Err(e) => Err(e),
-            Ok((i1, o)) => {
-                match (sp)(i1) {
-                    Err(e) => Err(Err::convert(e)),
-                    Ok((i2, _)) => Ok((i2, o))
-                }
-            }
-        }
+        do_parse!($i,
+            sp >>
+            s: $($args)* >>
+            sp >>
+            (s)
+        )
     });
 );
