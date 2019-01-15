@@ -1,14 +1,14 @@
 # Weedle - A WebIDL Parser
 
 Parses valid WebIDL definitions & produces a data structure starting from
-[`Definitions`](https://docs.rs/weedle/0.5.0/weedle/struct.Definitions.html).
+[`Definitions`](https://docs.rs/weedle/latest/weedle/type.Definitions.html).
 
 ### Basic Usage
 
 In Cargo.toml
 ```
 [dependencies]
-weedle = "0.5.0"
+weedle = "0.8.0"
 ```
 
 Then, in `src/main.rs`
