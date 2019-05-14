@@ -133,7 +133,7 @@ ast_types! {
 
     /// Parses one of the member of a union type
     enum UnionMemberType<'a> {
-        Single(NonAnyType<'a>),
+        Single(AttributedNonAnyType<'a>),
         Union(MayBeNull<UnionType<'a>>),
     }
 
@@ -157,6 +157,12 @@ ast_types! {
     struct AttributedType<'a> {
         attributes: Option<ExtendedAttributeList<'a>>,
         type_: Type<'a>,
+    }
+
+    /// Parses `[attributes]? type` where the type is a single non-any type
+    struct AttributedNonAnyType<'a> {
+        attributes: Option<ExtendedAttributeList<'a>>,
+        type_: NonAnyType<'a>,
     }
 }
 
@@ -231,7 +237,7 @@ mod test {
     test_variants!(
         UnionMemberType {
             Single == "byte",
-            Union == "(byte or byte)"
+            Union == "([Clamp] unsigned long or byte)"
         }
     );
 
