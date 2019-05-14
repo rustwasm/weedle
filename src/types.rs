@@ -334,4 +334,49 @@ mod test {
         "";
         ::types::Type;
     });
+
+    #[test]
+    fn should_parse_union_member_type_attributed_union() {
+        use crate::types::UnionMemberType;
+        let (rem, parsed) =
+            UnionMemberType::parse(nom::types::CompleteStr("([Clamp] byte or [Named] byte)"))
+                .unwrap();
+        assert_eq!(rem, nom::types::CompleteStr(""));
+        match parsed {
+            UnionMemberType::Union(MayBeNull {
+                type_:
+                    Braced {
+                        body: Punctuated { list, .. },
+                        ..
+                    },
+                ..
+            }) => {
+                assert_eq!(list.len(), 2);
+
+                match list[0] {
+                    UnionMemberType::Single(AttributedNonAnyType { ref attributes, .. }) => {
+                        assert!(attributes.is_some());
+                    }
+
+                    _ => {
+                        panic!("Failed to parse list[0] attributes");
+                    }
+                };
+
+                match list[1] {
+                    UnionMemberType::Single(AttributedNonAnyType { ref attributes, .. }) => {
+                        assert!(attributes.is_some());
+                    }
+
+                    _ => {
+                        panic!("Failed to parse list[1] attributes");
+                    }
+                };
+            }
+
+            _ => {
+                panic!("Failed to parse");
+            }
+        }
+    }
 }
