@@ -8,7 +8,7 @@ Parses valid WebIDL definitions & produces a data structure starting from
 In Cargo.toml
 ```toml
 [dependencies]
-weedle = "0.8.0"
+weedle = "0.9.0"
 ```
 
 Then, in `src/main.rs`
