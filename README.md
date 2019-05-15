@@ -6,7 +6,7 @@ Parses valid WebIDL definitions & produces a data structure starting from
 ### Basic Usage
 
 In Cargo.toml
-```
+```toml
 [dependencies]
 weedle = "0.8.0"
 ```
