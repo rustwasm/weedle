@@ -133,7 +133,7 @@ ast_types! {
 
     /// Parses one of the member of a union type
     enum UnionMemberType<'a> {
-        Single(NonAnyType<'a>),
+        Single(AttributedNonAnyType<'a>),
         Union(MayBeNull<UnionType<'a>>),
     }
 
@@ -157,6 +157,12 @@ ast_types! {
     struct AttributedType<'a> {
         attributes: Option<ExtendedAttributeList<'a>>,
         type_: Type<'a>,
+    }
+
+    /// Parses `[attributes]? type` where the type is a single non-any type
+    struct AttributedNonAnyType<'a> {
+        attributes: Option<ExtendedAttributeList<'a>>,
+        type_: NonAnyType<'a>,
     }
 }
 
@@ -231,7 +237,7 @@ mod test {
     test_variants!(
         UnionMemberType {
             Single == "byte",
-            Union == "(byte or byte)"
+            Union == "([Clamp] unsigned long or byte)"
         }
     );
 
@@ -328,4 +334,49 @@ mod test {
         "";
         ::types::Type;
     });
+
+    #[test]
+    fn should_parse_union_member_type_attributed_union() {
+        use crate::types::UnionMemberType;
+        let (rem, parsed) =
+            UnionMemberType::parse(nom::types::CompleteStr("([Clamp] byte or [Named] byte)"))
+                .unwrap();
+        assert_eq!(rem, nom::types::CompleteStr(""));
+        match parsed {
+            UnionMemberType::Union(MayBeNull {
+                type_:
+                    Braced {
+                        body: Punctuated { list, .. },
+                        ..
+                    },
+                ..
+            }) => {
+                assert_eq!(list.len(), 2);
+
+                match list[0] {
+                    UnionMemberType::Single(AttributedNonAnyType { ref attributes, .. }) => {
+                        assert!(attributes.is_some());
+                    }
+
+                    _ => {
+                        panic!("Failed to parse list[0] attributes");
+                    }
+                };
+
+                match list[1] {
+                    UnionMemberType::Single(AttributedNonAnyType { ref attributes, .. }) => {
+                        assert!(attributes.is_some());
+                    }
+
+                    _ => {
+                        panic!("Failed to parse list[1] attributes");
+                    }
+                };
+            }
+
+            _ => {
+                panic!("Failed to parse");
+            }
+        }
+    }
 }
