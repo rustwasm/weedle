@@ -10,4 +10,4 @@ repository = "https://github.com/rustwasm/weedle"
 readme = "./README.md"
 
 [dependencies]
-nom = "4.0.0"
+nom = "4.2.3"
