@@ -53,11 +53,11 @@ macro_rules! generate_terms_for_names {
 }
 
 generate_terms! {
-    /// Represents the terminal symbol `{`
-    OpenParen => "{",
+    /// Represents the terminal symbol `(`
+    OpenParen => "(",
 
-    /// Represents the terminal symbol `}`
-    CloseParen => "}",
+    /// Represents the terminal symbol `)`
+    CloseParen => ")",
 
     /// Represents the terminal symbol `[`
     OpenBracket => "[",
@@ -65,11 +65,11 @@ generate_terms! {
     /// Represents the terminal symbol `]`
     CloseBracket => "]",
 
-    /// Represents the terminal symbol `(`
-    OpenBrace => "(",
+    /// Represents the terminal symbol `{`
+    OpenBrace => "{",
 
-    /// Represents the terminal symbol `)`
-    CloseBrace => ")",
+    /// Represents the terminal symbol `}`
+    CloseBrace => "}",
 
     /// Represents the terminal symbol `,`
     Comma => ",",
@@ -602,12 +602,12 @@ mod test {
     }
 
     generate_tests![
-        openparen, OpenParen, "{";
-        closeparen, CloseParen, "}";
+        openparen, OpenParen, "(";
+        closeparen, CloseParen, ")";
         openbracket, OpenBracket, "[";
         closebracket, CloseBracket, "]";
-        openbrace, OpenBrace, "(";
-        closebrace, CloseBrace, ")";
+        openbrace, OpenBrace, "{";
+        closebrace, CloseBrace, "}";
         comma, Comma, ",";
         minus, Minus, "-";
         dot, Dot, ".";

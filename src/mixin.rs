@@ -1,6 +1,6 @@
 use argument::ArgumentList;
 use attribute::ExtendedAttributeList;
-use common::{Braced, Identifier};
+use common::{Identifier, Parenthesized};
 use interface::{ConstMember, StringifierMember};
 use types::{AttributedType, ReturnType};
 
@@ -19,7 +19,7 @@ ast_types! {
             stringifier: Option<term!(stringifier)>,
             return_type: ReturnType<'a>,
             identifier: Option<Identifier<'a>>,
-            args: Braced<ArgumentList<'a>>,
+            args: Parenthesized<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? stringifier? readonly? attribute attributedtype identifier;`

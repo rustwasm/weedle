@@ -110,7 +110,7 @@ ast_types! {
             identifier: Identifier<'a>,
             assign: term!(=),
             return_type: ReturnType<'a>,
-            arguments: Braced<ArgumentList<'a>>,
+            arguments: Parenthesized<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? callback interface identifier ( : inheritance )? { members };`
@@ -120,7 +120,7 @@ ast_types! {
             interface: term!(interface),
             identifier: Identifier<'a>,
             inheritance: Option<Inheritance<'a>>,
-            members: Parenthesized<InterfaceMembers<'a>>,
+            members: Braced<InterfaceMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? interface identifier ( : inheritance )? { members };`
@@ -129,7 +129,7 @@ ast_types! {
             interface: term!(interface),
             identifier: Identifier<'a>,
             inheritance: Option<Inheritance<'a>>,
-            members: Parenthesized<InterfaceMembers<'a>>,
+            members: Braced<InterfaceMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? interface mixin identifier { members };`
@@ -138,7 +138,7 @@ ast_types! {
             interface: term!(interface),
             mixin: term!(mixin),
             identifier: Identifier<'a>,
-            members: Parenthesized<MixinMembers<'a>>,
+            members: Braced<MixinMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? namespace identifier { members };`
@@ -146,7 +146,7 @@ ast_types! {
             attributes: Option<ExtendedAttributeList<'a>>,
             namespace: term!(namespace),
             identifier: Identifier<'a>,
-            members: Parenthesized<NamespaceMembers<'a>>,
+            members: Braced<NamespaceMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? dictionary identifier ( : inheritance )? { members };`
@@ -155,7 +155,7 @@ ast_types! {
             dictionary: term!(dictionary),
             identifier: Identifier<'a>,
             inheritance: Option<Inheritance<'a>>,
-            members: Parenthesized<DictionaryMembers<'a>>,
+            members: Braced<DictionaryMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? partial interface identifier { members };`
@@ -164,7 +164,7 @@ ast_types! {
             partial: term!(partial),
             interface: term!(interface),
             identifier: Identifier<'a>,
-            members: Parenthesized<InterfaceMembers<'a>>,
+            members: Braced<InterfaceMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? partial interface mixin identifier { members };`
@@ -174,7 +174,7 @@ ast_types! {
             interface: term!(interface),
             mixin: term!(mixin),
             identifier: Identifier<'a>,
-            members: Parenthesized<MixinMembers<'a>>,
+            members: Braced<MixinMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? partial dictionary identifier { members };`
@@ -183,7 +183,7 @@ ast_types! {
             partial: term!(partial),
             dictionary: term!(dictionary),
             identifier: Identifier<'a>,
-            members: Parenthesized<DictionaryMembers<'a>>,
+            members: Braced<DictionaryMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? partial namespace identifier { members };`
@@ -192,7 +192,7 @@ ast_types! {
             partial: term!(partial),
             namespace: term!(namespace),
             identifier: Identifier<'a>,
-            members: Parenthesized<NamespaceMembers<'a>>,
+            members: Braced<NamespaceMembers<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? enum identifier { values };`
@@ -200,7 +200,7 @@ ast_types! {
             attributes: Option<ExtendedAttributeList<'a>>,
             enum_: term!(enum),
             identifier: Identifier<'a>,
-            values: Parenthesized<EnumValueList<'a>>,
+            values: Braced<EnumValueList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attributes]? typedef attributedtype identifier;`
