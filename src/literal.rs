@@ -67,6 +67,12 @@ ast_types! {
             open_bracket: term!(OpenBracket),
             close_bracket: term!(CloseBracket),
         }),
+        /// Represents `{ }`
+        #[derive(Copy, Default)]
+        EmptyDictionary(struct EmptyDictionaryLit {
+            open_paren: term!(OpenParen),
+            close_paren: term!(CloseParen),
+        }),
         Float(FloatLit<'a>),
         Integer(IntegerLit<'a>),
         Null(term!(null)),

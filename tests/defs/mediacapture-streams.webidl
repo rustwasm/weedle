@@ -32,7 +32,7 @@ interface MediaStreamTrack : EventTarget {
     MediaTrackCapabilities getCapabilities();
     MediaTrackConstraints getConstraints();
     MediaTrackSettings getSettings();
-    Promise<void> applyConstraints(optional MediaTrackConstraints constraints);
+    Promise<void> applyConstraints(optional MediaTrackConstraints constraints = {});
 };
 
 enum MediaStreamTrackState {
@@ -180,7 +180,7 @@ partial interface Navigator {
 
 partial interface MediaDevices {
     MediaTrackSupportedConstraints getSupportedConstraints();
-    Promise<MediaStream> getUserMedia(optional MediaStreamConstraints constraints);
+    Promise<MediaStream> getUserMedia(optional MediaStreamConstraints constraints = {});
 };
 
 dictionary MediaStreamConstraints {
