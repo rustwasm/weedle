@@ -1,10 +1,10 @@
 use attribute::ExtendedAttributeList;
-use common::{Braced, Generics, Identifier, Punctuated};
+use common::{Generics, Identifier, Parenthesized, Punctuated};
 use term;
 use Parse;
 
 /// Parses a union of types
-pub type UnionType<'a> = Braced<Punctuated<UnionMemberType<'a>, term!(or)>>;
+pub type UnionType<'a> = Parenthesized<Punctuated<UnionMemberType<'a>, term!(or)>>;
 
 ast_types! {
     /// Parses either single type or a union type
@@ -345,7 +345,7 @@ mod test {
         match parsed {
             UnionMemberType::Union(MayBeNull {
                 type_:
-                    Braced {
+                    Parenthesized {
                         body: Punctuated { list, .. },
                         ..
                     },

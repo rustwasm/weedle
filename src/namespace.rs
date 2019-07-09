@@ -1,6 +1,6 @@
 use argument::ArgumentList;
 use attribute::ExtendedAttributeList;
-use common::{Braced, Identifier};
+use common::{Identifier, Parenthesized};
 use types::{AttributedType, ReturnType};
 
 /// Parses namespace members declaration
@@ -16,7 +16,7 @@ ast_types! {
             attributes: Option<ExtendedAttributeList<'a>>,
             return_type: ReturnType<'a>,
             identifier: Option<Identifier<'a>>,
-            args: Braced<ArgumentList<'a>>,
+            args: Parenthesized<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses `[attribute]? readonly attributetype type identifier;`

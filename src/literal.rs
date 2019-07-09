@@ -70,8 +70,8 @@ ast_types! {
         /// Represents `{ }`
         #[derive(Copy, Default)]
         EmptyDictionary(struct EmptyDictionaryLit {
-            open_paren: term!(OpenParen),
-            close_paren: term!(CloseParen),
+            open_brace: term!(OpenBrace),
+            close_brace: term!(CloseBrace),
         }),
         Float(FloatLit<'a>),
         Integer(IntegerLit<'a>),

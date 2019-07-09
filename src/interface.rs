@@ -1,6 +1,6 @@
 use argument::ArgumentList;
 use attribute::ExtendedAttributeList;
-use common::{Braced, Generics, Identifier};
+use common::{Generics, Identifier, Parenthesized};
 use literal::ConstValue;
 use types::{AttributedType, ConstType, ReturnType};
 
@@ -46,7 +46,7 @@ ast_types! {
             special: Option<Special>,
             return_type: ReturnType<'a>,
             identifier: Option<Identifier<'a>>,
-            args: Braced<ArgumentList<'a>>,
+            args: Parenthesized<ArgumentList<'a>>,
             semi_colon: term!(;),
         }),
         /// Parses an iterable declaration `[attributes]? (iterable<attributedtype> | iterable<attributedtype, attributedtype>) ;`
