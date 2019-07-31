@@ -1,7 +1,7 @@
-use attribute::ExtendedAttributeList;
-use common::{Generics, Identifier, Parenthesized, Punctuated};
-use term;
-use Parse;
+use crate::attribute::ExtendedAttributeList;
+use crate::common::{Generics, Identifier, Parenthesized, Punctuated};
+use crate::term;
+use crate::Parse;
 
 /// Parses a union of types
 pub type UnionType<'a> = Parenthesized<Punctuated<UnionMemberType<'a>, term!(or)>>;
@@ -172,13 +172,13 @@ mod test {
 
     test!(should_parse_may_be_null { "short" =>
         "";
-        MayBeNull<::types::IntegerType>;
+        MayBeNull<crate::types::IntegerType>;
         q_mark.is_none();
     });
 
     test!(should_parse_nullable { "short?" =>
         "";
-        MayBeNull<::types::IntegerType>;
+        MayBeNull<crate::types::IntegerType>;
         q_mark.is_some();
     });
 
@@ -332,7 +332,7 @@ mod test {
     test!(should_parse_type_as_identifier { "DOMStringMap" =>
         // if type is not parsed as identifier, it is parsed as `DOMString` and 'Map' is left
         "";
-        ::types::Type;
+        crate::types::Type;
     });
 
     #[test]

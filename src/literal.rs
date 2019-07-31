@@ -157,8 +157,8 @@ ast_types! {
 #[cfg(test)]
 mod test {
     use super::*;
-    use term::*;
-    use Parse;
+    use crate::term::*;
+    use crate::Parse;
 
     test!(should_parse_integer { "45" =>
         "";

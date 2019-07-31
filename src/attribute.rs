@@ -1,6 +1,6 @@
-use argument::ArgumentList;
-use common::{Bracketed, Identifier, Parenthesized, Punctuated};
-use literal::StringLit;
+use crate::argument::ArgumentList;
+use crate::common::{Bracketed, Identifier, Parenthesized, Punctuated};
+use crate::literal::StringLit;
 
 /// Parses a list of attributes. Ex: `[ attribute1, attribute2 ]`
 pub type ExtendedAttributeList<'a> = Bracketed<Punctuated<ExtendedAttribute<'a>, term!(,)>>;
@@ -61,7 +61,7 @@ ast_types! {
 #[cfg(test)]
 mod test {
     use super::*;
-    use Parse;
+    use crate::Parse;
 
     test!(should_parse_attribute_no_args { "Replaceable" =>
         "";

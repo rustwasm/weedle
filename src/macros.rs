@@ -251,8 +251,7 @@ macro_rules! __ast_struct {
         { $($prev:tt)* }
         { $field:ident : $type:ty = marker, $($rest:tt)* }
     ) => ({
-        let $field = $crate::std::default::Default::default();
-
+        let $field = ::std::default::Default::default();
         __ast_struct! {
             @build_parser
             { $($prev)* $field }

@@ -8,6 +8,7 @@ documentation = "https://docs.rs/weedle"
 homepage = "https://github.com/rustwasm/weedle"
 repository = "https://github.com/rustwasm/weedle"
 readme = "./README.md"
+edition = "2018"
 
 [dependencies]
 nom = "4.0.0"
