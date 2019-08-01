@@ -1,6 +1,6 @@
-use literal::DefaultValue;
-use term;
-use Parse;
+use crate::literal::DefaultValue;
+use crate::term;
+use crate::Parse;
 
 impl<'a, T: Parse<'a>> Parse<'a> for Option<T> {
     parser!(opt!(weedle!(T)));

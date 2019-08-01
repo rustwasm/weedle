@@ -1,8 +1,8 @@
-use argument::ArgumentList;
-use attribute::ExtendedAttributeList;
-use common::{Generics, Identifier, Parenthesized};
-use literal::ConstValue;
-use types::{AttributedType, ConstType, ReturnType};
+use crate::argument::ArgumentList;
+use crate::attribute::ExtendedAttributeList;
+use crate::common::{Generics, Identifier, Parenthesized};
+use crate::literal::ConstValue;
+use crate::types::{AttributedType, ConstType, ReturnType};
 
 /// Parses interface members
 pub type InterfaceMembers<'a> = Vec<InterfaceMember<'a>>;
@@ -118,7 +118,7 @@ ast_types! {
 #[cfg(test)]
 mod test {
     use super::*;
-    use Parse;
+    use crate::Parse;
 
     test!(should_parse_stringifier_member { "stringifier;" =>
         "";

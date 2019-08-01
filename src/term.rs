@@ -559,7 +559,7 @@ mod test {
             $(
                 mod $m {
                     use super::super::$typ;
-                    use Parse;
+                    use crate::Parse;
                     use nom::types::CompleteStr;
 
                     #[test]

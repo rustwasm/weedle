@@ -1,4 +1,4 @@
-use {CompleteStr, IResult};
+use crate::{CompleteStr, IResult};
 
 pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
     recognize!(
