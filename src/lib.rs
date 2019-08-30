@@ -141,6 +141,14 @@ ast_types! {
             members: Braced<MixinMembers<'a>>,
             semi_colon: term!(;),
         }),
+        /// Parses `[attributes]? module identifier { members };`
+        Module(struct ModuleDefinition<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            module: term!(module),
+            identifier: Identifier<'a>,
+            members: Braced<Box<Definition<'a>>>,
+            semi_colon: term!(;),
+        }),
         /// Parses `[attributes]? namespace identifier { members };`
         Namespace(struct NamespaceDefinition<'a> {
             attributes: Option<ExtendedAttributeList<'a>>,

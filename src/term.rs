@@ -145,6 +145,9 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `maplike`
     Maplike => "maplike",
 
+    /// Represents the terminal symbol `module`
+    Module => "module",
+
     /// Represents the terminal symbol `namespace`
     Namespace => "namespace",
 
@@ -393,6 +396,9 @@ macro_rules! term {
     };
     (maplike) => {
         $crate::term::Maplike
+    };
+    (module) => {
+        $crate::term::Module
     };
     (namespace) => {
         $crate::term::Namespace
