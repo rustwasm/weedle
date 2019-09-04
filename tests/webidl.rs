@@ -33,3 +33,11 @@ fn should_parse_mediacapture_streams_webidl() {
 
     assert_eq!(parsed.len(), 37);
 }
+
+#[test]
+fn should_parse_modules_webidl() {
+    let content = read_file("./tests/defs/modules.webidl");
+    let parsed = weedle::parse(&content).unwrap();
+
+    assert_eq!(parsed.len(), 1);
+}
