@@ -34,6 +34,7 @@ use dictionary::DictionaryMembers;
 use interface::{Inheritance, InterfaceMembers};
 use literal::StringLit;
 use mixin::MixinMembers;
+use module::ModuleMembers;
 use namespace::NamespaceMembers;
 pub use nom::{types::CompleteStr, Err, Context, IResult};
 use types::{AttributedType, ReturnType};
@@ -51,6 +52,7 @@ pub mod dictionary;
 pub mod interface;
 pub mod literal;
 pub mod mixin;
+pub mod module;
 pub mod namespace;
 pub mod types;
 
@@ -141,14 +143,6 @@ ast_types! {
             members: Braced<MixinMembers<'a>>,
             semi_colon: term!(;),
         }),
-        /// Parses `[attributes]? module identifier { members };`
-        Module(struct ModuleDefinition<'a> {
-            attributes: Option<ExtendedAttributeList<'a>>,
-            module: term!(module),
-            identifier: Identifier<'a>,
-            members: Braced<Box<Definition<'a>>>,
-            semi_colon: term!(;),
-        }),
         /// Parses `[attributes]? namespace identifier { members };`
         Namespace(struct NamespaceDefinition<'a> {
             attributes: Option<ExtendedAttributeList<'a>>,
@@ -233,6 +227,14 @@ ast_types! {
             lhs_identifier: Identifier<'a>,
             includes: term!(implements),
             rhs_identifier: Identifier<'a>,
+            semi_colon: term!(;),
+        }),
+        /// Parses `[attributes]? module identifier { members };`
+        Module(struct ModuleDefinition<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            module: term!(module),
+            identifier: Identifier<'a>,
+            members: Braced<ModuleMembers<'a>>,
             semi_colon: term!(;),
         }),
     }
