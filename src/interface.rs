@@ -9,7 +9,6 @@ pub type InterfaceMembers<'a> = Vec<InterfaceMember<'a>>;
 
 ast_types! {
     /// Parses inheritance clause `: identifier`
-    #[derive(Copy)]
     struct Inheritance<'a> {
         colon: term!(:),
         identifier: Identifier<'a>,
@@ -154,7 +153,7 @@ mod test {
         AttributeInterfaceMember;
         attributes.is_none();
         readonly == Some(term!(readonly));
-        identifier.0 == "width";
+        identifier.identifier == "width";
     });
 
     test!(should_parse_double_typed_iterable { "iterable<long, long>;" =>
@@ -182,6 +181,6 @@ mod test {
         "";
         ConstMember;
         attributes.is_none();
-        identifier.0 == "name";
+        identifier.identifier == "name";
     });
 }

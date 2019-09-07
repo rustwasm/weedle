@@ -42,7 +42,7 @@ mod test {
         SingleArgument;
         attributes.is_none();
         optional.is_none();
-        identifier.0 == "a";
+        identifier.identifier == "a";
         default.is_none();
     });
 
@@ -50,7 +50,7 @@ mod test {
         "";
         VariadicArgument;
         attributes.is_none();
-        identifier.0 == "a";
+        identifier.identifier == "a";
     });
 
     test!(should_parse_optional_single_argument { "optional short a" =>
@@ -58,7 +58,7 @@ mod test {
         SingleArgument;
         attributes.is_none();
         optional.is_some();
-        identifier.0 == "a";
+        identifier.identifier == "a";
         default.is_none();
     });
 
@@ -67,7 +67,7 @@ mod test {
         SingleArgument;
         attributes.is_none();
         optional.is_some();
-        identifier.0 == "a";
+        identifier.identifier == "a";
         default == Some(Default {
             assign: term!(=),
             value: DefaultValue::Integer(IntegerLit::Dec(DecLit("5"))),

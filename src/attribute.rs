@@ -37,21 +37,18 @@ ast_types! {
             list: Parenthesized<IdentifierList<'a>>,
         }),
         /// Parses an attribute with an identifier. Ex: `PutForwards=name`
-        #[derive(Copy)]
         Ident(struct ExtendedAttributeIdent<'a> {
             lhs_identifier: Identifier<'a>,
             assign: term!(=),
             rhs: IdentifierOrString<'a>,
         }),
         /// Parses a plain attribute. Ex: `Replaceable`
-        #[derive(Copy)]
         NoArgs(struct ExtendedAttributeNoArgs<'a>(
             Identifier<'a>,
         )),
     }
 
     /// Parses `stringifier|static`
-    #[derive(Copy)]
     enum IdentifierOrString<'a> {
         Identifier(Identifier<'a>),
         String(StringLit<'a>),
@@ -65,35 +62,35 @@ mod test {
 
     test!(should_parse_attribute_no_args { "Replaceable" =>
         "";
-        ExtendedAttributeNoArgs => ExtendedAttributeNoArgs(Identifier("Replaceable"))
+        ExtendedAttributeNoArgs => ExtendedAttributeNoArgs(Identifier { specifier: vec![], identifier: "Replaceable" })
     });
 
     test!(should_parse_attribute_arg_list { "Constructor(double x, double y)" =>
         "";
         ExtendedAttributeArgList;
-        identifier.0 == "Constructor";
+        identifier.identifier == "Constructor";
         args.body.list.len() == 2;
     });
 
     test!(should_parse_attribute_ident { "PutForwards=name" =>
         "";
         ExtendedAttributeIdent;
-        lhs_identifier.0 == "PutForwards";
-        rhs == IdentifierOrString::Identifier(Identifier("name"));
+        lhs_identifier.identifier == "PutForwards";
+        rhs == IdentifierOrString::Identifier(Identifier { specifier: vec![], identifier: "name" });
     });
 
     test!(should_parse_ident_list { "Exposed=(Window,Worker)" =>
         "";
         ExtendedAttributeIdentList;
-        identifier.0 == "Exposed";
+        identifier.identifier == "Exposed";
         list.body.list.len() == 2;
     });
 
     test!(should_parse_named_arg_list { "NamedConstructor=Image(DOMString src)" =>
         "";
         ExtendedAttributeNamedArgList;
-        lhs_identifier.0 == "NamedConstructor";
-        rhs_identifier.0 == "Image";
+        lhs_identifier.identifier == "NamedConstructor";
+        rhs_identifier.identifier == "Image";
         args.body.list.len() == 1;
     });
 }

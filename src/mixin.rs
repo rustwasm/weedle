@@ -47,7 +47,7 @@ mod test {
         attributes.is_none();
         stringifier.is_some();
         readonly.is_some();
-        identifier.0 == "name";
+        identifier.identifier == "name";
     });
 
     test!(should_parse_operation_mixin_member { "short fnName(long a);" =>

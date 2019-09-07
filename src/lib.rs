@@ -260,22 +260,22 @@ mod test {
         "";
         IncludesStatementDefinition;
         attributes.is_none();
-        lhs_identifier.0 == "first";
-        rhs_identifier.0 == "second";
+        lhs_identifier.identifier == "first";
+        rhs_identifier.identifier == "second";
     });
 
     test!(should_parse_typedef { "typedef short Short;" =>
         "";
         TypedefDefinition;
         attributes.is_none();
-        identifier.0 == "Short";
+        identifier.identifier == "Short";
     });
 
     test!(should_parse_enum { r#"enum name { "first", "second" }; "# =>
         "";
         EnumDefinition;
         attributes.is_none();
-        identifier.0 == "name";
+        identifier.identifier == "name";
         values.body.list.len() == 2;
     });
 
@@ -283,7 +283,7 @@ mod test {
         "";
         DictionaryDefinition;
         attributes.is_none();
-        identifier.0 == "A";
+        identifier.identifier == "A";
         inheritance.is_none();
         members.body.len() == 2;
     });
@@ -292,7 +292,7 @@ mod test {
         "";
         DictionaryDefinition;
         attributes.is_none();
-        identifier.0 == "C";
+        identifier.identifier == "C";
         inheritance.is_some();
         members.body.len() == 2;
     });
@@ -307,7 +307,7 @@ mod test {
         "";
         PartialNamespaceDefinition;
         attributes.is_none();
-        identifier.0 == "VectorUtils";
+        identifier.identifier == "VectorUtils";
         members.body.len() == 3;
     });
 
@@ -315,7 +315,7 @@ mod test {
         "";
         PartialDictionaryDefinition;
         attributes.is_none();
-        identifier.0 == "C";
+        identifier.identifier == "C";
         members.body.len() == 2;
     });
 
@@ -327,7 +327,7 @@ mod test {
         "";
         PartialInterfaceMixinDefinition;
         attributes.is_none();
-        identifier.0 == "WindowSessionStorage";
+        identifier.identifier == "WindowSessionStorage";
         members.body.len() == 1;
     });
 
@@ -339,7 +339,7 @@ mod test {
         "";
         PartialInterfaceDefinition;
         attributes.is_none();
-        identifier.0 == "Window";
+        identifier.identifier == "Window";
         members.body.len() == 1;
     });
 
@@ -353,7 +353,7 @@ mod test {
         "";
         NamespaceDefinition;
         attributes.is_none();
-        identifier.0 == "VectorUtils";
+        identifier.identifier == "VectorUtils";
         members.body.len() == 3;
     });
 
@@ -365,7 +365,7 @@ mod test {
         "";
         InterfaceMixinDefinition;
         attributes.is_none();
-        identifier.0 == "WindowSessionStorage";
+        identifier.identifier == "WindowSessionStorage";
         members.body.len() == 1;
     });
 
@@ -377,7 +377,7 @@ mod test {
         "";
         InterfaceDefinition;
         attributes.is_none();
-        identifier.0 == "Window";
+        identifier.identifier == "Window";
         members.body.len() == 1;
     });
 
@@ -391,7 +391,7 @@ mod test {
         "";
         CallbackInterfaceDefinition;
         attributes.is_none();
-        identifier.0 == "Options";
+        identifier.identifier == "Options";
         members.body.len() == 3;
     });
 
@@ -399,7 +399,7 @@ mod test {
         "";
         CallbackDefinition;
         attributes.is_none();
-        identifier.0 == "AsyncOperationCallback";
+        identifier.identifier == "AsyncOperationCallback";
         arguments.body.list.len() == 1;
     });
 

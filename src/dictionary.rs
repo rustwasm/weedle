@@ -27,7 +27,7 @@ mod test {
         DictionaryMember;
         attributes.is_none();
         required.is_some();
-        identifier.0 == "num";
+        identifier.identifier == "num";
         default.is_some();
     });
 }

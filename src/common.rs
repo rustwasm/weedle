@@ -73,14 +73,21 @@ ast_types! {
         separator: S = marker,
     }
 
-    /// Represents an identifier
+    /// Represents a scoped identifier
     ///
-    /// Follows `/_?[A-Za-z][0-9A-Z_a-z-]*/`
-    #[derive(Copy)]
-    struct Identifier<'a>(
-        // See https://heycam.github.io/webidl/#idl-names for why the leading
-        // underscore is trimmed
-        &'a str = ws!(do_parse!(
+    /// Follows `/((?:_?[A-Za-z][0-9A-Z_a-z-]*\.)*)_?[A-Za-z][0-9A-Z_a-z-]*/`
+    struct Identifier<'a> {
+        specifier: Vec<&'a str> = many0!(ws!(do_parse!(
+            opt!(char!('_')) >>
+            id: recognize!(do_parse!(
+                take_while1!(|c: char| c.is_ascii_alphabetic()) >>
+                take_while!(|c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-') >>
+                (())
+            )) >>
+            char!('.') >>
+            (id.0)
+        ))),
+        identifier: &'a str = ws!(do_parse!(
             opt!(char!('_')) >>
             id: recognize!(do_parse!(
                 take_while1!(|c: char| c.is_ascii_alphabetic()) >>
@@ -89,7 +96,7 @@ ast_types! {
             )) >>
             (id.0)
         )),
-    )
+    }
 
     /// Parses rhs of an assignment expression. Ex: `= 45`
     #[derive(Copy)]
@@ -129,25 +136,25 @@ mod test {
     test!(should_parse_parenthesized { "( one )" =>
         "";
         Parenthesized<Identifier>;
-        body.0 == "one";
+        body.identifier == "one";
     });
 
     test!(should_parse_bracketed { "[ one ]" =>
         "";
         Bracketed<Identifier>;
-        body.0 == "one";
+        body.identifier == "one";
     });
 
     test!(should_parse_braced { "{ one }" =>
         "";
         Braced<Identifier>;
-        body.0 == "one";
+        body.identifier == "one";
     });
 
     test!(should_parse_generics { "<one>" =>
         "";
         Generics<Identifier>;
-        body.0 == "one";
+        body.identifier == "one";
     });
 
     test!(should_parse_generics_two { "<one, two>" =>
@@ -155,7 +162,7 @@ mod test {
         Generics<(Identifier, term!(,), Identifier)> =>
             Generics {
                 open_angle: term!(<),
-                body: (Identifier("one"), term!(,), Identifier("two")),
+                body: (Identifier { specifier: vec![], identifier: "one" }, term!(,), Identifier { specifier: vec![], identifier: "two" }),
                 close_angle: term!(>),
             }
     });
@@ -173,36 +180,43 @@ mod test {
     test!(should_parse_identifier { "hello" =>
         "";
         Identifier;
-        0 == "hello";
+        identifier == "hello";
     });
 
     test!(should_parse_numbered_identifier { "hello5" =>
         "";
         Identifier;
-        0 == "hello5";
+        identifier == "hello5";
     });
 
     test!(should_parse_underscored_identifier { "_hello_" =>
         "";
         Identifier;
-        0 == "hello_";
+        identifier == "hello_";
     });
 
     test!(should_parse_identifier_surrounding_with_spaces { "  hello  " =>
         "";
         Identifier;
-        0 == "hello";
+        identifier == "hello";
     });
 
     test!(should_parse_identifier_preceeding_others { "hello  note" =>
         "note";
         Identifier;
-        0 == "hello";
+        identifier == "hello";
     });
 
     test!(should_parse_identifier_attached_to_symbol { "hello=" =>
         "=";
         Identifier;
-        0 == "hello";
+        identifier == "hello";
+    });
+
+    test!(should_parse_scoped_identifier { "foo.bar.baz.Qux" =>
+        "";
+        Identifier;
+        specifier == vec!["foo", "bar", "baz"];
+        identifier == "Qux";
     });
 }

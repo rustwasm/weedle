@@ -40,7 +40,7 @@ mod test {
         "";
         AttributeNamespaceMember;
         attributes.is_none();
-        identifier.0 == "name";
+        identifier.identifier == "name";
     });
 
     test!(should_parse_operation_namespace_member { "short (long a, long b);" =>
