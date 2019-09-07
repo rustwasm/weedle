@@ -237,6 +237,15 @@ ast_types! {
             members: Braced<ModuleMembers<'a>>,
             semi_colon: term!(;),
         }),
+        /// Parses `[attributes]? partial module identifier { members };`
+        PartialModule(struct PartialModuleDefinition<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            partial: term!(partial),
+            module: term!(module),
+            identifier: Identifier<'a>,
+            members: Braced<ModuleMembers<'a>>,
+            semi_colon: term!(;),
+        }),
     }
 }
 
