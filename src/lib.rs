@@ -35,7 +35,7 @@ use interface::{Inheritance, InterfaceMembers};
 use literal::StringLit;
 use mixin::MixinMembers;
 use namespace::NamespaceMembers;
-pub use nom::{types::CompleteStr, Err, Context, IResult};
+pub use nom::{Err, IResult};
 use types::{AttributedType, ReturnType};
 
 #[macro_use]
@@ -69,30 +69,30 @@ pub mod types;
 ///
 /// println!("{:?}", parsed);
 /// ```
-pub fn parse<'a>(raw: &'a str) -> Result<Definitions<'a>, Err<CompleteStr<'a>, u32>> {
-    let (remaining, parsed) = Definitions::parse(CompleteStr(raw))?;
+pub fn parse<'a>(raw: &'a str) -> Result<Definitions<'a>, Err<&str>> {
+    let (remaining, parsed) = Definitions::parse(raw).unwrap();
     if remaining.len() > 0 {
-        Result::Err(Err::Failure(nom::Context::Code(remaining, nom::ErrorKind::Custom(0))))
+        Result::Err(Err::Failure(remaining))
     } else {
         Ok(parsed)
     }
 }
 
 pub trait Parse<'a>: Sized {
-    fn parse(input: CompleteStr<'a>) -> IResult<CompleteStr<'a>, Self>;
+    fn parse(input: &'a str) -> IResult<&'a str, Self>;
 }
 
 /// Parses WebIDL definitions. It is the root struct for a complete WebIDL definition.
 ///
 /// ### Example
 /// ```
-/// use weedle::{Definitions, CompleteStr, Parse};
+/// use weedle::{Definitions, Parse};
 ///
-/// let (_, parsed) = Definitions::parse(CompleteStr("
+/// let (_, parsed) = Definitions::parse("
 ///     interface Window {
 ///         readonly attribute Storage sessionStorage;
 ///     };
-/// ")).unwrap();
+/// ").unwrap();
 ///
 /// println!("{:?}", parsed);
 /// ```

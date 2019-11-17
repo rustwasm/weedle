@@ -1,6 +1,6 @@
-use crate::{CompleteStr, IResult};
+use crate::{IResult};
 
-pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
+pub fn sp(input: &str) -> IResult<&str, &str> {
     recognize!(
         input,
         many0!(

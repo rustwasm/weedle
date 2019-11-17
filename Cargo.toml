@@ -11,4 +11,4 @@ readme = "./README.md"
 edition = "2018"
 
 [dependencies]
-nom = "4.0.0"
+nom = "^5.0.1"

@@ -12,7 +12,7 @@ ast_types! {
                     take_while!(|c: char| c.is_ascii_digit()) >>
                     (())
                 ))),
-                |inner| inner.0
+                |inner| inner
             ),
         )),
         /// Parses `-?0[Xx][0-9A-Fa-f]+)`
@@ -26,7 +26,7 @@ ast_types! {
                     take_while!(|c: char| c.is_ascii_hexdigit()) >>
                     (())
                 ))),
-                |inner| inner.0
+                |inner| inner
             ),
         )),
         /// Parses `-?0[0-7]*`
@@ -39,7 +39,7 @@ ast_types! {
                     take_while!(|c| '0' <= c && c <= '7') >>
                     (())
                 ))),
-                |inner| inner.0
+                |inner| inner
             ),
         )),
     }
@@ -53,7 +53,7 @@ ast_types! {
             char!('"') >>
             s: take_while!(|c| c != '"') >>
             char!('"') >>
-            (s.0)
+            (s)
         )),
     )
 
@@ -145,7 +145,7 @@ ast_types! {
                     ) >>
                     (())
                 ))),
-                |inner| inner.0
+                |inner| inner
             ),
         )),
         NegInfinity(term!(-Infinity)),

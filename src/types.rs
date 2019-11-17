@@ -339,9 +339,9 @@ mod test {
     fn should_parse_union_member_type_attributed_union() {
         use crate::types::UnionMemberType;
         let (rem, parsed) =
-            UnionMemberType::parse(nom::types::CompleteStr("([Clamp] byte or [Named] byte)"))
+            UnionMemberType::parse("([Clamp] byte or [Named] byte)")
                 .unwrap();
-        assert_eq!(rem, nom::types::CompleteStr(""));
+        assert_eq!(rem, "");
         match parsed {
             UnionMemberType::Union(MayBeNull {
                 type_:

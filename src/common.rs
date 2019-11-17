@@ -87,7 +87,7 @@ ast_types! {
                 take_while!(|c: char| c.is_ascii_alphanumeric() || c == '_' || c == '-') >>
                 (())
             )) >>
-            (id.0)
+            (id)
         )),
     )
 
