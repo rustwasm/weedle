@@ -37,6 +37,15 @@ ast_types! {
             identifier: Identifier<'a>,
             semi_colon: term!(;),
         }),
+        /// Parses `[attributes]? constructor(( args ));`
+        ///
+        /// (( )) means ( ) chars
+        Constructor(struct ConstructorInterfaceMember<'a> {
+            attributes: Option<ExtendedAttributeList<'a>>,
+            constructor: term!(constructor),
+            args: Parenthesized<ArgumentList<'a>>,
+            semi_colon: term!(;),
+        }),
         /// Parses `[attributes]? (stringifier|static)? special? returntype identifier? (( args ));`
         ///
         /// (( )) means ( ) chars
@@ -166,6 +175,12 @@ mod test {
     test!(should_parse_single_typed_iterable { "iterable<long>;" =>
         "";
         SingleTypedIterable;
+        attributes.is_none();
+    });
+
+    test!(should_parse_constructor_interface_member { "constructor(long a);" =>
+        "";
+        ConstructorInterfaceMember;
         attributes.is_none();
     });
 

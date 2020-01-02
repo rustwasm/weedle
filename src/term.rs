@@ -300,6 +300,9 @@ generate_terms_for_names! {
 
     /// Represents the terminal symbol `legacycaller`
     LegacyCaller => "legacycaller",
+
+    /// Represents the terminal symbol `constructor`
+    Constructor => "constructor",
 }
 
 #[macro_export]
@@ -550,6 +553,9 @@ macro_rules! term {
     (legacycaller) => {
         $crate::term::LegacyCaller
     };
+    (constructor) => {
+        $crate::term::Constructor
+    };
 }
 
 #[cfg(test)]
@@ -680,5 +686,6 @@ mod test {
         error, Error, "Error";
         implements, Implements, "implements";
         legacycaller, LegacyCaller, "legacycaller";
+        constructor, Constructor, "constructor";
     ];
 }
