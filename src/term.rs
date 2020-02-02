@@ -21,11 +21,11 @@ macro_rules! ident_tag (
             match tag!($i, $tok) {
                 Err(e) => Err(e),
                 Ok((i, o)) => {
+                    use nom::{character::is_alphanumeric, Err as NomErr, error::ErrorKind};
                     let mut res = Ok((i, o));
                     if let Some(&c) = i.as_bytes().first() {
-                        use $crate::nom::{Context, Err, ErrorKind, is_alphanumeric};
                         if is_alphanumeric(c) || c == b'_' || c == b'-' {
-                            res = Err(Err::Error(Context::Code($i, ErrorKind::Tag::<u32>)));
+                            res = Err(NomErr::Error(($i, ErrorKind::Tag)));
                         }
                     }
                     res
@@ -566,40 +566,39 @@ mod test {
                 mod $m {
                     use super::super::$typ;
                     use crate::Parse;
-                    use nom::types::CompleteStr;
 
                     #[test]
                     fn should_parse() {
-                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string))).unwrap();
-                        assert_eq!(rem, CompleteStr(""));
+                        let (rem, parsed) = $typ::parse(concat!($string)).unwrap();
+                        assert_eq!(rem, "");
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_preceding_spaces() {
-                        let (rem, parsed) = $typ::parse(CompleteStr(concat!("  ", $string))).unwrap();
-                        assert_eq!(rem, CompleteStr(""));
+                        let (rem, parsed) = $typ::parse(concat!("  ", $string)).unwrap();
+                        assert_eq!(rem, "");
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_succeeding_spaces() {
-                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string, "  "))).unwrap();
-                        assert_eq!(rem, CompleteStr(""));
+                        let (rem, parsed) = $typ::parse(concat!($string, "  ")).unwrap();
+                        assert_eq!(rem, "");
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_with_surrounding_spaces() {
-                        let (rem, parsed) = $typ::parse(CompleteStr(concat!("  ", $string, "  "))).unwrap();
-                        assert_eq!(rem, CompleteStr(""));
+                        let (rem, parsed) = $typ::parse(concat!("  ", $string, "  ")).unwrap();
+                        assert_eq!(rem, "");
                         assert_eq!(parsed, $typ);
                     }
 
                     #[test]
                     fn should_parse_if_anything_next() {
-                        let (rem, parsed) = $typ::parse(CompleteStr(concat!($string, "  anything"))).unwrap();
-                        assert_eq!(rem, CompleteStr("anything"));
+                        let (rem, parsed) = $typ::parse(concat!($string, "  anything")).unwrap();
+                        assert_eq!(rem, "anything");
                         assert_eq!(parsed, $typ);
                     }
                 }

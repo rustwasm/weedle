@@ -1,25 +1,18 @@
-use crate::{CompleteStr, IResult};
+use crate::IResult;
 
-pub fn sp(input: CompleteStr) -> IResult<CompleteStr, CompleteStr> {
+pub(crate) fn sp(input: &str) -> IResult<&str, &str> {
     recognize!(
         input,
-        many0!(
-            alt!(
-                do_parse!(tag!("//") >> take_until!("\n") >> char!('\n') >> (()))
-                |
-                map!(
-                    take_while1!(|c| c == '\t' || c == '\n' || c == '\r' || c == ' '),
-                    |_| ()
-                )
-                |
-                do_parse!(
-                    tag!("/*") >>
-                    take_until!("*/") >>
-                    tag!("*/") >>
-                    (())
-                )
-            )
-        )
+        many0!(alt!(
+            // ignores line comments
+            do_parse!(tag!("//") >> take_until!("\n") >> char!('\n') >> (()))
+            |
+            // ignores whitespace
+            map!(take_while1!(|c| c == '\t' || c == '\n' || c == '\r' || c == ' '), |_| ())
+            |
+            // ignores block comments
+            do_parse!(tag!("/*") >> take_until!("*/") >> tag!("*/") >> (()))
+        ))
     )
 }
 
