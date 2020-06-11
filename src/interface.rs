@@ -75,6 +75,25 @@ ast_types! {
                 semi_colon: term!(;),
             }),
         }),
+        /// Parses an async iterable declaration `[attributes]? async (iterable<attributedtype> | iterable<attributedtype, attributedtype>) (( args ))? ;`
+        AsyncIterable(enum AsyncIterableInterfaceMember<'a> {
+            /// Parses an async iterable declaration `[attributes]? async iterable<attributedtype> (( args ))? ;`
+            Single(struct SingleTypedAsyncIterable<'a> {
+                attributes: Option<ExtendedAttributeList<'a>>,
+                iterable: term!(async iterable),
+                generics: Generics<AttributedType<'a>>,
+                args: Option<Parenthesized<ArgumentList<'a>>>,
+                semi_colon: term!(;),
+            }),
+            /// Parses an async iterable declaration `[attributes]? async iterable<attributedtype, attributedtype> (( args ))? ;`
+            Double(struct DoubleTypedAsyncIterable<'a> {
+                attributes: Option<ExtendedAttributeList<'a>>,
+                iterable: term!(async iterable),
+                generics: Generics<(AttributedType<'a>, term!(,), AttributedType<'a>)>,
+                args: Option<Parenthesized<ArgumentList<'a>>>,
+                semi_colon: term!(;),
+            }),
+        }),
         /// Parses an maplike declaration `[attributes]? readonly? maplike<attributedtype, attributedtype>;`
         Maplike(struct MaplikeInterfaceMember<'a> {
             attributes: Option<ExtendedAttributeList<'a>>,
@@ -176,6 +195,34 @@ mod test {
         "";
         SingleTypedIterable;
         attributes.is_none();
+    });
+
+    test!(should_parse_double_typed_async_iterable { "async iterable<long, long>;" =>
+        "";
+        DoubleTypedAsyncIterable;
+        attributes.is_none();
+        args.is_none();
+    });
+
+    test!(should_parse_double_typed_async_iterable_with_args { "async iterable<long, long>(long a);" =>
+        "";
+        DoubleTypedAsyncIterable;
+        attributes.is_none();
+        args.is_some();
+    });
+
+    test!(should_parse_single_typed_async_iterable { "async iterable<long>;" =>
+        "";
+        SingleTypedAsyncIterable;
+        attributes.is_none();
+        args.is_none();
+    });
+
+    test!(should_parse_single_typed_async_iterable_with_args { "async iterable<long>(long a);" =>
+        "";
+        SingleTypedAsyncIterable;
+        attributes.is_none();
+        args.is_some();
     });
 
     test!(should_parse_constructor_interface_member { "constructor(long a);" =>

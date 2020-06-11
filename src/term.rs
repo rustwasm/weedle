@@ -142,6 +142,9 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `iterable`
     Iterable => "iterable",
 
+    /// Represents the terminal symbol `async iterable`
+    AsyncIterable => "async iterable",
+
     /// Represents the terminal symbol `maplike`
     Maplike => "maplike",
 
@@ -394,6 +397,9 @@ macro_rules! term {
     (iterable) => {
         $crate::term::Iterable
     };
+    (async iterable) => {
+        $crate::term::AsyncIterable
+    };
     (maplike) => {
         $crate::term::Maplike
     };
@@ -636,6 +642,7 @@ mod test {
         inherit, Inherit, "inherit";
         interface, Interface, "interface";
         iterable, Iterable, "iterable";
+        asynciterable, AsyncIterable, "async iterable";
         maplike, Maplike, "maplike";
         namespace, Namespace, "namespace";
         partial, Partial, "partial";
