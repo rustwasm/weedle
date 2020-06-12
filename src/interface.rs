@@ -80,8 +80,7 @@ ast_types! {
             /// Parses an async iterable declaration `[attributes]? async iterable<attributedtype> (( args ))? ;`
             Single(struct SingleTypedAsyncIterable<'a> {
                 attributes: Option<ExtendedAttributeList<'a>>,
-                r#async: term!(async),
-                iterable: term!(iterable),
+                async_iterable: (term!(async), term!(iterable)),
                 generics: Generics<AttributedType<'a>>,
                 args: Option<Parenthesized<ArgumentList<'a>>>,
                 semi_colon: term!(;),
@@ -89,8 +88,7 @@ ast_types! {
             /// Parses an async iterable declaration `[attributes]? async iterable<attributedtype, attributedtype> (( args ))? ;`
             Double(struct DoubleTypedAsyncIterable<'a> {
                 attributes: Option<ExtendedAttributeList<'a>>,
-                r#async: term!(async),
-                iterable: term!(iterable),
+                async_iterable: (term!(async), term!(iterable)),
                 generics: Generics<(AttributedType<'a>, term!(,), AttributedType<'a>)>,
                 args: Option<Parenthesized<ArgumentList<'a>>>,
                 semi_colon: term!(;),
