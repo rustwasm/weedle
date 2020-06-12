@@ -631,7 +631,7 @@ mod test {
         qmark, QMark, "?";
         or, Or, "or";
         optional, Optional, "optional";
-        r#async, Async, "async";
+        async_, Async, "async";
         attribute, Attribute, "attribute";
         callback, Callback, "callback";
         const_, Const, "const";
