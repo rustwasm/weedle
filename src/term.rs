@@ -109,6 +109,9 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `optional`
     Optional => "optional",
 
+    /// Represents the terminal symbol `async`
+    Async => "async",
+
     /// Represents the terminal symbol `attribute`
     Attribute => "attribute",
 
@@ -141,9 +144,6 @@ generate_terms_for_names! {
 
     /// Represents the terminal symbol `iterable`
     Iterable => "iterable",
-
-    /// Represents the terminal symbol `async`
-    Async => "async",
 
     /// Represents the terminal symbol `maplike`
     Maplike => "maplike",
@@ -364,6 +364,9 @@ macro_rules! term {
     (optional) => {
         $crate::term::Optional
     };
+    (async) => {
+        $crate::term::Async
+    };
     (attribute) => {
         $crate::term::Attribute
     };
@@ -396,9 +399,6 @@ macro_rules! term {
     };
     (iterable) => {
         $crate::term::Iterable
-    };
-    (async) => {
-        $crate::term::Async
     };
     (maplike) => {
         $crate::term::Maplike
@@ -631,6 +631,7 @@ mod test {
         qmark, QMark, "?";
         or, Or, "or";
         optional, Optional, "optional";
+        r#async, Async, "async";
         attribute, Attribute, "attribute";
         callback, Callback, "callback";
         const_, Const, "const";
@@ -642,7 +643,6 @@ mod test {
         inherit, Inherit, "inherit";
         interface, Interface, "interface";
         iterable, Iterable, "iterable";
-        r#async, Async, "async";
         maplike, Maplike, "maplike";
         namespace, Namespace, "namespace";
         partial, Partial, "partial";
