@@ -109,6 +109,9 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `optional`
     Optional => "optional",
 
+    /// Represents the terminal symbol `async`
+    Async => "async",
+
     /// Represents the terminal symbol `attribute`
     Attribute => "attribute",
 
@@ -360,6 +363,9 @@ macro_rules! term {
     };
     (optional) => {
         $crate::term::Optional
+    };
+    (async) => {
+        $crate::term::Async
     };
     (attribute) => {
         $crate::term::Attribute
@@ -625,6 +631,7 @@ mod test {
         qmark, QMark, "?";
         or, Or, "or";
         optional, Optional, "optional";
+        async_, Async, "async";
         attribute, Attribute, "attribute";
         callback, Callback, "callback";
         const_, Const, "const";

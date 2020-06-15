@@ -37,6 +37,14 @@ fn should_parse_mediacapture_streams_webidl() {
 }
 
 #[test]
+fn should_parse_streams_webidl() {
+    let content = read_file("./tests/defs/streams.webidl");
+    let parsed = weedle::parse(&content).unwrap();
+
+    assert_eq!(parsed.len(), 37);
+}
+
+#[test]
 fn interface_constructor() {
     let content = read_file("./tests/defs/interface-constructor.webidl");
     let mut parsed = weedle::parse(&content).unwrap();
