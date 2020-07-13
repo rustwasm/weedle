@@ -6,7 +6,7 @@ use crate::literal::StringLit;
 pub type ExtendedAttributeList<'a> = Bracketed<Punctuated<ExtendedAttribute<'a>, term!(,)>>;
 
 /// Matches comma separated identifier list
-pub type IdentifierList<'a> = Punctuated<Identifier<'a>, term!(,)>;
+pub type IdentifierList<'a> = Punctuated<IdentifierOrString<'a>, term!(,)>;
 
 ast_types! {
     /// Parses on of the forms of attribute
