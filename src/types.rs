@@ -71,7 +71,7 @@ ast_types! {
         q_mark: Option<term::QMark>,
     }
 
-    /// Parses a `Promise<Type|void>` type
+    /// Parses a `Promise<Type|undefined>` type
     struct PromiseType<'a> {
         promise: term!(Promise),
         generics: Generics<Box<ReturnType<'a>>>,
@@ -147,9 +147,9 @@ ast_types! {
         Identifier(MayBeNull<Identifier<'a>>),
     }
 
-    /// Parses the return type which may be `void` or any given Type
+    /// Parses the return type which may be `undefined` or any given Type
     enum ReturnType<'a> {
-        Void(term!(void)),
+        Undefined(term!(undefined)),
         Type(Type<'a>),
     }
 
@@ -184,7 +184,7 @@ mod test {
 
     test_variants!(
         ReturnType {
-            Void == "void",
+            Undefined == "undefined",
             Type == "any",
         }
     );

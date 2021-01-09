@@ -231,7 +231,7 @@ mod test {
         attributes.is_none();
     });
 
-    test!(should_parse_operation_interface_member { "void readString(long a, long b);" =>
+    test!(should_parse_operation_interface_member { "undefined readString(long a, long b);" =>
         "";
         OperationInterfaceMember;
         attributes.is_none();

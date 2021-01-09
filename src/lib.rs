@@ -387,7 +387,7 @@ mod test {
         members.body.len() == 3;
     });
 
-    test!(should_parse_callback { "callback AsyncOperationCallback = void (DOMString status);" =>
+    test!(should_parse_callback { "callback AsyncOperationCallback = undefined (DOMString status);" =>
         "";
         CallbackDefinition;
         attributes.is_none();
@@ -397,7 +397,7 @@ mod test {
 
     test!(should_parse_with_line_comments { "
         // This is a comment
-        callback AsyncOperationCallback = void (DOMString status);
+        callback AsyncOperationCallback = undefined (DOMString status);
     " =>
         "";
         CallbackDefinition;
@@ -405,7 +405,7 @@ mod test {
 
     test!(should_parse_with_block_comments { "
         /* This is a comment */
-        callback AsyncOperationCallback = void (DOMString status);
+        callback AsyncOperationCallback = undefined (DOMString status);
     " =>
         "";
         CallbackDefinition;
@@ -417,7 +417,7 @@ mod test {
         // This is a comment
 
         // This is a comment
-        callback AsyncOperationCallback = void (DOMString status);
+        callback AsyncOperationCallback = undefined (DOMString status);
     " =>
         "";
         CallbackDefinition;
