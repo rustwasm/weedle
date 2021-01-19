@@ -241,8 +241,8 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `unsigned`
     Unsigned => "unsigned",
 
-    /// Represents the terminal symbol `void`
-    Void => "void",
+    /// Represents the terminal symbol `undefined`
+    Undefined => "undefined",
 
     /// Represents the terminal symbol `record`
     Record => "record",
@@ -496,8 +496,8 @@ macro_rules! term {
     (unsigned) => {
         $crate::term::Unsigned
     };
-    (void) => {
-        $crate::term::Void
+    (undefined) => {
+        $crate::term::Undefined
     };
     (record) => {
         $crate::term::Record
@@ -675,7 +675,7 @@ mod test {
         short, Short, "short";
         true_, True, "true";
         unsigned, Unsigned, "unsigned";
-        void, Void, "void";
+        undefined, Undefined, "undefined";
         record, Record, "record";
         arraybuffer, ArrayBuffer, "ArrayBuffer";
         dataview, DataView, "DataView";
