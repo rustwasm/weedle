@@ -120,15 +120,15 @@ ast_types! {
     /// Parses `record<StringType, Type>`
     struct RecordType<'a> {
         record: term!(record),
-        generics: Generics<(StringType, term!(,), Box<Type<'a>>)>,
+        generics: Generics<(Box<RecordKeyType<'a>>, term!(,), Box<Type<'a>>)>,
     }
 
-    /// Parses one of the string types `ByteString|DOMString|USVString`
-    #[derive(Copy)]
-    enum StringType {
+    /// Parses one of the string types `ByteString|DOMString|USVString` or any other type.
+    enum RecordKeyType<'a> {
         Byte(term!(ByteString)),
         DOM(term!(DOMString)),
         USV(term!(USVString)),
+        NonAny(NonAnyType<'a>),
     }
 
     /// Parses one of the member of a union type
@@ -242,7 +242,7 @@ mod test {
     );
 
     test_variants!(
-        StringType {
+        RecordKeyType {
             DOM == "DOMString",
             USV == "USVString",
             Byte == "ByteString"
@@ -250,6 +250,11 @@ mod test {
     );
 
     test!(should_parse_record_type { "record<DOMString, short>" =>
+        "";
+        RecordType;
+    });
+
+    test!(should_parse_record_type_alt_types { "record<u64, short>" =>
         "";
         RecordType;
     });
