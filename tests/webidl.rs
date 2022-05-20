@@ -45,6 +45,14 @@ fn should_parse_streams_webidl() {
 }
 
 #[test]
+fn should_parse_webgpu_webidl() {
+    let content = read_file("./tests/defs/webgpu.webidl");
+    let parsed = weedle::parse(&content).unwrap();
+
+    assert_eq!(parsed.len(), 201);
+}
+
+#[test]
 fn interface_constructor() {
     let content = read_file("./tests/defs/interface-constructor.webidl");
     let mut parsed = weedle::parse(&content).unwrap();
