@@ -99,7 +99,10 @@ generate_terms! {
     GreaterThan => ">",
 
     /// Represents the terminal symbol `?`
-    QMark => "?"
+    QMark => "?",
+
+    /// Represents the asterisk symbol `*`
+    Asterisk => "*"
 }
 
 generate_terms_for_names! {
@@ -357,6 +360,9 @@ macro_rules! term {
     };
     (?) => {
         $crate::term::QMark
+    };
+    (*) => {
+        $crate::term::Asterisk
     };
     (or) => {
         $crate::term::Or
@@ -629,6 +635,7 @@ mod test {
         assign, Assign, "=";
         greaterthan, GreaterThan, ">";
         qmark, QMark, "?";
+        asterisk, Asterisk, "*";
         or, Or, "or";
         optional, Optional, "optional";
         async_, Async, "async";
