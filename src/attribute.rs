@@ -43,6 +43,13 @@ ast_types! {
             assign: term!(=),
             rhs: IdentifierOrString<'a>,
         }),
+        /// Parses an attribute with a wildcard. Ex: `Exposed=*`
+        #[derive(Copy)]
+        Wildcard(struct ExtendedAttributeWildCard<'a> {
+            lhs_identifier: Identifier<'a>,
+            assign: term!(=),
+            rhs: term!(*),
+        }),
         /// Parses a plain attribute. Ex: `Replaceable`
         #[derive(Copy)]
         NoArgs(struct ExtendedAttributeNoArgs<'a>(
