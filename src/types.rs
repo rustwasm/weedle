@@ -25,6 +25,7 @@ ast_types! {
         Boolean(MayBeNull<term!(boolean)>),
         Byte(MayBeNull<term!(byte)>),
         Octet(MayBeNull<term!(octet)>),
+        Range(MayBeNull<RangeType>),
         ByteString(MayBeNull<term!(ByteString)>),
         DOMString(MayBeNull<term!(DOMString)>),
         USVString(MayBeNull<term!(USVString)>),
@@ -115,6 +116,13 @@ ast_types! {
             unrestricted: Option<term!(unrestricted)>,
             double: term!(double),
         }),
+    }
+
+    /// Parses `(ULong|Double)Range`
+    #[derive(Copy)]
+    enum RangeType {
+        ULong(term!(ULongRange)),
+        Double(term!(DoubleRange)),
     }
 
     /// Parses `record<StringType, Type>`
@@ -296,6 +304,13 @@ mod test {
             Short == "short",
             Long == "long",
             LongLong == "long long"
+        }
+    );
+
+    test_variants!(
+        RangeType {
+            ULong == "ULongRange",
+            Double == "DoubleRange"
         }
     );
 

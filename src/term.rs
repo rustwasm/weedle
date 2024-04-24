@@ -250,6 +250,12 @@ generate_terms_for_names! {
     /// Represents the terminal symbol `record`
     Record => "record",
 
+    /// Represents the terminal symbol `ULongRange`
+    ULongRange => "ULongRange",
+
+    /// Represents the terminal symbol `DoubleRange`
+    DoubleRange => "DoubleRange",
+
     /// Represents the terminal symbol `ArrayBuffer`
     ArrayBuffer => "ArrayBuffer",
 
@@ -508,6 +514,12 @@ macro_rules! term {
     (record) => {
         $crate::term::Record
     };
+    (ULongRange) => {
+        $crate::term::ULongRange
+    };
+    (DoubleRange) => {
+        $crate::term::DoubleRange
+    };
     (ArrayBuffer) => {
         $crate::term::ArrayBuffer
     };
@@ -684,6 +696,8 @@ mod test {
         unsigned, Unsigned, "unsigned";
         undefined, Undefined, "undefined";
         record, Record, "record";
+        ulongrange, ULongRange, "ULongRange";
+        doublerange, DoubleRange, "DoubleRange";
         arraybuffer, ArrayBuffer, "ArrayBuffer";
         dataview, DataView, "DataView";
         int8array, Int8Array, "Int8Array";
